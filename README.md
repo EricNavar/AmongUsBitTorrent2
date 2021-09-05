@@ -1,0 +1,2 @@
+# Among Us Bit Torrent 2
+The final project for computer network fundamentals. The team name is Among Us Bit Torrent 2 because the project is to make Bit Torrent so we can distribute Among Us to the masses.
