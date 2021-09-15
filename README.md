@@ -31,9 +31,9 @@ This is the client code. The starting point of this was the Client.java from Can
 
 This is the server code. The starting point of this was the Server.java from Canvas
 
-### StartRemotePeers
+## StartRemotePeers
 
-Code for startingmultiple peers automatically. It is not essential. Thecode used to work intheCISE environment. But, it is now known to have problemsdue to SSH. If you can get it to work, it can be helpful(seealsothe next file). Otherwise, you can always start peers manually. See the project description for explanation.
+Code for startingmultiple peers automatically. It is not essential. The code used to work in the CISE environment. But, it is now known to have problems due to SSH. If you can get it to work, it can be helpful(see also the next file). Otherwise, you can always start peers manually. See the project description for explanation.
 
 ### startpeers-from-students
 

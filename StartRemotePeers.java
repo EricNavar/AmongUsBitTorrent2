@@ -1,3 +1,6 @@
+// This code was taken from the Computer Network Fundamentals Canvas page
+// It works on my Windows computer
+
 /*
  *                     CEN5501C Project2
  * This is the program starting remote processes.
@@ -23,7 +26,6 @@ public class StartRemotePeers {
 	public void getConfiguration()
 	{
 		String st;
-		int i1;
 		peerInfoVector = new Vector<RemotePeerInfo>();
 		try {
 			BufferedReader in = new BufferedReader(new FileReader("PeerInfo.cfg"));
@@ -65,12 +67,7 @@ public class StartRemotePeers {
 				
 				System.out.println("Start remote peer " + pInfo.peerId +  " at " + pInfo.peerAddress );
 				
-				// *********************** IMPORTANT *************************** //
-				// If your program is JAVA, use this line.
 				Runtime.getRuntime().exec("ssh " + pInfo.peerAddress + " cd " + path + "; java peerProcess " + pInfo.peerId);
-				
-				// If your program is C/C++, use this line instead of the above line. 
-				//Runtime.getRuntime().exec("ssh " + pInfo.peerAddress + " cd " + path + "; ./peerProcess " + pInfo.peerId);
 			}		
 			System.out.println("Starting all remote peers has done." );
 

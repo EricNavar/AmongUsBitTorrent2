@@ -1,8 +1,12 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.Vector;
+
 class peerProcess {
-    public peerProcess(String peerId) {
+    public peerProcess(String peerId, int numberOfPreferredNeighbors, int unchokingInterval, int optimisticUnchokingInterval, String fileName, int fileSize, int pieceSize) {
         logger = new Logger(peerId);
     }
-    
+
     static Logger logger;
 
     // this function is to take a string of binary and pad it on the left with zeroes
@@ -83,13 +87,77 @@ class peerProcess {
             System.out.println("Process number must be provided.");
             return;
         }
-        String peerID = args[0];
-        // if peerID is not a positive integer
-        if (!peerID.matches("\\d+")) {
-            System.out.println("Process number must be a positive integer.");
-            return;
+        String peerIdString = args[0];
+        // if peerIdString is not a positive integer
+        int peerId = 0;
+        try {
+            peerId = Integer.parseInt(peerIdString);
+            assert peerId >= 0;
+        }
+        catch (Exception e) {
+            System.out.println("The process ID must be a positive integer");
+        }
+
+        // read Common.cfg
+        String st = "";
+        int numberOfPreferredNeighbors = 0;
+        int unchokingInterval = 0;
+        int optimisticUnchokingInterval = 0;
+        String fileName = "";
+        int fileSize = 0;
+        int pieceSize = 0;
+        try {
+            BufferedReader in = new BufferedReader(new FileReader("Common.cfg"));
+
+            st = in.readLine();
+            String[] tokens = st.split("\\s+");
+            numberOfPreferredNeighbors = Integer.parseInt(tokens[1]);
+
+            st = in.readLine();
+            tokens = st.split("\\s+");
+            unchokingInterval = Integer.parseInt(tokens[1]);
+
+            st = in.readLine();
+            tokens = st.split("\\s+");
+            optimisticUnchokingInterval = Integer.parseInt(tokens[1]);
+
+            st = in.readLine();
+            tokens = st.split("\\s+");
+            fileName = tokens[1];
+
+            st = in.readLine();
+            tokens = st.split("\\s+");
+            fileSize = Integer.parseInt(tokens[1]);
+
+            st = in.readLine();
+            tokens = st.split("\\s+");
+            pieceSize = Integer.parseInt(tokens[1]);
+
+            in.close();
+        }
+        catch (Exception ex) {
+            System.out.println(ex.toString());
         }
 
         System.out.println("Process " + args[0]);
+
+        peerProcess pp = new peerProcess("1", numberOfPreferredNeighbors, unchokingInterval, optimisticUnchokingInterval, fileName, fileSize, pieceSize);
+
+
+        /* TODO:
+        Suppose that peer A tries to make a TCP connection to peer B. Here we describe the
+        behavior of peer A, but peer B should also follow the same procedure as peer A. After
+        the TCP connection is established, peer A sends a handshake message to peer B. It also
+        receives a handshake message from peer B and checks whether peer B is th e right
+        neighbor. The only thing to do is to check whether the handshake header is right and the
+        peer ID is the expected one.
+        After handshaking, peer A sends a
+        ‘bitfieldbitfield’ message to let peer B know which file pieces
+        it has. Peer B will also send its ‘bitfi eldeld’ message to peer A, unless it has no pieces.
+        If peer A receives a
+        ‘bitfieldbitfield’ message from peer B and it finds out that peer B has pieces
+        that it doesn doesn’t have, peer A sends ‘interestedinterested’ message to peer B. Otherwise, it sends
+        ‘not interested interested’ message.
+         */
     }
 }

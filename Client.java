@@ -1,5 +1,3 @@
-package SampleCodeFromCanvas;
-
 import java.net.*;
 import java.io.*;
 import java.nio.*;
