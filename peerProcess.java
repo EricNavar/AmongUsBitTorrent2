@@ -1,7 +1,7 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.*;
 import java.util.Vector;
-import java.Math;
+import java.net.*;
+import static java.lang.Math.ceil;
 
 class peerProcess {
     int numberOfPreferredNeighbors;
@@ -13,8 +13,9 @@ class peerProcess {
     int pieceCount;
     // denotes which pieces of the file this process has
     static Vector<Boolean> bitfield = new Vector<Boolean>();
+    static Logger logger;
 
-    public peerProcess(String peerId, int numberOfPreferredNeighbors, int unchokingInterval,
+    public peerProcess(int peerId, int numberOfPreferredNeighbors, int unchokingInterval,
             int optimisticUnchokingInterval, String fileName, int fileSize, int pieceSize) {
         logger = new Logger(peerId);
         this.numberOfPreferredNeighbors = numberOfPreferredNeighbors;
@@ -23,11 +24,69 @@ class peerProcess {
         this.fileName = fileName;
         this.fileSize = fileSize;
         this.pieceSize = pieceSize;
-        pieceCount = Math.ceil(fileSize / pieceSize);
+        pieceCount = (int) ceil((double) fileSize / pieceSize);
         bitfield = new Vector<Boolean>(pieceCount);
     }
 
-    static Logger logger;
+    //This entire subclass was copied from Server.java, which is a sample file from Canvas
+    private static class Handler extends Thread {
+        private String message; // message received from the client
+        private String MESSAGE; // uppercase message send to the client
+        private Socket connection;
+        private ObjectInputStream in; // stream read from the socket
+        private ObjectOutputStream out; // stream write to the socket
+        private int no; // The index number of the client
+
+        public Handler(Socket connection, int no) {
+            this.connection = connection;
+            this.no = no;
+        }
+
+        public void run() {
+            try {
+                // initialize Input and Output streams
+                out = new ObjectOutputStream(connection.getOutputStream());
+                out.flush();
+                in = new ObjectInputStream(connection.getInputStream());
+                try {
+                    while (true) {
+                        // receive the message sent from the client
+                        message = (String) in.readObject();
+                        // show the message to the user
+                        System.out.println("Receive message: " + message + " from client " + no);
+                        // Capitalize all letters in the message
+                        MESSAGE = message.toUpperCase();
+                        // send MESSAGE back to the client
+                        sendMessage(MESSAGE);
+                    }
+                } catch (ClassNotFoundException classnot) {
+                    System.err.println("Data received in unknown format");
+                }
+            } catch (IOException ioException) {
+                System.out.println("Disconnect with Client " + no);
+            } finally {
+                // Close connections
+                try {
+                    in.close();
+                    out.close();
+                    connection.close();
+                } catch (IOException ioException) {
+                    System.out.println("Disconnect with Client " + no);
+                }
+            }
+        }
+
+        // send a message to the output stream
+        public void sendMessage(String msg) {
+            try {
+                out.writeObject(msg);
+                out.flush();
+                System.out.println("Send message: " + msg + " to Client " + no);
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
+    }
 
     // this function is to take a string of binary and pad it on the left with
     // zeroes
@@ -168,17 +227,50 @@ class peerProcess {
         return peerId;
     }
 
+    public static void startTCPConnection(int sPort, StartRemotePeers srp, int peerId) throws Exception {
+        //start server
+        System.out.println("The server is running.");
+		ServerSocket listener = new ServerSocket(sPort);
+		int clientNum = 1;
+
+        if (!srp.hasFile) {
+            try {
+                while (true) {
+                    new Handler(listener.accept(), clientNum).start();
+                    System.out.println("Client " + clientNum + " is connected!");
+                    clientNum++;
+                }
+            } finally {
+                listener.close();
+            }
+        }
+        else {
+            // make list of peerIds that have the file
+            Vector<Integer> haveFile = new Vector<Integer>();
+            for (RemotePeerInfo rpi : srp.peerInfoVector) {
+                if (rpi.hasFile) {
+                    haveFile.addElement(new Integer(rpi.peerId));
+                }
+            }
+
+            // try to handshake with processes that have the file
+            for (Integer i : haveFile) {
+                String messageToSend = createHandshakeMessage(peerId);
+            }
+        }
+    }
+
     public static void main(String[] args) {
-        int peerId = GetProcessId();
+        int peerId = GetProcessId(args);
         if (peerId == -1) {
             return;
         }
         peerProcess pp = ReadCommongConfig(peerId);
-        StartRemotePeers srp = new StartRemotePeers();
+        StartRemotePeers srp = new StartRemotePeers(peerId);
         srp.Start();
         // if PeerInfo.cfg lists the current peerId as having the file
         for (int i = 0; i < bitfield.size(); i++) {
-            bitfield.set(i, Boolean(srp.hasFile));
+            bitfield.set(i, new Boolean(srp.hasFile));
         }
 
         /*
@@ -196,19 +288,12 @@ class peerProcess {
          * ‘not interested interested’ message.
          */
 
-        // make list of peerIds that have the file
-        if (!srp.hasFile) {
-            Vector<Integer> haveFile = new Vector<Integer>();
-            for (RemotePeerInfo rpi : srp.peerInfoVector) {
-                if (rpi.hasFile) {
-                    haveFile.addElement(Integer(rpi.peerId));
-                }
-            }
-
-            // try to handshake with processes that have the file
-            for (Integer i : haveFile) {
-                String messageToSend = createHandshakeMessage(peerId);
-            }
+        int sPort = 6001;
+        try {
+            startTCPConnection(sPort, srp, peerId);
+        }
+        catch (Exception e) {
+            System.out.println(e);
         }
     }
 }

@@ -21,7 +21,7 @@ import java.util.*;
  */
 public class StartRemotePeers {
 	private int peerId;
-	public bool hasFile;
+	public boolean hasFile;
 	public Vector<RemotePeerInfo> peerInfoVector;
 
 	public StartRemotePeers(int peerId) {
@@ -31,7 +31,6 @@ public class StartRemotePeers {
 	public void getConfiguration() {
 		String st;
 		peerInfoVector = new Vector<RemotePeerInfo>();
-		result = false;
 		try {
 			BufferedReader in = new BufferedReader(new FileReader("PeerInfo.cfg"));
 			while ((st = in.readLine()) != null) {
@@ -42,8 +41,7 @@ public class StartRemotePeers {
 				// System.out.println(tokens[x]);
 				// }
 				// System.out.println("tokens end ----");
-
-				if (tokens[0] == peerId && tokens[3])
+				if (Integer.parseInt(tokens[0]) == peerId && tokens[3].equals("1"))
 					hasFile = true;
 
 				peerInfoVector.addElement(new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3]));
@@ -54,7 +52,6 @@ public class StartRemotePeers {
 		} catch (Exception ex) {
 			System.out.println(ex.toString());
 		}
-		return result;
 	}
 
 	public void Start() {
