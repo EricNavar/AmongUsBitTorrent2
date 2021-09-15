@@ -2,9 +2,9 @@ import java.util.ArrayList;
 import java.io.FileOutputStream;
 
 class Logger {
-    String peerID;
+    int peerID;
 
-    public Logger(String peerID) {
+    public Logger(int peerID) {
         this.peerID = peerID;
     }
 

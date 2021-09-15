@@ -14,9 +14,9 @@ public class RemotePeerInfo {
 	public boolean hasFile;
 	
 	public RemotePeerInfo(String pId, String pAddress, String pPort, String hasFile) {
-		peerId = Integer.parseInt(pId);
-		peerAddress = pAddress;
-		peerPort = Integer.parseInt(pPort);
-		hasFile = "1".equals(hasFile);
+		this.peerId = Integer.parseInt(pId);
+		this.peerAddress = pAddress;
+		this.peerPort = Integer.parseInt(pPort);
+		this.hasFile = "1".equals(hasFile);
 	}
 }
