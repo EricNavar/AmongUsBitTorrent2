@@ -20,59 +20,63 @@ import java.util.*;
  * Please look at the lines below the comment saying IMPORTANT.
  */
 public class StartRemotePeers {
-
+	private int peerId;
+	public bool hasFile;
 	public Vector<RemotePeerInfo> peerInfoVector;
-	
-	public void getConfiguration()
-	{
+
+	public StartRemotePeers(int peerId) {
+		this.peerId = peerId;
+	}
+
+	public void getConfiguration() {
 		String st;
 		peerInfoVector = new Vector<RemotePeerInfo>();
+		result = false;
 		try {
 			BufferedReader in = new BufferedReader(new FileReader("PeerInfo.cfg"));
-			while((st = in.readLine()) != null) {
-				
-				 String[] tokens = st.split("\\s+");
-		    	 //System.out.println("tokens begin ----");
-			     //for (int x=0; x<tokens.length; x++) {
-			     //    System.out.println(tokens[x]);
-			     //}
-		         //System.out.println("tokens end ----");
-			    
-			     peerInfoVector.addElement(new RemotePeerInfo(tokens[0], tokens[1], tokens[2]));
-			
+			while ((st = in.readLine()) != null) {
+
+				String[] tokens = st.split("\\s+");
+				// System.out.println("tokens begin ----");
+				// for (int x=0; x<tokens.length; x++) {
+				// System.out.println(tokens[x]);
+				// }
+				// System.out.println("tokens end ----");
+
+				if (tokens[0] == peerId && tokens[3])
+					hasFile = true;
+
+				peerInfoVector.addElement(new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3]));
+
 			}
-			
+
 			in.close();
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			System.out.println(ex.toString());
 		}
+		return result;
 	}
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
+
+	public void Start() {
 		// TODO Auto-generated method stub
 		try {
-			StartRemotePeers myStart = new StartRemotePeers();
-			myStart.getConfiguration();
-					
+			getConfiguration();
+
 			// get current path
 			String path = System.getProperty("user.dir");
-			
-			// start clients at remote hosts
-			for (int i = 0; i < myStart.peerInfoVector.size(); i++) {
-				RemotePeerInfo pInfo = (RemotePeerInfo) myStart.peerInfoVector.elementAt(i);
-				
-				System.out.println("Start remote peer " + pInfo.peerId +  " at " + pInfo.peerAddress );
-				
-				Runtime.getRuntime().exec("ssh " + pInfo.peerAddress + " cd " + path + "; java peerProcess " + pInfo.peerId);
-			}		
-			System.out.println("Starting all remote peers has done." );
 
-		}
-		catch (Exception ex) {
+			// start clients at remote hosts
+			for (int i = 0; i < peerInfoVector.size(); i++) {
+				RemotePeerInfo pInfo = (RemotePeerInfo) peerInfoVector.elementAt(i);
+
+				System.out.println("Start remote peer " + pInfo.peerId + " at " + pInfo.peerAddress);
+
+				Runtime.getRuntime()
+						.exec("ssh " + pInfo.peerAddress + " cd " + path + "; java peerProcess " + pInfo.peerId);
+			}
+			System.out.println("Starting all remote peers has done.");
+
+		} catch (Exception ex) {
 			System.out.println(ex);
 		}
 	}

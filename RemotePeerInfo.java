@@ -8,13 +8,15 @@
  */
 
 public class RemotePeerInfo {
-	public String peerId;
+	public int peerId;
 	public String peerAddress;
-	public String peerPort;
+	public int peerPort;
+	public boolean hasFile;
 	
-	public RemotePeerInfo(String pId, String pAddress, String pPort) {
-		peerId = pId;
+	public RemotePeerInfo(String pId, String pAddress, String pPort, String hasFile) {
+		peerId = Integer.parseInt(pId);
 		peerAddress = pAddress;
-		peerPort = pPort;
+		peerPort = Integer.parseInt(pPort);
+		hasFile = "1".equals(hasFile);
 	}
 }
