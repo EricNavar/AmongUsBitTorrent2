@@ -97,7 +97,7 @@ class peerProcess {
 
     static String createHandshakeMessage(int peerId) {
         // This code is probably not the best
-        String result = "P2PFILESHARINGGPROJ";
+        String result = "P2PFILESHARINGPROJ";
         char c = 0;
         for (int i = 0; i < 10; i++) {
             result = result + c;
@@ -134,25 +134,27 @@ class peerProcess {
         return result;
     }
 
-    static String createHaveMessage() {
+    static String createHaveMessage(int payload) {
         String result = padWithZeroes(Integer.toBinaryString(0), 32);
         result = result + padWithZeroes(Integer.toBinaryString(MessageType.HAVE.ordinal()), 8);
+        result = result + Integer.toBinaryString(payload);
+
         return result;
     }
 
-    static String createBitfieldMessage() {
+    static String createBitfieldMessage(int payload) {
         String result = padWithZeroes(Integer.toBinaryString(0), 32);
         result = result + padWithZeroes(Integer.toBinaryString(MessageType.BITFIELD.ordinal()), 8);
         return result;
     }
 
-    static String createRequestMessage() {
+    static String createRequestMessage(int payload) {
         String result = padWithZeroes(Integer.toBinaryString(0), 32);
         result = result + padWithZeroes(Integer.toBinaryString(MessageType.REQUEST.ordinal()), 8);
         return result;
     }
 
-    static String createPieceMessage() {
+    static String createPieceMessage(int payload) {
         String result = padWithZeroes(Integer.toBinaryString(0), 32);
         result = result + padWithZeroes(Integer.toBinaryString(MessageType.PIECE.ordinal()), 8);
         return result;
