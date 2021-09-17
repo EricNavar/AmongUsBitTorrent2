@@ -258,6 +258,7 @@ class peerProcess {
             // try to handshake with processes that have the file
             for (Integer i : haveFile) {
                 String messageToSend = createHandshakeMessage(peerId);
+                //new Handler(listener.accept(), peerId).sendMessage(messageToSend);
             }
         }
     }
