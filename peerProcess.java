@@ -137,7 +137,7 @@ class peerProcess {
     static String createHaveMessage(int payload) {
         String result = padWithZeroes(Integer.toBinaryString(0), 32);
         result = result + padWithZeroes(Integer.toBinaryString(MessageType.HAVE.ordinal()), 8);
-        result = result + Integer.toBinaryString(payload);
+       // result = result + Integer.toBinaryString(payload);
 
         return result;
     }
