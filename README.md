@@ -11,15 +11,16 @@ The final project for computer network fundamentals. The team name is Among Us B
 
 For the first check we have to have 800 lines of runnable code.
 
-peerProcess.java:       240
-MessageType.java:         5
-Logger.java:             80
-RemotePeerInfo.java:     20
-StartRemotePeers.java    85
-Server.java              90
-Client.java              70
+- peerProcess.java:       140
+- MessageType.java:         5
+- Logger.java:             80
+- RemotePeerInfo.java:     20
+- StartRemotePeers.java    85
+- Server.java             130
+- Client.java              70
+- Messages.java            80
 
-Total:                  590
+Total:                    610
 
 # Files
 
