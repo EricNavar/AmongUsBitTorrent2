@@ -179,8 +179,14 @@ class peerProcess {
             System.out.print("This process does not have the file. ");
             System.out.println(" Attempting to connect as a client to the port...");
 			Client client = new Client();
+			// Handshake just between 1001 and 1002 for now
 			
-            try {
+			String messageToSend = createHandshakeMessage(1002);
+		    client.run(messageToSend);
+
+			// We can use this code block below for later
+			
+            /*try {
                 // make list of peerIds that have the file
                 Vector<Integer> haveFile = new Vector<Integer>();
                 for (RemotePeerInfo rpi : srp.peerInfoVector) {
@@ -190,6 +196,7 @@ class peerProcess {
                 }
 
                 // try to handshake with processes that have the file
+				System.out.println(haveFile.size());
                 for (Integer i : haveFile) {
                     String messageToSend = createHandshakeMessage(peerId);
 					client.run(messageToSend);
@@ -197,7 +204,7 @@ class peerProcess {
 
             } catch (Exception e) {
 
-            }
+            }*/
         } else {
             System.out.println("This process has the file. ");
             System.out.println("Starting a listener at the post and try to handshake with other processes...");
