@@ -1,14 +1,14 @@
 import java.net.*;
 import java.io.*;
 
-public class Client {
+public class SampleClient {
 	Socket requestSocket; // socket connect to the server
 	ObjectOutputStream out; // stream write to the socket
 	ObjectInputStream in; // stream read from the socket
 	String message; // message send to the server
 	String MESSAGE; // capitalized message read from the server
 
-	public void Client() {
+	public void SampleClient() {
 	}
 
 	void run() {
@@ -63,6 +63,12 @@ public class Client {
 		} catch (IOException ioException) {
 			ioException.printStackTrace();
 		}
+	}
+
+	// main method
+	public static void main(String args[]) {
+		Client client = new Client();
+		client.run();
 	}
 
 }
