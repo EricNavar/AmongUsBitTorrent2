@@ -6,12 +6,12 @@ public class Client {
 	ObjectOutputStream out; // stream write to the socket
 	ObjectInputStream in; // stream read from the socket
 	String message; // message send to the server
-	String MESSAGE; // capitalized message read from the server
+	String fromServer; // capitalized message read from the server
 
 	public void Client() {
 	}
 
-	void run(String msg) {
+	void run() {
 		try {
 			// create a socket to connect to the server
 			requestSocket = new Socket("localhost", 8000);
@@ -21,17 +21,15 @@ public class Client {
 			out.flush();
 			in = new ObjectInputStream(requestSocket.getInputStream());
 
-			// get Input from standard input
-			// BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-				/*System.out.print("Hello, please input a sentence: ");
-				// read a sentence from the standard input
-				message = bufferedReader.readLine();
-				// Send the sentence to the server*/
-				sendMessage(msg);
-				// Receive the upperCase sentence from the server*/
-				MESSAGE = (String) in.readObject();
-				// show the message to the user
-				System.out.println("Receive message: " + MESSAGE);
+			// create handshake message and send send to server
+			String messageToSend = Messages.createHandshakeMessage(1002);
+			sendMessage(messageToSend);
+
+			// expect a handshake message back
+			while (true) {
+				fromServer = (String) in.readObject();
+				System.out.println("Receive message: " + fromServer);
+			}
 				
 			
 		} catch (ConnectException e) {

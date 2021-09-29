@@ -6,8 +6,14 @@ public class Server {
 
 	private static final int sPort = 8000; // The server will be listening on this port number
 	static Vector<Integer> haveFile;
+	private static StartRemotePeers srp;
+
+	public static StartRemotePeers getSRP() {
+		return srp;
+	}
 
 	public static void startServer(StartRemotePeers srp) throws Exception {
+		Server.srp = srp;
 		ServerSocket listener = new ServerSocket(sPort);
 		System.out.println("The server is running.");
 		int clientNum = 1;
@@ -49,29 +55,32 @@ public class Server {
 		}
 
 		private void sampleClientLoop() throws ClassNotFoundException, IOException {
-			// receive the message sent from the client
-			message = (String) in.readObject();
-			// show the message to the user
-			System.out.println("Receive message: " + message + " from client " + no);
-			// Capitalize all letters in the message
-			MESSAGE = message.toUpperCase();
-			// send MESSAGE back to the client
-			sendMessage(MESSAGE);
+			while (true) {
+				// receive the message sent from the client
+				message = (String) in.readObject();
+				// show the message to the user
+				System.out.println("Receive message: " + message + " from client " + no);
+				// Capitalize all letters in the message
+				MESSAGE = message.toUpperCase();
+				// send MESSAGE back to the client
+				sendMessage(MESSAGE);
+			}
 		}
 
-		private void getPacketsLoop(int peerId) throws ClassNotFoundException, IOException {
-			// receive the message sent from the client
-			message = (String) in.readObject();
-			// show the message to the user
-			System.out.println("Receive message: " + message + " from client " + no);
 
-			// try to handshake with processes that have the file
-			// for (Integer i : haveFile) {
-			// 	String messageToSend = createHandshakeMessage(peerId);
-			// 	// new Handler(listener.accept(), peerId).sendMessage(messageToSend);
-			// }
+		// try to handshake with processes that have the file
+		// for (Integer i : haveFile) {
+		// 	String messageToSend = createHandshakeMessage(peerId);
+		// 	// new Handler(listener.accept(), peerId).sendMessage(messageToSend);
+		// }
 
-			sendMessage(message);
+
+		private void serverLoop() throws ClassNotFoundException, IOException {
+			while (true) {
+				message = (String) in.readObject(); //recieve handshake
+				String messageToSend = Messages.createHandshakeMessage(getSRP().peerId);
+				sendMessage(messageToSend);
+			}
 		}
 
 		public void run() {
@@ -81,12 +90,10 @@ public class Server {
 				out.flush();
 				in = new ObjectInputStream(connection.getInputStream());
 				try {
-					while (true) {
-						// this is the loop that is run by default. It's good for testing.
-						sampleClientLoop();
+					// this is the loop that is run by default. It's good for testing.
+					// sampleClientLoop();
 
-						//getPacketsLoop();
-					}
+					serverLoop();
 				} catch (ClassNotFoundException classnot) {
 					System.err.println("Data received in unknown format");
 				}

@@ -20,7 +20,7 @@ import java.util.*;
  * Please look at the lines below the comment saying IMPORTANT.
  */
 public class StartRemotePeers {
-	private int peerId;
+	public int peerId;
 	public boolean hasFile;
 	public Vector<RemotePeerInfo> peerInfoVector;
 
