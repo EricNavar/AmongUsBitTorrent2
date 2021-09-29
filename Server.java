@@ -83,9 +83,9 @@ public class Server {
 				try {
 					while (true) {
 						// this is the loop that is run by default. It's good for testing.
-						// sampleClientLoop();
+						sampleClientLoop();
 
-						getPacketsLoop();
+						//getPacketsLoop();
 					}
 				} catch (ClassNotFoundException classnot) {
 					System.err.println("Data received in unknown format");

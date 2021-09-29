@@ -11,7 +11,7 @@ public class Client {
 	public void Client() {
 	}
 
-	void run() {
+	void run(String msg) {
 		try {
 			// create a socket to connect to the server
 			requestSocket = new Socket("localhost", 8000);
@@ -22,18 +22,18 @@ public class Client {
 			in = new ObjectInputStream(requestSocket.getInputStream());
 
 			// get Input from standard input
-			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-			while (true) {
-				System.out.print("Hello, please input a sentence: ");
+			// BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+				/*System.out.print("Hello, please input a sentence: ");
 				// read a sentence from the standard input
 				message = bufferedReader.readLine();
-				// Send the sentence to the server
-				sendMessage(message);
-				// Receive the upperCase sentence from the server
+				// Send the sentence to the server*/
+				sendMessage(msg);
+				// Receive the upperCase sentence from the server*/
 				MESSAGE = (String) in.readObject();
 				// show the message to the user
 				System.out.println("Receive message: " + MESSAGE);
-			}
+				
+			
 		} catch (ConnectException e) {
 			System.err.println("Connection refused. You need to initiate a server first.");
 		} catch (ClassNotFoundException e) {
