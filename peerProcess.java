@@ -173,7 +173,6 @@ class peerProcess {
     public static void startTCPConnection(StartRemotePeers srp, int peerId) throws Exception {
         // start server
         System.out.println("Attempting to create server socket.");
-        int clientNum = 1;
 
         if (!srp.hasFile) {
             System.out.print("This process does not have the file. ");
@@ -183,34 +182,10 @@ class peerProcess {
 			
 			String messageToSend = createHandshakeMessage(1002);
 		    client.run(messageToSend);
-
-			// We can use this code block below for later
-			
-            /*try {
-                // make list of peerIds that have the file
-                Vector<Integer> haveFile = new Vector<Integer>();
-                for (RemotePeerInfo rpi : srp.peerInfoVector) {
-                    if (rpi.hasFile) {
-                        haveFile.addElement(rpi.peerId);
-                    }
-                }
-
-                // try to handshake with processes that have the file
-				System.out.println(haveFile.size());
-                for (Integer i : haveFile) {
-                    String messageToSend = createHandshakeMessage(peerId);
-					client.run(messageToSend);
-                }
-
-            } catch (Exception e) {
-
-            }*/
         } else {
             System.out.println("This process has the file. ");
             System.out.println("Starting a listener at the post and try to handshake with other processes...");
-            Server server = new Server();
-            server.startServer();
-
+            Server.startServer(srp);
         }
     }
 

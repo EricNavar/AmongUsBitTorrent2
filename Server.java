@@ -1,14 +1,25 @@
 import java.net.*;
 import java.io.*;
+import java.util.Vector;
 
 public class Server {
 
 	private static final int sPort = 8000; // The server will be listening on this port number
+	static Vector<Integer> haveFile;
 
-	public static void startServer() throws Exception {
-		System.out.println("The server is running.");
+	public static void startServer(StartRemotePeers srp) throws Exception {
 		ServerSocket listener = new ServerSocket(sPort);
+		System.out.println("The server is running.");
 		int clientNum = 1;
+
+		// make list of peerIds that have the file
+		haveFile = new Vector<Integer>();
+		for (RemotePeerInfo rpi : srp.peerInfoVector) {
+			if (rpi.hasFile) {
+				haveFile.addElement(rpi.peerId);
+			}
+		}
+
 		try {
 			while (true) {
 				new Handler(listener.accept(), clientNum).start();
@@ -37,6 +48,32 @@ public class Server {
 			this.no = no;
 		}
 
+		private void sampleClientLoop() throws ClassNotFoundException, IOException {
+			// receive the message sent from the client
+			message = (String) in.readObject();
+			// show the message to the user
+			System.out.println("Receive message: " + message + " from client " + no);
+			// Capitalize all letters in the message
+			MESSAGE = message.toUpperCase();
+			// send MESSAGE back to the client
+			sendMessage(MESSAGE);
+		}
+
+		private void getPacketsLoop(int peerId) throws ClassNotFoundException, IOException {
+			// receive the message sent from the client
+			message = (String) in.readObject();
+			// show the message to the user
+			System.out.println("Receive message: " + message + " from client " + no);
+
+			// try to handshake with processes that have the file
+			// for (Integer i : haveFile) {
+			// 	String messageToSend = createHandshakeMessage(peerId);
+			// 	// new Handler(listener.accept(), peerId).sendMessage(messageToSend);
+			// }
+
+			sendMessage(message);
+		}
+
 		public void run() {
 			try {
 				// initialize Input and Output streams
@@ -45,14 +82,10 @@ public class Server {
 				in = new ObjectInputStream(connection.getInputStream());
 				try {
 					while (true) {
-						// receive the message sent from the client
-						message = (String) in.readObject();
-						// show the message to the user
-						System.out.println("Receive message: " + message + " from client " + no);
-						// Capitalize all letters in the message
-						MESSAGE = message.toUpperCase();
-						// send MESSAGE back to the client
-						sendMessage(MESSAGE);
+						// this is the loop that is run by default. It's good for testing.
+						sampleClientLoop();
+
+						//getPacketsLoop();
 					}
 				} catch (ClassNotFoundException classnot) {
 					System.err.println("Data received in unknown format");
