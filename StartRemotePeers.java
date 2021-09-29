@@ -26,6 +26,7 @@ public class StartRemotePeers {
 
 	public StartRemotePeers(int peerId) {
 		this.peerId = peerId;
+		getConfiguration();
 	}
 
 	public void getConfiguration() {
@@ -41,8 +42,9 @@ public class StartRemotePeers {
 				// System.out.println(tokens[x]);
 				// }
 				// System.out.println("tokens end ----");
-				if (Integer.parseInt(tokens[0]) == peerId && tokens[3].equals("1"))
+				if (Integer.parseInt(tokens[0]) == peerId && tokens[3].equals("1")) {
 					hasFile = true;
+				}
 
 				peerInfoVector.addElement(new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3]));
 
@@ -54,22 +56,25 @@ public class StartRemotePeers {
 		}
 	}
 
-	public void Start() {
+	public void Start(int currentProcess) {
 		// TODO Auto-generated method stub
 		try {
-			getConfiguration();
 
 			// get current path
 			String path = System.getProperty("user.dir");
 
+			if (currentProcess != peerInfoVector.get(0).peerId) {
+				return;
+			}
+			System.out.println("attempting to start remote processes");
 			// start clients at remote hosts
 			for (int i = 0; i < peerInfoVector.size(); i++) {
 				RemotePeerInfo pInfo = (RemotePeerInfo) peerInfoVector.elementAt(i);
 
 				System.out.println("Start remote peer " + pInfo.peerId + " at " + pInfo.peerAddress);
-
-				Runtime.getRuntime()
-						.exec("ssh " + pInfo.peerAddress + " cd " + path + "; java peerProcess " + pInfo.peerId);
+				
+				//Runtime.getRuntime().exec("ssh " + pInfo.peerAddress + " cd " + path + "; java peerProcess " + pInfo.peerId);
+				Runtime.getRuntime().exec("java peerProcess " + pInfo.peerId);
 			}
 			System.out.println("Starting all remote peers has done.");
 
