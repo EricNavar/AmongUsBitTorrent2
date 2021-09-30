@@ -97,18 +97,20 @@ class peerProcess {
     public static void startTCPConnection(StartRemotePeers srp, int peerId) throws Exception {
         // start server
         System.out.println("Attempting to create server socket.");
-
+		
         if (!srp.hasFile) {
             System.out.print("This process does not have the file. ");
             System.out.println(" Attempting to connect as a client to the port...");
 			Client client = new Client();
 			// Handshake just between 1001 and 1002 for now
-			
-		    client.run();
+			client.setPeerID(peerId);
+			client.run();
+		  
         } else {
             System.out.println("This process has the file. ");
             System.out.println("Starting a listener at the post and try to handshake with other processes...");
             Server.startServer(srp);
+	
         }
     }
 

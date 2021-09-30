@@ -1,13 +1,21 @@
 import java.net.*;
 import java.io.*;
 import java.util.Vector;
+import java.util.ArrayList;
+
 
 public class Server {
 
 	private static final int sPort = 8000; // The server will be listening on this port number
 	static Vector<Integer> haveFile;
-	private static StartRemotePeers srp;
+	static ArrayList<Handler> handlers = new ArrayList<Handler>();
 
+	private static StartRemotePeers srp;
+	private int peerID;
+	
+	void setPeerID(int t_peerID) {
+		peerID = t_peerID;
+	}
 	public static StartRemotePeers getSRP() {
 		return srp;
 	}
@@ -28,8 +36,11 @@ public class Server {
 
 		try {
 			while (true) {
-				new Handler(listener.accept(), clientNum).start();
+				Handler h = new Handler(listener.accept(), clientNum);
+				h.start();
+				handlers.add(h);
 				System.out.println("Client " + clientNum + " is connected!");
+			
 				clientNum++;
 			}
 		} finally {
@@ -80,6 +91,13 @@ public class Server {
 				message = (String) in.readObject(); //recieve handshake
 				String messageToSend = Messages.createHandshakeMessage(getSRP().peerId);
 				sendMessage(messageToSend);
+				if(handlers.size() >= 2)
+				{
+					for(int i =0; i < handlers.size(); i++)
+					{
+						handlers.get(i).sendMessage(messageToSend);
+					}
+				}
 			}
 		}
 

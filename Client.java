@@ -7,7 +7,12 @@ public class Client {
 	ObjectInputStream in; // stream read from the socket
 	String message; // message send to the server
 	String fromServer; // capitalized message read from the server
-
+	int peerID;
+	int socket;
+	
+	void setPeerID(int t_peerID) {
+		peerID = t_peerID;
+	}
 	public void Client() {
 	}
 
@@ -22,13 +27,14 @@ public class Client {
 			in = new ObjectInputStream(requestSocket.getInputStream());
 
 			// create handshake message and send send to server
-			String messageToSend = Messages.createHandshakeMessage(1002);
+			String messageToSend = Messages.createHandshakeMessage(peerID);
 			sendMessage(messageToSend);
 
 			// expect a handshake message back
 			while (true) {
 				fromServer = (String) in.readObject();
 				System.out.println("Receive message: " + fromServer);
+				
 			}
 				
 			
