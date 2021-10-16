@@ -1,19 +1,32 @@
+import java.math.BigInteger;
+
 // This class is to hold the logic for creating and decoding messages.
 public class Messages {
     // this function is to take a string of binary and pad it on the left with
     // zeroes such that it is a certain length.
     static String padWithZeroes(String s, int length) {
-        return s + "0".repeat(length - s.length());
+        for (int i = s.length(); i < length; i++) {
+            s = "0" + s;
+        }
+        return s;
     }
+
+    // https://stackoverflow.com/questions/4416954/how-to-convert-a-string-to-a-stream-of-bits-in-java/4417069
+    static String decodeBinaryString(String toDecode) {
+        return new String(new BigInteger(toDecode, 2).toByteArray());
+    }
+
+    // ALL MESSAGES SHOULD BE SENT AS A BINARY STRING
 
     static String createHandshakeMessage(int peerId) {
         // This code is the best
         String result = "P2PFILESHARINGPROJ";
-        char c = 0;
-        for (int i = 0; i < 10; i++) {
-            result = result + c;
-        }
-        result = result + Integer.toBinaryString(peerId);
+        // convert the string to a binary string representation
+        result = new BigInteger(result.getBytes()).toString(2);
+        // Add 10 bytes of zeroes
+        result = result + "00000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        System.out.println("peer Id" + padWithZeroes(Integer.toBinaryString(peerId), 32));
+        result = result + padWithZeroes(Integer.toBinaryString(peerId), 32);
         return result;
     }
 

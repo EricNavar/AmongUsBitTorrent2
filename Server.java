@@ -78,13 +78,11 @@ public class Server {
 			}
 		}
 
-
 		// try to handshake with processes that have the file
 		// for (Integer i : haveFile) {
 		// 	String messageToSend = createHandshakeMessage(peerId);
 		// 	// new Handler(listener.accept(), peerId).sendMessage(messageToSend);
 		// }
-
 
 		private void serverLoop() throws ClassNotFoundException, IOException {
 			while (true) {
@@ -93,7 +91,7 @@ public class Server {
 				sendMessage(messageToSend);
 				if(handlers.size() >= 2)
 				{
-					for(int i =0; i < handlers.size(); i++)
+					for(int i=0; i < handlers.size(); i++)
 					{
 						handlers.get(i).sendMessage(messageToSend);
 					}
@@ -134,7 +132,7 @@ public class Server {
 			try {
 				out.writeObject(msg);
 				out.flush();
-				System.out.println("Send message: " + msg + " to Client " + no);
+				System.out.println("Send message: \"" + Messages.decodeBinaryString(msg) + "\" to Client " + no); // debug message
 			} catch (IOException ioException) {
 				ioException.printStackTrace();
 			}

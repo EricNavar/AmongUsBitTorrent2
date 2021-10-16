@@ -33,10 +33,8 @@ public class Client {
 			// expect a handshake message back
 			while (true) {
 				fromServer = (String) in.readObject();
-				System.out.println("Receive message: " + fromServer);
-				
+				System.out.println("Receive message: \"" + Messages.decodeBinaryString(fromServer) + "\""); // debug message
 			}
-				
 			
 		} catch (ConnectException e) {
 			System.err.println("Connection refused. You need to initiate a server first.");
