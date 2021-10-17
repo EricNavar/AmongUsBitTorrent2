@@ -1,19 +1,34 @@
+import java.math.BigInteger;
+
 // This class is to hold the logic for creating and decoding messages.
 public class Messages {
     // this function is to take a string of binary and pad it on the left with
     // zeroes such that it is a certain length.
     static String padWithZeroes(String s, int length) {
-        return s + "0".repeat(length - s.length());
+        for (int i = s.length(); i < length; i++) {
+            s = "0" + s;
+        }
+        return s;
+    }
+
+    // ALL MESSAGES SHOULD BE SENT AS A BINARY STRING
+
+    // The following 2 methods use this logic: 
+    // https://stackoverflow.com/questions/4416954/how-to-convert-a-string-to-a-stream-of-bits-in-java/4417069
+    static String stringToBinary(String s) {
+        return new BigInteger(s.getBytes()).toString(2);
+    }
+
+    static String binaryToString(String b) {
+        return new String(new BigInteger(b, 2).toByteArray());
     }
 
     static String createHandshakeMessage(int peerId) {
         // This code is the best
-        String result = "P2PFILESHARINGPROJ";
-        char c = 0;
-        for (int i = 0; i < 10; i++) {
-            result = result + c;
-        }
-        result = result + Integer.toBinaryString(peerId);
+        String result = stringToBinary("P2PFILESHARINGPROJ");
+        // Add 10 bytes of zeroes
+        result = result + "00000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        result = result + padWithZeroes(Integer.toBinaryString(peerId), 32);
         return result;
     }
 
@@ -71,7 +86,25 @@ public class Messages {
         return result;
     }
 
-    static void decodeMessage(String binary) {
-
+    static void decodeMessage(String binary, peerProcess pp, int senderPeer) {
+        String handshakeHeader = stringToBinary("P2PFILESHARINGPROJ");
+        // if the message starts with the handShake header, then it's a handshake message
+        if (binary.substring(0,143).equals(handshakeHeader)) {
+            // (18 + 10) * 8 - 1 = 223 is the bit where the peerId starts. The peerId is 4 bytes.
+            int handshakeFrom = Integer.parseInt(binary.substring(223, 255),2);
+            System.out.println("Handshake message from peer " + handshakeFrom);
+            return;
+        }
+        /* if it's not a handshake message then it's an actual message. This is the format:
+         * 4-byte message length field (length is in bytes)
+         * 1-bit message type
+         * message payload
+         */
+        int length = Integer.parseInt(binary.substring(0,32));
+        int type = Integer.parseInt(binary.substring(32,40));
+        String payload = binary.substring(40,length * 8);
+        if (type == MessageType.HAVE.ordinal()) {
+            int index = Integer.parseInt(payload); //TODO: do something with this 
+        }
     }
 }

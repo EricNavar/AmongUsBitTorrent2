@@ -1,6 +1,7 @@
 import java.net.*;
 import java.io.*;
 
+
 public class Client {
 	Socket requestSocket; // socket connect to the server
 	ObjectOutputStream out; // stream write to the socket
@@ -9,11 +10,13 @@ public class Client {
 	String fromServer; // capitalized message read from the server
 	int peerID;
 	int socket;
-	
+	peerProcess pp;
+
 	void setPeerID(int t_peerID) {
 		peerID = t_peerID;
 	}
-	public void Client() {
+	public Client(peerProcess pp) {
+		this.pp = pp;
 	}
 
 	void run() {
@@ -33,10 +36,9 @@ public class Client {
 			// expect a handshake message back
 			while (true) {
 				fromServer = (String) in.readObject();
-				System.out.println("Receive message: " + fromServer);
-				
+				System.out.println("Receive message"); // debug message
+				Messages.decodeMessage(fromServer, pp, -1);
 			}
-				
 			
 		} catch (ConnectException e) {
 			System.err.println("Connection refused. You need to initiate a server first.");
@@ -68,5 +70,4 @@ public class Client {
 			ioException.printStackTrace();
 		}
 	}
-
 }

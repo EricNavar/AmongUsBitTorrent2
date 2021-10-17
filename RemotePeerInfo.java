@@ -1,5 +1,6 @@
+import java.util.Vector;
+
 /*
- *                     CEN5501C Project2
  * This is the program starting remote processes.
  * This program was only tested on CISE SunOS environment.
  * If you use another environment, for example, linux environment in CISE 
@@ -12,11 +13,16 @@ public class RemotePeerInfo {
 	public String peerAddress;
 	public int peerPort;
 	public boolean hasFile;
+	public Vector<Boolean> bitfield;
 	
 	public RemotePeerInfo(String pId, String pAddress, String pPort, String hasFile) {
 		this.peerId = Integer.parseInt(pId);
 		this.peerAddress = pAddress;
 		this.peerPort = Integer.parseInt(pPort);
 		this.hasFile = "1".equals(hasFile);
+	}
+
+	public void setBitfield(Vector<Boolean> bitfield) {
+		this.bitfield = bitfield;
 	}
 }
