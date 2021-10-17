@@ -1,5 +1,4 @@
-import java.util.ArrayList;
-import java.util.function.IntBinaryOperator;
+import java.util.Vector;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;  
@@ -26,7 +25,7 @@ class Logger {
         log(getDate() + ": Peer " + this.peerID + " is connected from Peer " + peerID2 + ".");
     }
 
-    public void onChangeOfPreferredNeighbors(ArrayList<String> preferredNeighbors) {
+    public void onChangeOfPreferredNeighbors(Vector<Integer> preferredNeighbors) {
         StringBuilder toPrint = new StringBuilder(getDate() + ": Peer " + this.peerID + " has the preferred neighbors ");
         for (int i = 0; i < preferredNeighbors.size(); i++) {
             if (i != 0) {

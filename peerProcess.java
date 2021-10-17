@@ -25,6 +25,8 @@ class peerProcess {
     Vector<Boolean> bitfield = new Vector<Boolean>();
     Vector<Integer> preferredNeighbors;
     Logger logger;
+    Client client;
+    Server server;
 
     public void incrementCollectedPieces() {
         collectedPieces++;
@@ -134,40 +136,16 @@ class peerProcess {
         if (!hasFile) {
             System.out.print("This process does not have the file. ");
             System.out.println("Attempting to connect as a client to the port...");
-            Client client = new Client(this);
+            client = new Client(this);
             // Handshake just between 1001 and 1002 for now
             client.setPeerID(peerId);
             client.run();
         } else {
-            System.out.println("This process has the file. ");
+            System.out.println("This process has the file.");
             System.out.println("Starting a listener at the post and try to handshake with other processes...");
-            Server.setPp(this);
-            Server.startServer();
+            server = new Server(this);
+            server.startServer();
         }
-    }
-
-    private void sortPeerInfoVector() {
-        Collections.sort(peerInfoVector, (o1, o2) -> {
-            // We want the Vector to be in decreasing order, so we're comparing it backwards
-            Integer o2Value = o2.getPiecesTransmitted();
-            return o2Value.compareTo(o1.getPiecesTransmitted());
-        });
-    }
-
-    private void resetPeerInfoPiecesTransmitted() {
-        for (RemotePeerInfo rpi : peerInfoVector) {
-            rpi.resetPiecesTransmitted();
-        }
-    }
-
-    // this chooses which peer to optimisically unchoke. The peerInfoVector is
-    // sorted by pieces transmitted, so choose any peer other than the first 4
-    // https://www.educative.io/edpresso/how-to-generate-random-numbers-in-java
-    private int chooseOptimisticallyUnchokedPeer() {
-        int min = 4;
-        int max = peerInfoVector.size();
-        int randomPeer = (int)Math.floor(Math.random()*(max-min+1)+min);
-        return randomPeer;
     }
 
     /*
@@ -198,10 +176,37 @@ class peerProcess {
             preferredNeighbors.add(peerInfoVector.get(i).getPeerId());
         }
         // choose another random peer from the rest
-        preferredNeighbors.add(chooseOptimisticallyUnchokedPeer());
+        int optimisicallyUnchokedNeighbor = chooseOptimisticallyUnchokedPeer();
+        preferredNeighbors.add(optimisicallyUnchokedNeighbor);
+        logger.onChangeOfOptimisticallyUnchokedNeighbor(optimisicallyUnchokedNeighbor);
         // after recalculating the preferred neighbors, reset the value of the
         // transmitted data of all remote peers
         resetPeerInfoPiecesTransmitted();
+        logger.onChangeOfPreferredNeighbors(preferredNeighbors);
+    }
+
+    private void sortPeerInfoVector() {
+        Collections.sort(peerInfoVector, (o1, o2) -> {
+            // We want the Vector to be in decreasing order, so we're comparing it backwards
+            Integer o2Value = o2.getPiecesTransmitted();
+            return o2Value.compareTo(o1.getPiecesTransmitted());
+        });
+    }
+
+    private void resetPeerInfoPiecesTransmitted() {
+        for (RemotePeerInfo rpi : peerInfoVector) {
+            rpi.resetPiecesTransmitted();
+        }
+    }
+
+    // this chooses which peer to optimisically unchoke. The peerInfoVector is
+    // sorted by pieces transmitted, so choose any peer other than the first 4
+    // https://www.educative.io/edpresso/how-to-generate-random-numbers-in-java
+    private int chooseOptimisticallyUnchokedPeer() {
+        int min = 4;
+        int max = peerInfoVector.size();
+        int randomPeerIndex = (int)Math.floor(Math.random()*(max-min+1)+min);
+        return peerInfoVector.get(randomPeerIndex).getPeerId();
     }
 
     public static void main(String[] args) {

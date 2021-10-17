@@ -78,4 +78,20 @@ public class RemotePeerInfo {
 	public void incrementPiecesTransmitted() {
 		piecesTransmitted++;
 	}
+
+	// gets the index of a random piece that is missing.
+	// Return -1 if no pieces are missing.
+	public int selectRandomMissingPiece() {
+		if (hasFile) {
+			return -1;
+		}
+		Vector<Integer> missingPieces = new Vector<Integer>();
+		for (int i = 0; i < bitfield.size(); i++) {
+			if (!bitfield.get(i)) {
+				missingPieces.add(i);
+			}
+		}
+        int missingPieceIndex = (int)Math.floor(Math.random()*(bitfield.size()));
+		return missingPieces.get(missingPieceIndex);
+	}
 }
