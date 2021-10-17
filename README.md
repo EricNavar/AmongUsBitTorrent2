@@ -20,9 +20,9 @@ For the first check we have to have 800 lines of runnable code.
 - StartRemotePeers.java    84
 - Server.java             141
 - Client.java              73
-- Messages.java           110
+- Messages.java           195
 
-Total:                    649
+Total:                    735
 
 # Files
 

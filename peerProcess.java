@@ -3,13 +3,13 @@ import java.util.Vector;
 import static java.lang.Math.ceil;
 
 class peerProcess {
-    int numberOfPreferredNeighbors;
-    int unchokingInterval;
-    int optimisticUnchokingInterval;
-    String fileName;
-    int fileSize;
-    int pieceSize;
-    int pieceCount;
+    protected int numberOfPreferredNeighbors;
+    protected int unchokingInterval;
+    protected int optimisticUnchokingInterval;
+    protected String fileName;
+    protected int fileSize;
+    protected int pieceSize;
+    protected int pieceCount;
     // denotes which pieces of the file this process has
     Vector<Boolean> bitfield = new Vector<Boolean>();
     Logger logger;
@@ -22,6 +22,15 @@ class peerProcess {
         logger = new Logger(peerId);
         pieceCount = (int) ceil((double) fileSize / pieceSize);
         bitfield = new Vector<Boolean>(pieceCount);
+    }
+
+    public RemotePeerInfo getRemotePeerInfo(int peerId) {
+        for (RemotePeerInfo rfi : peerInfoVector) {
+            if (rfi.peerId == peerId) {
+                return rfi;
+            }
+        }
+        return null;
     }
 
     void ReadCommongConfig(int peerId) {
