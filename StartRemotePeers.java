@@ -22,16 +22,16 @@ import java.util.*;
 public class StartRemotePeers {
 	public int peerId;
 	public boolean hasFile;
-	public Vector<RemotePeerInfo> peerInfoVector;
+	private peerProcess pp;
 
-	public StartRemotePeers(int peerId) {
-		this.peerId = peerId;
+	public StartRemotePeers(peerProcess pp) {
+		this.pp = pp;
 		getConfiguration();
 	}
 
 	public void getConfiguration() {
 		String st;
-		peerInfoVector = new Vector<RemotePeerInfo>();
+		pp.peerInfoVector = new Vector<RemotePeerInfo>();
 		try {
 			BufferedReader in = new BufferedReader(new FileReader("PeerInfo.cfg"));
 			while ((st = in.readLine()) != null) {
@@ -42,12 +42,11 @@ public class StartRemotePeers {
 				// System.out.println(tokens[x]);
 				// }
 				// System.out.println("tokens end ----");
-				if (Integer.parseInt(tokens[0]) == peerId && tokens[3].equals("1")) {
+				if (Integer.parseInt(tokens[0]) == pp.peerId && tokens[3].equals("1")) {
 					hasFile = true;
 				}
 
-				peerInfoVector.addElement(new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3]));
-
+				pp.peerInfoVector.addElement(new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3]));
 			}
 
 			in.close();
@@ -63,13 +62,13 @@ public class StartRemotePeers {
 			// get current path
 			String path = System.getProperty("user.dir");
 
-			if (currentProcess != peerInfoVector.get(0).peerId) {
+			if (currentProcess != pp.peerInfoVector.get(0).peerId) {
 				return;
 			}
 			System.out.println("attempting to start remote processes");
 			// start clients at remote hosts
-			for (int i = 0; i < peerInfoVector.size(); i++) {
-				RemotePeerInfo pInfo = (RemotePeerInfo) peerInfoVector.elementAt(i);
+			for (int i = 0; i < pp.peerInfoVector.size(); i++) {
+				RemotePeerInfo pInfo = (RemotePeerInfo) pp.peerInfoVector.elementAt(i);
 
 				System.out.println("Start remote peer " + pInfo.peerId + " at " + pInfo.peerAddress);
 				
@@ -82,5 +81,4 @@ public class StartRemotePeers {
 			System.out.println(ex);
 		}
 	}
-
 }

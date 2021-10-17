@@ -13,16 +13,16 @@ javac peerProcess.java MessageType.java Logger.java RemotePeerInfo.java StartRem
 
 For the first check we have to have 800 lines of runnable code.
 
-- peerProcess.java:       150
+- peerProcess.java:       136
 - MessageType.java:         5
 - Logger.java:             78
 - RemotePeerInfo.java:     22
-- StartRemotePeers.java    86
-- Server.java             143
-- Client.java              70
-- Messages.java            90
+- StartRemotePeers.java    84
+- Server.java             141
+- Client.java              73
+- Messages.java           110
 
-Total:                    644
+Total:                    649
 
 # Files
 

@@ -86,14 +86,13 @@ public class Messages {
         return result;
     }
 
-    static void decodeMessage(String binary) {
-        System.out.println( binaryToString(binary) ); //debug message
+    static void decodeMessage(String binary, peerProcess pp, int senderPeer) {
         String handshakeHeader = stringToBinary("P2PFILESHARINGPROJ");
         // if the message starts with the handShake header, then it's a handshake message
-        if (binary.substring(0,144) == handshakeHeader) {
-            // (18 + 10) * 8 = 336 is the bit where the peerId starts. The peerId is 4 bytes.
-            int handshakeFrom = Integer.parseInt(binary.substring(336, 368));
-            System.out.println("Handshake message from peer " + Integer.toString(handshakeFrom));
+        if (binary.substring(0,143).equals(handshakeHeader)) {
+            // (18 + 10) * 8 - 1 = 223 is the bit where the peerId starts. The peerId is 4 bytes.
+            int handshakeFrom = Integer.parseInt(binary.substring(223, 255),2);
+            System.out.println("Handshake message from peer " + handshakeFrom);
             return;
         }
         /* if it's not a handshake message then it's an actual message. This is the format:
@@ -105,8 +104,7 @@ public class Messages {
         int type = Integer.parseInt(binary.substring(32,40));
         String payload = binary.substring(40,length * 8);
         if (type == MessageType.HAVE.ordinal()) {
-            int index = Integer.parseInt(payload); //TODO: do something with this
+            int index = Integer.parseInt(payload); //TODO: do something with this 
         }
-
     }
 }

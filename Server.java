@@ -10,7 +10,6 @@ public class Server {
 	static Vector<Integer> haveFile;
 	static ArrayList<Handler> handlers = new ArrayList<Handler>();
 
-	private static StartRemotePeers srp;
 	private int peerID;
 	private static peerProcess pp;
 
@@ -21,19 +20,15 @@ public class Server {
 	void setPeerID(int t_peerID) {
 		peerID = t_peerID;
 	}
-	public static StartRemotePeers getSRP() {
-		return srp;
-	}
 
-	public static void startServer(StartRemotePeers srp) throws Exception {
-		Server.srp = srp;
+	public static void startServer() throws Exception {
 		ServerSocket listener = new ServerSocket(sPort);
 		System.out.println("The server is running.");
 		int clientNum = 1;
 
 		// make list of peerIds that have the file
 		haveFile = new Vector<Integer>();
-		for (RemotePeerInfo rpi : srp.peerInfoVector) {
+		for (RemotePeerInfo rpi : pp.peerInfoVector) {
 			if (rpi.hasFile) {
 				haveFile.addElement(rpi.peerId);
 			}
@@ -92,7 +87,7 @@ public class Server {
 		private void serverLoop() throws ClassNotFoundException, IOException {
 			while (true) {
 				message = (String) in.readObject(); //recieve handshake
-				String messageToSend = Messages.createHandshakeMessage(getSRP().peerId);
+				String messageToSend = Messages.createHandshakeMessage(pp.peerId);
 				sendMessage(messageToSend);
 				if(handlers.size() >= 2)
 				{
@@ -142,7 +137,5 @@ public class Server {
 				ioException.printStackTrace();
 			}
 		}
-
 	}
-
 }

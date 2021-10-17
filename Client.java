@@ -1,6 +1,5 @@
 import java.net.*;
 import java.io.*;
-import java.util.Vector;
 
 
 public class Client {
@@ -38,7 +37,7 @@ public class Client {
 			while (true) {
 				fromServer = (String) in.readObject();
 				System.out.println("Receive message"); // debug message
-				Messages.decodeMessage(fromServer);
+				Messages.decodeMessage(fromServer, pp, -1);
 			}
 			
 		} catch (ConnectException e) {
@@ -71,5 +70,4 @@ public class Client {
 			ioException.printStackTrace();
 		}
 	}
-
 }

@@ -13,9 +13,12 @@ class peerProcess {
     // denotes which pieces of the file this process has
     Vector<Boolean> bitfield = new Vector<Boolean>();
     Logger logger;
+    public int peerId;
     final int port = 5478; // random port number we will use
+	public Vector<RemotePeerInfo> peerInfoVector;
 
     public peerProcess(int peerId) {
+        this.peerId = peerId;
         logger = new Logger(peerId);
         pieceCount = (int) ceil((double) fileSize / pieceSize);
         bitfield = new Vector<Boolean>(pieceCount);
@@ -92,7 +95,7 @@ class peerProcess {
             System.out.println("This process has the file. ");
             System.out.println("Starting a listener at the post and try to handshake with other processes...");
             Server.setPp(this);
-            Server.startServer(srp);
+            Server.startServer();
         }
     }
 
@@ -102,7 +105,7 @@ class peerProcess {
             return;
         }
         peerProcess pp = new peerProcess(peerId);
-        StartRemotePeers srp = new StartRemotePeers(peerId);
+        StartRemotePeers srp = new StartRemotePeers(pp);
         // srp.Start(peerId);
         // if PeerInfo.cfg lists the current peerId as having the file
         for (int i = 0; i < pp.bitfield.size(); i++) {

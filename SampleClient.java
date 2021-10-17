@@ -8,9 +8,6 @@ public class SampleClient {
 	String message; // message send to the server
 	String MESSAGE; // capitalized message read from the server
 
-	public void SampleClient() {
-	}
-
 	void run() {
 		try {
 			// create a socket to connect to the server
@@ -67,7 +64,7 @@ public class SampleClient {
 
 	// main method
 	public static void main(String args[]) {
-		Client client = new Client();
+		SampleClient client = new SampleClient();
 		client.run();
 	}
 
