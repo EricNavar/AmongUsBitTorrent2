@@ -15,11 +15,11 @@ public class Server {
 
 	private static peerProcess pp;
 
-	public static void setPp(peerProcess pp_) {
+	public Server(peerProcess pp_) {
 		pp = pp_;
 	}
 
-	public static void startServer() throws Exception {
+	public void startServer() throws Exception {
 		ServerSocket listener = new ServerSocket(sPort);
 		System.out.println("The server is running.");
 		int clientNum = 1;
