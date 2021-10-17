@@ -11,21 +11,23 @@ public class Messages {
         return s;
     }
 
+    // ALL MESSAGES SHOULD BE SENT AS A BINARY STRING
+
+    // The following 2 methods use this logic: 
     // https://stackoverflow.com/questions/4416954/how-to-convert-a-string-to-a-stream-of-bits-in-java/4417069
-    static String decodeBinaryString(String toDecode) {
-        return new String(new BigInteger(toDecode, 2).toByteArray());
+    static String stringToBinary(String s) {
+        return new BigInteger(s.getBytes()).toString(2);
     }
 
-    // ALL MESSAGES SHOULD BE SENT AS A BINARY STRING
+    static String binaryToString(String b) {
+        return new String(new BigInteger(b, 2).toByteArray());
+    }
 
     static String createHandshakeMessage(int peerId) {
         // This code is the best
-        String result = "P2PFILESHARINGPROJ";
-        // convert the string to a binary string representation
-        result = new BigInteger(result.getBytes()).toString(2);
+        String result = stringToBinary("P2PFILESHARINGPROJ");
         // Add 10 bytes of zeroes
         result = result + "00000000000000000000000000000000000000000000000000000000000000000000000000000000";
-        System.out.println("peer Id" + padWithZeroes(Integer.toBinaryString(peerId), 32));
         result = result + padWithZeroes(Integer.toBinaryString(peerId), 32);
         return result;
     }
@@ -85,6 +87,26 @@ public class Messages {
     }
 
     static void decodeMessage(String binary) {
+        System.out.println( binaryToString(binary) ); //debug message
+        String handshakeHeader = stringToBinary("P2PFILESHARINGPROJ");
+        // if the message starts with the handShake header, then it's a handshake message
+        if (binary.substring(0,144) == handshakeHeader) {
+            // (18 + 10) * 8 = 336 is the bit where the peerId starts. The peerId is 4 bytes.
+            int handshakeFrom = Integer.parseInt(binary.substring(336, 368));
+            System.out.println("Handshake message from peer " + Integer.toString(handshakeFrom));
+            return;
+        }
+        /* if it's not a handshake message then it's an actual message. This is the format:
+         * 4-byte message length field (length is in bytes)
+         * 1-bit message type
+         * message payload
+         */
+        int length = Integer.parseInt(binary.substring(0,32));
+        int type = Integer.parseInt(binary.substring(32,40));
+        String payload = binary.substring(40,length * 8);
+        if (type == MessageType.HAVE.ordinal()) {
+            int index = Integer.parseInt(payload); //TODO: do something with this
+        }
 
     }
 }

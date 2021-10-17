@@ -12,6 +12,11 @@ public class Server {
 
 	private static StartRemotePeers srp;
 	private int peerID;
+	private static peerProcess pp;
+
+	public static void setPp(peerProcess pp_) {
+		pp = pp_;
+	}
 	
 	void setPeerID(int t_peerID) {
 		peerID = t_peerID;
@@ -132,7 +137,7 @@ public class Server {
 			try {
 				out.writeObject(msg);
 				out.flush();
-				System.out.println("Send message: \"" + Messages.decodeBinaryString(msg) + "\" to Client " + no); // debug message
+				System.out.println("Send message to Client " + no); // debug message
 			} catch (IOException ioException) {
 				ioException.printStackTrace();
 			}

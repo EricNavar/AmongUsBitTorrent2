@@ -1,6 +1,8 @@
 # Among Us Bit Torrent 2
 The final project for computer network fundamentals. The team name is Among Us Bit Torrent 2 because the project is to make Bit Torrent so we can distribute Among Us to the masses.
 
+javac peerProcess.java MessageType.java Logger.java RemotePeerInfo.java StartRemotePeers.java Server.java Client.java Messages.java
+
 ## Members
 
 - Eric Navar
@@ -11,16 +13,16 @@ The final project for computer network fundamentals. The team name is Among Us B
 
 For the first check we have to have 800 lines of runnable code.
 
-- peerProcess.java:       140
+- peerProcess.java:       150
 - MessageType.java:         5
-- Logger.java:             80
-- RemotePeerInfo.java:     20
-- StartRemotePeers.java    85
-- Server.java             130
+- Logger.java:             78
+- RemotePeerInfo.java:     22
+- StartRemotePeers.java    86
+- Server.java             143
 - Client.java              70
-- Messages.java            80
+- Messages.java            90
 
-Total:                    610
+Total:                    644
 
 # Files
 
