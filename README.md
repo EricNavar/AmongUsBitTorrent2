@@ -1,7 +1,7 @@
 # Among Us Bit Torrent 2
 The final project for computer network fundamentals. The team name is Among Us Bit Torrent 2 because the project is to make Bit Torrent so we can distribute Among Us to the masses.
 
-javac peerProcess.java MessageType.java Logger.java RemotePeerInfo.java StartRemotePeers.java Server.java Client.java Messages.java
+To compile, run: ./compile.sh 
 
 ## Members
 

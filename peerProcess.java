@@ -99,7 +99,7 @@ class peerProcess {
         // start server
         System.out.println("Attempting to create server socket."); //debug message
 		
-        if (hasFile) {
+        if (!hasFile) {
             System.out.print("This process does not have the file. ");
             System.out.println("Attempting to connect as a client to the port...");
 			Client client = new Client(this);

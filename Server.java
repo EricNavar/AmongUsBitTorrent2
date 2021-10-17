@@ -10,15 +10,10 @@ public class Server {
 	static private Vector<Integer> haveFile;
 	static private ArrayList<Handler> handlers = new ArrayList<Handler>();
 
-	private int peerID;
 	private static peerProcess pp;
 
 	public static void setPp(peerProcess pp_) {
 		pp = pp_;
-	}
-	
-	void setPeerID(int t_peerID) {
-		peerID = t_peerID;
 	}
 
 	public static void startServer() throws Exception {

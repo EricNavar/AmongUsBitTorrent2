@@ -108,11 +108,11 @@ public class Messages {
          * peer A sends "interested" message to peer B. Otherwise, it sends
          * "not interested" message.
          */
-    public static void handleHandshakeMessage(String binary, peerProcess pp, int senderPeer) {
+    public static int handleHandshakeMessage(String binary, peerProcess pp, int senderPeer) {
         // (18 + 10) * 8 - 1 = 223 is the bit where the peerId starts. The peerId is 4 bytes.
         int handshakeFrom = Integer.parseInt(binary.substring(223, 255),2);
         System.out.println("Handshake message from peer " + handshakeFrom);
-        
+        return handshakeFrom;
     }
 
     /* CHOKE AND UNCHOKE (description from requirements sheet)
@@ -159,6 +159,7 @@ public class Messages {
     //type 0
     private static void handleChokeMessage(String binary, peerProcess pp, int senderPeer) {
         pp.getRemotePeerInfo(senderPeer).setChoked(true);
+        // Logger.onChoking();
     }
 
     //type 1
@@ -257,12 +258,12 @@ public class Messages {
         pp.bitfield.set(index,true); 
     }
 
-
-    public static void decodeMessage(String binary, peerProcess pp, int senderPeer) {
+    // returns the peerId of the sender if it's a handshake message.
+    public static int decodeMessage(String binary, peerProcess pp, int senderPeer) {
         String handshakeHeader = stringToBinary("P2PFILESHARINGPROJ");
         // if the message starts with the handShake header, then it's a handshake message
         if (binary.length() >= 143 && binary.substring(0,143).equals(handshakeHeader)) {
-            handleHandshakeMessage(binary, pp, senderPeer);
+            return handleHandshakeMessage(binary, pp, senderPeer);
         }
         /* if it's not a handshake message then it's an actual message. This is the format:
          * 4-byte message length field (length is in bytes)
@@ -301,5 +302,6 @@ public class Messages {
         else {
             System.out.println("Invalid message type");
         }
+        return -1;
     }
 }
