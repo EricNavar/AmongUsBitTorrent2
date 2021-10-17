@@ -7,18 +7,13 @@ import java.util.ArrayList;
 public class Server {
 
 	private static final int sPort = 8000; // The server will be listening on this port number
-	static Vector<Integer> haveFile;
-	static ArrayList<Handler> handlers = new ArrayList<Handler>();
+	static private Vector<Integer> haveFile;
+	static private ArrayList<Handler> handlers = new ArrayList<Handler>();
 
-	private int peerID;
 	private static peerProcess pp;
 
 	public static void setPp(peerProcess pp_) {
 		pp = pp_;
-	}
-	
-	void setPeerID(int t_peerID) {
-		peerID = t_peerID;
 	}
 
 	public static void startServer() throws Exception {
@@ -29,8 +24,8 @@ public class Server {
 		// make list of peerIds that have the file
 		haveFile = new Vector<Integer>();
 		for (RemotePeerInfo rpi : pp.peerInfoVector) {
-			if (rpi.hasFile) {
-				haveFile.addElement(rpi.peerId);
+			if (rpi.hasFile()) {
+				haveFile.addElement(rpi.getPeerId());
 			}
 		}
 
@@ -86,7 +81,9 @@ public class Server {
 
 		private void serverLoop() throws ClassNotFoundException, IOException {
 			while (true) {
-				message = (String) in.readObject(); //recieve handshake
+				message = (String) in.readObject();
+				int connectedFrom = Messages.decodeMessage(message, pp);
+				pp.logger.onConnectingFrom(connectedFrom);
 				String messageToSend = Messages.createHandshakeMessage(pp.peerId);
 				sendMessage(messageToSend);
 				if(handlers.size() >= 2)
@@ -106,9 +103,6 @@ public class Server {
 				out.flush();
 				in = new ObjectInputStream(connection.getInputStream());
 				try {
-					// this is the loop that is run by default. It's good for testing.
-					// sampleClientLoop();
-
 					serverLoop();
 				} catch (ClassNotFoundException classnot) {
 					System.err.println("Data received in unknown format");

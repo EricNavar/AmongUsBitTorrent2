@@ -9,6 +9,7 @@ public class Client {
 	String message; // message send to the server
 	String fromServer; // capitalized message read from the server
 	int peerID;
+	int connectedToPeerId;
 	int socket;
 	peerProcess pp;
 
@@ -37,7 +38,8 @@ public class Client {
 			while (true) {
 				fromServer = (String) in.readObject();
 				System.out.println("Receive message"); // debug message
-				Messages.decodeMessage(fromServer, pp, -1);
+				connectedToPeerId = Messages.decodeMessage(fromServer, pp);
+				pp.logger.onConnectingTo(connectedToPeerId);
 			}
 			
 		} catch (ConnectException e) {

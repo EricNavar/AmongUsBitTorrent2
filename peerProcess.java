@@ -3,28 +3,68 @@ import java.util.Vector;
 import static java.lang.Math.ceil;
 
 class peerProcess {
-    int numberOfPreferredNeighbors;
-    int unchokingInterval;
-    int optimisticUnchokingInterval;
-    String fileName;
-    int fileSize;
-    int pieceSize;
-    int pieceCount;
+    protected int numberOfPreferredNeighbors;
+    protected int unchokingInterval;
+    protected int optimisticUnchokingInterval;
+    protected String fileName;
+    // fileSize in bytes
+    protected int fileSize;
+    // how many bytes a piece is
+    protected int pieceSize;
+    // how many pieces there are in a file
+    protected int totalPieces;
+    protected int collectedPieces;
+    protected int peerId;
+    // if this process has the entire file
+    protected boolean hasFile;
+    // random port number we will use
+    final protected int port = 5478;
+	protected Vector<RemotePeerInfo> peerInfoVector;
     // denotes which pieces of the file this process has
     Vector<Boolean> bitfield = new Vector<Boolean>();
     Logger logger;
-    public int peerId;
-    final int port = 5478; // random port number we will use
-	public Vector<RemotePeerInfo> peerInfoVector;
+
+    public void incrementCollectedPieces() {
+        collectedPieces++;
+        if (collectedPieces == totalPieces) {
+            hasFile = true;
+        }
+    }
+
+    public int getTotalPieces() {
+        return totalPieces;
+    }
+
+    public int getCollectedPieces() {
+        return collectedPieces;
+    }
 
     public peerProcess(int peerId) {
         this.peerId = peerId;
         logger = new Logger(peerId);
-        pieceCount = (int) ceil((double) fileSize / pieceSize);
-        bitfield = new Vector<Boolean>(pieceCount);
+        totalPieces = (int) ceil((double) fileSize / pieceSize);
+        bitfield = new Vector<Boolean>(totalPieces);
+        hasFile = false;
     }
 
-    void ReadCommongConfig(int peerId) {
+    public boolean hasFile() {
+        return hasFile;
+    }
+
+    public void setHasFile(boolean hasFile) {
+        this.hasFile = hasFile;
+    }
+
+    public RemotePeerInfo getRemotePeerInfo(int peerId) {
+        for (RemotePeerInfo rfi : peerInfoVector) {
+            if (rfi.getPeerId() == peerId) {
+                return rfi;
+            }
+        }
+        return null;
+    }
+
+    public void ReadCommongConfig(int peerId) {
         String st = "";
 
         try {
@@ -82,11 +122,11 @@ class peerProcess {
 
     public void startTCPConnection(StartRemotePeers srp, int peerId) throws Exception {
         // start server
-        System.out.println("Attempting to create server socket.");
+        System.out.println("Attempting to create server socket."); //debug message
 		
-        if (!srp.hasFile) {
+        if (!hasFile) {
             System.out.print("This process does not have the file. ");
-            System.out.println(" Attempting to connect as a client to the port...");
+            System.out.println("Attempting to connect as a client to the port...");
 			Client client = new Client(this);
 			// Handshake just between 1001 and 1002 for now
 			client.setPeerID(peerId);
@@ -109,24 +149,9 @@ class peerProcess {
         // srp.Start(peerId);
         // if PeerInfo.cfg lists the current peerId as having the file
         for (int i = 0; i < pp.bitfield.size(); i++) {
-            pp.bitfield.set(i, srp.hasFile);
+            pp.bitfield.set(i, pp.hasFile);
         }
 
-        /*
-         * TODO: Suppose that peer A tries to make a TCP connection to peer B. Here we
-         * describe the behavior of peer A, but peer B should also follow the same
-         * procedure as peer A. After the TCP connection is established, peer A sends a
-         * handshake message to peer B. It also receives a handshake message from peer B
-         * and checks whether peer B is the right neighbor.
-         * 
-         * The only thing to do is to check whether the handshake header is right and the
-         * peer ID is the expected one. After handshaking, peer A sends a "bitfield" message to let peer B know
-         * which file pieces it has. Peer B will also send its "bitfield" message to
-         * peer A, unless it has no pieces. If peer A receives a "bitfield" message from
-         * peer B and it finds out that peer B has pieces that it doesn’t have,
-         * peer A sends "interested" message to peer B. Otherwise, it sends
-         * "not interested" message.
-         */
         try {
             pp.startTCPConnection(srp, peerId);
         } catch (Exception e) {

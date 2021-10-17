@@ -20,8 +20,6 @@ import java.util.*;
  * Please look at the lines below the comment saying IMPORTANT.
  */
 public class StartRemotePeers {
-	public int peerId;
-	public boolean hasFile;
 	private peerProcess pp;
 
 	public StartRemotePeers(peerProcess pp) {
@@ -43,7 +41,7 @@ public class StartRemotePeers {
 				// }
 				// System.out.println("tokens end ----");
 				if (Integer.parseInt(tokens[0]) == pp.peerId && tokens[3].equals("1")) {
-					hasFile = true;
+					pp.setHasFile(true);
 				}
 
 				pp.peerInfoVector.addElement(new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3]));
@@ -62,7 +60,7 @@ public class StartRemotePeers {
 			// get current path
 			String path = System.getProperty("user.dir");
 
-			if (currentProcess != pp.peerInfoVector.get(0).peerId) {
+			if (currentProcess != pp.peerInfoVector.get(0).getPeerId()) {
 				return;
 			}
 			System.out.println("attempting to start remote processes");
@@ -70,10 +68,10 @@ public class StartRemotePeers {
 			for (int i = 0; i < pp.peerInfoVector.size(); i++) {
 				RemotePeerInfo pInfo = (RemotePeerInfo) pp.peerInfoVector.elementAt(i);
 
-				System.out.println("Start remote peer " + pInfo.peerId + " at " + pInfo.peerAddress);
+				System.out.println("Start remote peer " + pInfo.getPeerId() + " at " + pInfo.getPeerAddress());
 				
 				//Runtime.getRuntime().exec("ssh " + pInfo.peerAddress + " cd " + path + "; java peerProcess " + pInfo.peerId);
-				Runtime.getRuntime().exec("java peerProcess " + pInfo.peerId);
+				Runtime.getRuntime().exec("java peerProcess " + pInfo.getPeerId());
 			}
 			System.out.println("Starting all remote peers has done.");
 
