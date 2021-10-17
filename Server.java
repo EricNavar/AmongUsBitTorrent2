@@ -1,8 +1,11 @@
+// This file uses a lot of logic from the sample file from Canvas
+
 import java.net.*;
 import java.io.*;
 import java.util.Vector;
 import java.util.ArrayList;
-
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Server {
 
@@ -73,13 +76,16 @@ public class Server {
 			}
 		}
 
-		// try to handshake with processes that have the file
-		// for (Integer i : haveFile) {
-		// 	String messageToSend = createHandshakeMessage(peerId);
-		// 	// new Handler(listener.accept(), peerId).sendMessage(messageToSend);
-		// }
-
 		private void serverLoop() throws ClassNotFoundException, IOException {
+			// Every 5 seconds, recalculate the preferred neighbors
+			Timer timer = new Timer(); 
+			timer.schedule( new TimerTask() {
+				public void run() {
+					pp.calculatePreferredNeighbors();
+				}
+			}, 0, 5*1000);
+			// https://stackoverflow.com/questions/2702980/java-loop-every-minute
+
 			while (true) {
 				message = (String) in.readObject();
 				int connectedFrom = Messages.decodeMessage(message, pp);
@@ -95,6 +101,12 @@ public class Server {
 				}
 			}
 		}
+
+		// try to handshake with processes that have the file
+		// for (Integer i : haveFile) {
+		// 	String messageToSend = createHandshakeMessage(peerId);
+		// 	// new Handler(listener.accept(), peerId).sendMessage(messageToSend);
+		// }
 
 		public void run() {
 			try {

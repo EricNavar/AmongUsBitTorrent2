@@ -17,6 +17,7 @@ public class RemotePeerInfo {
 	private boolean choked;
 	// this field means that the peer is interested in something from the running process
 	private boolean interested;
+	private int piecesTransmitted;
 	
 	public RemotePeerInfo(String pId, String pAddress, String pPort, String hasFile) {
 		this.peerId = Integer.parseInt(pId);
@@ -64,5 +65,17 @@ public class RemotePeerInfo {
 
 	public void setInterested(boolean interested) {
 		this.interested = interested;
+	}
+
+	public int getPiecesTransmitted() {
+		return piecesTransmitted;
+	}
+
+	public void resetPiecesTransmitted() {
+		piecesTransmitted = 0;
+	}
+
+	public void incrementPiecesTransmitted() {
+		piecesTransmitted++;
 	}
 }

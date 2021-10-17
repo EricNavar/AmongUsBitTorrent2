@@ -1,6 +1,7 @@
 import java.io.*;
 import java.util.Vector;
 import static java.lang.Math.ceil;
+import java.util.Collections;
 
 class peerProcess {
     protected int numberOfPreferredNeighbors;
@@ -19,9 +20,10 @@ class peerProcess {
     protected boolean hasFile;
     // random port number we will use
     final protected int port = 5478;
-	protected Vector<RemotePeerInfo> peerInfoVector;
+    protected Vector<RemotePeerInfo> peerInfoVector;
     // denotes which pieces of the file this process has
     Vector<Boolean> bitfield = new Vector<Boolean>();
+    Vector<Integer> preferredNeighbors;
     Logger logger;
 
     public void incrementCollectedPieces() {
@@ -45,6 +47,7 @@ class peerProcess {
         totalPieces = (int) ceil((double) fileSize / pieceSize);
         bitfield = new Vector<Boolean>(totalPieces);
         hasFile = false;
+        preferredNeighbors = new Vector<Integer>(5);
     }
 
     public boolean hasFile() {
@@ -62,6 +65,10 @@ class peerProcess {
             }
         }
         return null;
+    }
+
+    public void setPrefferedNeighbors(Vector<Integer> preferredNeighbors) {
+        this.preferredNeighbors = preferredNeighbors;
     }
 
     public void ReadCommongConfig(int peerId) {
@@ -122,21 +129,79 @@ class peerProcess {
 
     public void startTCPConnection(StartRemotePeers srp, int peerId) throws Exception {
         // start server
-        System.out.println("Attempting to create server socket."); //debug message
-		
+        System.out.println("Attempting to create server socket."); // debug message
+
         if (!hasFile) {
             System.out.print("This process does not have the file. ");
             System.out.println("Attempting to connect as a client to the port...");
-			Client client = new Client(this);
-			// Handshake just between 1001 and 1002 for now
-			client.setPeerID(peerId);
-			client.run();
+            Client client = new Client(this);
+            // Handshake just between 1001 and 1002 for now
+            client.setPeerID(peerId);
+            client.run();
         } else {
             System.out.println("This process has the file. ");
             System.out.println("Starting a listener at the post and try to handshake with other processes...");
             Server.setPp(this);
             Server.startServer();
         }
+    }
+
+    private void sortPeerInfoVector() {
+        Collections.sort(peerInfoVector, (o1, o2) -> {
+            // We want the Vector to be in decreasing order, so we're comparing it backwards
+            Integer o2Value = o2.getPiecesTransmitted();
+            return o2Value.compareTo(o1.getPiecesTransmitted());
+        });
+    }
+
+    private void resetPeerInfoPiecesTransmitted() {
+        for (RemotePeerInfo rpi : peerInfoVector) {
+            rpi.resetPiecesTransmitted();
+        }
+    }
+
+    // this chooses which peer to optimisically unchoke. The peerInfoVector is
+    // sorted by pieces transmitted, so choose any peer other than the first 4
+    // https://www.educative.io/edpresso/how-to-generate-random-numbers-in-java
+    private int chooseOptimisticallyUnchokedPeer() {
+        int min = 4;
+        int max = peerInfoVector.size();
+        int randomPeer = (int)Math.floor(Math.random()*(max-min+1)+min);
+        return randomPeer;
+    }
+
+    /*
+     * CALCULATING PREFERRED NEIGHBORS
+     * Each peer determines preferred neighbors every p seconds. Suppose that the 
+     * unchoking interval is p. Then every p seconds, peer A reselects its preferred
+     * neighbors. To make the decision, peer A calculates the downloading rate from
+     * each of its neighbors, respectively, during the previous unchoking interval.
+     * Among neighbors that are interested in its data, peer A picks k neighbors that
+     * has fed its data at the highest rate. If more than two peers have the same rate,
+     * the tie should be broken randomly. Then it unchokes those preferred neighbors by
+     * sending "unchoke" messages and it expects to receive "request" messages from
+     * them. If a preferred neighbor is already unchoked, then peer A does not have
+     * to send ‘unchokeunchoke’ message to it. All other neighbors previously
+     * unchoked but not selected as preferred neighbors at this time should be
+     * choked unless it is an optimistically should be choked unless it is an
+     * optimistically unchoked neighbor. To choke those neighbors, peer A sends
+     * unchoked neighbor. To choke those neighbors, peer A sends "choke" messages
+     * to them messages to them and stop sending pieces.and stop sending pieces.
+     */
+    public void calculatePreferredNeighbors() {
+        preferredNeighbors.clear();
+        // Sort the vector of peers
+        sortPeerInfoVector();
+        // The first 4 peers are the peers that have transmitted the most.
+        // Add their peerId to the list of preferred vectors
+        for (int i = 0; i < 4 && i < peerInfoVector.size(); i++) {
+            preferredNeighbors.add(peerInfoVector.get(i).getPeerId());
+        }
+        // choose another random peer from the rest
+        preferredNeighbors.add(chooseOptimisticallyUnchokedPeer());
+        // after recalculating the preferred neighbors, reset the value of the
+        // transmitted data of all remote peers
+        resetPeerInfoPiecesTransmitted();
     }
 
     public static void main(String[] args) {
