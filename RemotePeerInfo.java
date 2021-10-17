@@ -9,10 +9,10 @@ import java.util.Vector;
  */
 
 public class RemotePeerInfo {
-	public int peerId;
-	public String peerAddress;
-	public int peerPort;
-	public boolean hasFile;
+	private int peerId;
+	private String peerAddress;
+	private int peerPort;
+	private boolean hasFile;
 	private Vector<Boolean> bitfield;
 	private boolean choked;
 	// this field means that the peer is interested in something from the running process
@@ -24,6 +24,22 @@ public class RemotePeerInfo {
 		this.peerPort = Integer.parseInt(pPort);
 		this.hasFile = "1".equals(hasFile);
 		choked = false;
+	}
+
+	public int getPeerId() {
+		return peerId;
+	}
+
+	public int getPeerPort() {
+		return peerPort;
+	}
+
+	public boolean hasFile() {
+		return hasFile;
+	}
+
+	public String getPeerAddress() {
+		return peerAddress;
 	}
 
 	public void setBitfield(Vector<Boolean> bitfield) {

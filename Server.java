@@ -7,8 +7,8 @@ import java.util.ArrayList;
 public class Server {
 
 	private static final int sPort = 8000; // The server will be listening on this port number
-	static Vector<Integer> haveFile;
-	static ArrayList<Handler> handlers = new ArrayList<Handler>();
+	static private Vector<Integer> haveFile;
+	static private ArrayList<Handler> handlers = new ArrayList<Handler>();
 
 	private int peerID;
 	private static peerProcess pp;
@@ -29,8 +29,8 @@ public class Server {
 		// make list of peerIds that have the file
 		haveFile = new Vector<Integer>();
 		for (RemotePeerInfo rpi : pp.peerInfoVector) {
-			if (rpi.hasFile) {
-				haveFile.addElement(rpi.peerId);
+			if (rpi.hasFile()) {
+				haveFile.addElement(rpi.getPeerId());
 			}
 		}
 
