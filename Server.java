@@ -81,7 +81,9 @@ public class Server {
 
 		private void serverLoop() throws ClassNotFoundException, IOException {
 			while (true) {
-				message = (String) in.readObject(); //recieve handshake
+				message = (String) in.readObject();
+				int connectedFrom = Messages.decodeMessage(message, pp);
+				pp.logger.onConnectingFrom(connectedFrom);
 				String messageToSend = Messages.createHandshakeMessage(pp.peerId);
 				sendMessage(messageToSend);
 				if(handlers.size() >= 2)
@@ -101,9 +103,6 @@ public class Server {
 				out.flush();
 				in = new ObjectInputStream(connection.getInputStream());
 				try {
-					// this is the loop that is run by default. It's good for testing.
-					// sampleClientLoop();
-
 					serverLoop();
 				} catch (ClassNotFoundException classnot) {
 					System.err.println("Data received in unknown format");

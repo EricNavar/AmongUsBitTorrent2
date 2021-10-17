@@ -7,23 +7,48 @@ class peerProcess {
     protected int unchokingInterval;
     protected int optimisticUnchokingInterval;
     protected String fileName;
+    // fileSize in bytes
     protected int fileSize;
+    // how many bytes a piece is
     protected int pieceSize;
-    protected int pieceCount;
+    // how many pieces there are in a file
+    protected int totalPieces;
+    protected int collectedPieces;
     protected int peerId;
+    // if this process has the entire file
     protected boolean hasFile;
-    final protected int port = 5478; // random port number we will use
+    // random port number we will use
+    final protected int port = 5478;
 	protected Vector<RemotePeerInfo> peerInfoVector;
     // denotes which pieces of the file this process has
     Vector<Boolean> bitfield = new Vector<Boolean>();
     Logger logger;
 
+    public void incrementCollectedPieces() {
+        collectedPieces++;
+        if (collectedPieces == totalPieces) {
+            hasFile = true;
+        }
+    }
+
+    public int getTotalPieces() {
+        return totalPieces;
+    }
+
+    public int getCollectedPieces() {
+        return collectedPieces;
+    }
+
     public peerProcess(int peerId) {
         this.peerId = peerId;
         logger = new Logger(peerId);
-        pieceCount = (int) ceil((double) fileSize / pieceSize);
-        bitfield = new Vector<Boolean>(pieceCount);
+        totalPieces = (int) ceil((double) fileSize / pieceSize);
+        bitfield = new Vector<Boolean>(totalPieces);
         hasFile = false;
+    }
+
+    public boolean hasFile() {
+        return hasFile;
     }
 
     public void setHasFile(boolean hasFile) {

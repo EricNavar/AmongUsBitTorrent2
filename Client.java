@@ -38,7 +38,7 @@ public class Client {
 			while (true) {
 				fromServer = (String) in.readObject();
 				System.out.println("Receive message"); // debug message
-				connectedToPeerId = Messages.decodeMessage(fromServer, pp, -1);
+				connectedToPeerId = Messages.decodeMessage(fromServer, pp);
 				pp.logger.onConnectingTo(connectedToPeerId);
 			}
 			

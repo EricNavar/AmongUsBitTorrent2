@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.function.IntBinaryOperator;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;  
@@ -21,7 +22,7 @@ class Logger {
         log(getDate() + ": Peer " + this.peerID + " makes a connection to Peer " + peerID2 + ".");
     }
 
-    public void onConnectingFrom(String peerID2) {
+    public void onConnectingFrom(int peerID2) {
         log(getDate() + ": Peer " + this.peerID + " is connected from Peer " + peerID2 + ".");
     }
 
@@ -37,39 +38,39 @@ class Logger {
         log(toPrint.toString());
     }
 
-    public void onChangeOfOptimisticallyUnchokedNeighbor(String optimisticallyUnchockedNeighbor_ID) {
+    public void onChangeOfOptimisticallyUnchokedNeighbor(int optimisticallyUnchockedNeighbor_ID) {
         log(getDate() + ": Peer " + this.peerID + "has the optimistically unchoked neighbor "
                 + optimisticallyUnchockedNeighbor_ID + ".");
     }
 
-    public void onUnchoking(String peerID2) {
+    public void onUnchoking(int peerID2) {
         log(getDate() + ": Peer " + this.peerID + " is unchoked by " + peerID2 + ".");
     }
 
     // choke me plz
-    public void onChoking(String peerID2) {
+    public void onChoking(int peerID2) {
         log(getDate() + ": Peer " + this.peerID + " is choked by " + peerID2 + ".");
     }
 
-    public void onReceiveHaveMessage(String peerID2, String pieceIndex) {
+    public void onReceiveHaveMessage(int peerID2, int pieceIndex) {
         log(getDate() + ": Peer " + this.peerID + " received the  ‘have’ message from " + peerID2 + " for the piece "
                 + pieceIndex + ".");
     }
 
-    public void onReceiveInterestedMessage(String peerID2) {
+    public void onReceiveInterestedMessage(int peerID2) {
         log(getDate() + ": Peer " + this.peerID + " received the ‘interested’ message from " + peerID2 + ".");
     }
 
-    public void onReceiveNotInterestedMessage(String time, String peerID2) {
-        log(time + ": Peer " + this.peerID + " received the ‘not interested’ message from " + peerID2 + ".");
+    public void onReceiveNotInterestedMessage(int peerID2) {
+        log(getDate() + ": Peer " + this.peerID + " received the ‘not interested’ message from " + peerID2 + ".");
     }
 
-    public void onDownloadingAPiece(String peerID2, int piece_index, int number_of_pieces) {
+    public void onDownloadingAPiece(int peerID2, int piece_index, int number_of_pieces) {
         log(getDate() + ": Peer " + this.peerID + " has downloaded the piece " + String.valueOf(piece_index) + " from "
                 + peerID2 + ". Now the number of pieces it has is " + String.valueOf(number_of_pieces) + ".");
     }
 
-    public void onCompletionOfDownload(String time) {
+    public void onCompletionOfDownload() {
         log(getDate() + ": Peer " + this.peerID + "has downloaded the complete file.");
     }
 

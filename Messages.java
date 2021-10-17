@@ -159,12 +159,13 @@ public class Messages {
     //type 0
     private static void handleChokeMessage(String binary, peerProcess pp, int senderPeer) {
         pp.getRemotePeerInfo(senderPeer).setChoked(true);
-        // Logger.onChoking();
+        pp.logger.onChoking(senderPeer);
     }
 
     //type 1
     private static void handleUnchokeMessage(String binary, peerProcess pp, int senderPeer) {
         pp.getRemotePeerInfo(senderPeer).setChoked(false);
+        pp.logger.onUnchoking(senderPeer);
     }
 
     /* INTERESTED AND NOT INTERESTED
@@ -188,11 +189,13 @@ public class Messages {
     //type 2
     private static void handleInterestedMessage(String binary, peerProcess pp, int senderPeer) {
         pp.getRemotePeerInfo(senderPeer).setInterested(true);
+        pp.logger.onReceiveInterestedMessage(senderPeer);
     }
 
     //type 3
     private static void handleNotInterestedMessage(String binary, peerProcess pp, int senderPeer) {
         pp.getRemotePeerInfo(senderPeer).setInterested(false);
+        pp.logger.onReceiveNotInterestedMessage(senderPeer);
     }
 
     /* REQUEST AND PIECE
@@ -220,13 +223,14 @@ public class Messages {
     private static void handleHaveMessage(String binary, peerProcess pp, int senderPeer, String payload) {
         int index = Integer.parseInt(payload);
         pp.getRemotePeerInfo(senderPeer).getBitfield().set(index, true);
+        pp.logger.onReceiveHaveMessage(senderPeer, index);
         // TODO: if the receiver of this message does not have the piece
         // that the sender has, then maybe send an interested message.
     }
 
     //type 5
     private static void handleBitfieldMessage(String binary, peerProcess pp, int senderPeer, int length, String payload) {
-        Vector<Boolean> bitfield = new Vector<Boolean>(pp.pieceCount);
+        Vector<Boolean> bitfield = new Vector<Boolean>(pp.getTotalPieces());
         // if the payload is empty, then the sender has no pieces. 
         if (length == 0) {
             for (int i = 0; i < payload.length(); i++) {
@@ -253,12 +257,22 @@ public class Messages {
         int index = Integer.parseInt(payload.substring(0,32),2);
         String piece = binaryToString(payload.substring(32,length-32));
         // TODO: write the piece to a file (wherever it should be written, idk)
-
+        
         // update the bitfield
-        pp.bitfield.set(index,true); 
+        pp.bitfield.set(index,true);
+        pp.incrementCollectedPieces();
+        pp.logger.onDownloadingAPiece(senderPeer, index, pp.getCollectedPieces());
+        // log if this process now has the entire file
+        if (pp.hasFile()) {
+            pp.logger.onCompletionOfDownload();
+        }
     }
 
     // returns the peerId of the sender if it's a handshake message.
+    public static int decodeMessage(String binary, peerProcess pp) {
+        return decodeMessage(binary, pp, -1);
+    }
+
     public static int decodeMessage(String binary, peerProcess pp, int senderPeer) {
         String handshakeHeader = stringToBinary("P2PFILESHARINGPROJ");
         // if the message starts with the handShake header, then it's a handshake message
