@@ -35,16 +35,16 @@ public class StartRemotePeers {
 			while ((st = in.readLine()) != null) {
 
 				String[] tokens = st.split("\\s+");
-				// System.out.println("tokens begin ----");
-				// for (int x=0; x<tokens.length; x++) {
-				// System.out.println(tokens[x]);
-				// }
-				// System.out.println("tokens end ----");
-				if (Integer.parseInt(tokens[0]) == pp.peerId && tokens[3].equals("1")) {
-					pp.setHasFile(true);
+				// don't include this process in the vector of remote peers so that it can't
+				// be selected as a preferred neighbor
+				if (Integer.parseInt(tokens[0]) == pp.peerId) {
+					if (tokens[3].equals("1")) {
+						pp.setHasFile(true);
+					}
 				}
-
-				pp.peerInfoVector.addElement(new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3]));
+				else {	
+					pp.peerInfoVector.addElement(new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3]));
+				}
 			}
 
 			in.close();

@@ -13,16 +13,16 @@ To compile, run: ./compile.sh
 
 For the first check we have to have 800 lines of runnable code.
 
-- peerProcess.java:       161
-- MessageType.java:         5
-- Logger.java:             88
+- peerProcess.java:       226
 - RemotePeerInfo.java:     68
-- StartRemotePeers.java    84
-- Server.java             135
-- Client.java              75
+- Logger.java:             88
 - Messages.java           321
+- MessageType.java:         5
+- Server.java             164
+- Client.java              77
+- StartRemotePeers.java    84
 
-Total:                    937
+Total:                   1033
 
 # Files
 

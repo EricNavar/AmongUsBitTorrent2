@@ -1,6 +1,8 @@
+// This file uses a lot of logic from the sample file from Canvas
+
+
 import java.net.*;
 import java.io.*;
-
 
 public class Client {
 	Socket requestSocket; // socket connect to the server
