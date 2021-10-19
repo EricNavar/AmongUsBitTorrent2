@@ -179,6 +179,9 @@ public class Messages {
         pp.logger.onUnchoking(senderPeer);
         // TODO: request a random piece that the sender has and the receiver doesn't
         // There's a method in RemotePeerInfo to select a random missing piece that can help.
+
+        int missingPiece = pp.getRemotePeerInfo(senderPeer).selectRandomMissingPiece();
+        // read piece from process using some method
     }
 
     /* INTERESTED AND NOT INTERESTED
@@ -269,6 +272,10 @@ public class Messages {
     private static void handleRequestMessage(peerProcess pp, int senderPeer, String payload) {
         int index = Integer.parseInt(payload);
         // TODO: if the receiver of the message has the piece, then send the piece
+        if(pp.bitfield.get(index))
+        {
+            // send piece by reading from file
+        }
     }
 
     //type 7
@@ -276,8 +283,7 @@ public class Messages {
         int index = Integer.parseInt(payload.substring(0,32),2);
         String piece = binaryToString(payload.substring(32,length-32));
         // TODO: write the piece to a file (wherever it should be written, idk)
-        
-
+        pp.logger.logPiece(piece);
         pp.getRemotePeerInfo(senderPeer).incrementPiecesTransmitted();
         // update the bitfield
         pp.bitfield.set(index,true);
