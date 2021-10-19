@@ -90,9 +90,9 @@ public class Messages {
         return message.toString();
     }
 
-    public static String createRequestMessage(int index) {
+    public static String createRequestMessage(int index) {                                 // Type 6 Message, takes inthe index, creates the message and returns string
         final int length = 4;
-        String message = encodeLength(length) + encodeType(MessageType.REQUEST.ordinal());
+        String message = encodeLength(length) + encodeType(MessageType.REQUEST.ordinal()); 
         return message + integerToBinaryString(MessageType.BITFIELD.ordinal(), length);
     }
 
@@ -177,8 +177,10 @@ public class Messages {
     private static void handleUnchokeMessage(peerProcess pp, int senderPeer) {
         pp.getRemotePeerInfo(senderPeer).setChoked(false);
         pp.logger.onUnchoking(senderPeer);
-        // TODO: request a random piece that the sender has and the receiver doesn't
-        // There's a method in RemotePeerInfo to select a random missing piece that can help.
+                                                                                              // DONE: request a random piece that the sender has and the receiver doesn't
+                                                                                              // There's a method in RemotePeerInfo to select a random missing piece that can help.
+		int askForPiece = pp.getRemotePeerInfo(senderPeer).selectRandomMissingPiece();        // asking for this piece from the remote peer that is now unchoked
+		pp.client.sendMessage(createRequestMessage(askForPiece));                             // ask for this piece
     }
 
     /* INTERESTED AND NOT INTERESTED
@@ -267,8 +269,21 @@ public class Messages {
 
     //type 6
     private static void handleRequestMessage(peerProcess pp, int senderPeer, String payload) {
-        int index = Integer.parseInt(payload);
         // TODO: if the receiver of the message has the piece, then send the piece
+        int index = Integer.parseInt(payload);
+		
+        pp.getRemotePeerInfo(senderPeer).getBitfield().set(index, true);
+        pp.logger.onReceiveHaveMessage(senderPeer, index);
+        /* If the receiver of this message does has the piece
+          that the sender has, then send a not_interested message.
+          Else, send an interested message.
+        */ 
+        if (pp.bitfield.get(index)) {
+            pp.client.sendMessage(createNotInterestedMessage());
+        }
+        else {
+            pp.client.sendMessage(createInterestedMessage());
+        }
     }
 
     //type 7

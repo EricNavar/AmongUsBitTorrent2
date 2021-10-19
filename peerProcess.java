@@ -59,10 +59,10 @@ class peerProcess {
     public void setHasFile(boolean hasFile) {
         this.hasFile = hasFile;
     }
-
-    public RemotePeerInfo getRemotePeerInfo(int peerId) {
-        for (RemotePeerInfo rfi : peerInfoVector) {
-            if (rfi.getPeerId() == peerId) {
+                                                           // finds the peer's handle to be able to get that peer's detailed information
+    public RemotePeerInfo getRemotePeerInfo(int peerId) {  // searches through a list of peers to find the one with the matching ID
+        for (RemotePeerInfo rfi : peerInfoVector) {        // iterates over the set of rfi peers
+            if (rfi.getPeerId() == peerId) {               // if the rfi's peerID matches, then return the rfi handle
                 return rfi;
             }
         }
