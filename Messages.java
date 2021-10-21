@@ -215,16 +215,16 @@ public class Messages {
     //type 4
     private static void handleHaveMessage(peerProcess pp, int senderPeer, String payload) {
         int index = Integer.parseInt(payload);
-        pp.getRemotePeerInfo(senderPeer).getBitfield().set(index, true);
-        pp.logger.onReceiveHaveMessage(senderPeer, index);
+        pp.getRemotePeerInfo(senderPeer).getBitfield().set(index, true);  // sets the index to true of the peer that they have this message
+        pp.logger.onReceiveHaveMessage(senderPeer, index);                // log that we received this comment
         /* If the receiver of this message does has the piece
           that the sender has, then send a not_interested message.
           Else, send an interested message.
         */ 
-        if (pp.bitfield.get(index)) {
+        if (pp.bitfield.get(index)) {                                     // if this message is already in possession, skip getting it again
             pp.client.sendMessage(createNotInterestedMessage());
         }
-        else {
+        else {                                                            // else ask for the message
             pp.client.sendMessage(createInterestedMessage());
         }
     }
@@ -268,22 +268,11 @@ public class Messages {
     */
 
     //type 6
-    private static void handleRequestMessage(peerProcess pp, int senderPeer, String payload) {
-        // TODO: if the receiver of the message has the piece, then send the piece
-        int index = Integer.parseInt(payload);
-		
-        pp.getRemotePeerInfo(senderPeer).getBitfield().set(index, true);
-        pp.logger.onReceiveHaveMessage(senderPeer, index);
-        /* If the receiver of this message does has the piece
-          that the sender has, then send a not_interested message.
-          Else, send an interested message.
-        */ 
-        if (pp.bitfield.get(index)) {
-            pp.client.sendMessage(createNotInterestedMessage());
-        }
-        else {
-            pp.client.sendMessage(createInterestedMessage());
-        }
+    private static void handleRequestMessage(peerProcess pp, int senderPeer, String payload) {  // a peer (senderPeer) has requested (payload) index message
+                                                                                  // DONE: if the receiver of the message has the piece, then send the piece
+        int index = Integer.parseInt(payload);                                    // parse out the requestd item into payload
+		pp.client.sendMessage(createPieceMessage(payload);                        // send the piece
+		                                                                          // doesn't set peer information of this payload to true until the peer says the message was received with a HAVE message
     }
 
     //type 7
