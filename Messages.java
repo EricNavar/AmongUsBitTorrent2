@@ -15,6 +15,10 @@ public class Messages {
     }
 
     // ALL MESSAGES SHOULD BE SENT AS A BINARY STRING
+	// ToDo:
+	// This probably won't work for allm messages because pieces that are 32,768 bytes long will create strings that are
+	// 32,768*8 in length or 262,144 charactesrs (bytes) of transmitted data.  UDP/TCP/IP are limite to 65,536 byte packets.
+	// so the data needs to be encoded in binary format only and transmitted as a sequence of bytes.
 
     // The following 2 methods use this logic: 
     // https://stackoverflow.com/questions/4416954/how-to-convert-a-string-to-a-stream-of-bits-in-java/4417069
@@ -271,7 +275,8 @@ public class Messages {
     private static void handleRequestMessage(peerProcess pp, int senderPeer, String payload) {  // a peer (senderPeer) has requested (payload) index message
                                                                                   // DONE: if the receiver of the message has the piece, then send the piece
         int index = Integer.parseInt(payload);                                    // parse out the requestd item into payload
-		pp.client.sendMessage(createPieceMessage(payload);                        // send the piece
+		pp.client.sendMessage(createPieceMessage(payload));                        // send the piece
+		                                                                          // ToDo: Read the file piece and send it with the pay load encoded as a bitstream
 		                                                                          // doesn't set peer information of this payload to true until the peer says the message was received with a HAVE message
     }
 
@@ -279,7 +284,7 @@ public class Messages {
     private static void handlePieceMessage(peerProcess pp, int senderPeer, int length, String payload) {
         int index = Integer.parseInt(payload.substring(0,32),2);
         String piece = binaryToString(payload.substring(32,length-32));
-        // TODO: write the piece to a file (wherever it should be written, idk)
+                                                                                  // Done: write the piece to a file (wherever it should be written, idk)  See Below, handles logging of the received piece
         
 
         pp.getRemotePeerInfo(senderPeer).incrementPiecesTransmitted();
