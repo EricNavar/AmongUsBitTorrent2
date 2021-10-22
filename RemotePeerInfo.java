@@ -79,19 +79,19 @@ public class RemotePeerInfo {
 		piecesTransmitted++;
 	}
 
-	// gets the index of a random piece that is missing.
-	// Return -1 if no pieces are missing.
-	public int selectRandomMissingPiece() {
-		if (hasFile) {
+	                                                               // gets the index of a random piece that is missing.
+	                                                               // Return -1 if no pieces are missing.
+	public int selectRandomMissingPiece() {                  
+		if (hasFile) {                                             // if this peer has everything it needs, this will return -1
 			return -1;
 		}
-		Vector<Integer> missingPieces = new Vector<Integer>();
-		for (int i = 0; i < bitfield.size(); i++) {
-			if (!bitfield.get(i)) {
-				missingPieces.add(i);
-			}
+		Vector<Integer> missingPieces = new Vector<Integer>();     // Create a temporary vector to hold missing piece values
+		for (int i = 0; i < bitfield.size(); i++) {                // walk the entire bitfield vector 
+			if (!bitfield.get(i)) {                                // look for bitfields that are not true yet, so missing...
+				missingPieces.add(i);                              // add them to the missing piecese collection
+			} 
 		}
-        int missingPieceIndex = (int)Math.floor(Math.random()*(bitfield.size()));
-		return missingPieces.get(missingPieceIndex);
+        int missingPieceIndex = (int)Math.floor(Math.random()*(bitfield.size()));  // randomly select an item from the missing pieces
+		return missingPieces.get(missingPieceIndex);                               // and return that index's misisng piece location
 	}
 }

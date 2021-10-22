@@ -46,7 +46,7 @@ class Logger {
         log(getDate() + ": Peer " + this.peerID + " is unchoked by " + peerID2 + ".");
     }
 
-    // choke me plz
+    // choke me plz, well... at least we didn't throw four interceptions this week...
     public void onChoking(int peerID2) {
         log(getDate() + ": Peer " + this.peerID + " is choked by " + peerID2 + ".");
     }
