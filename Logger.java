@@ -74,7 +74,22 @@ class Logger {
     }
 
     public void log(String toPrint) {
+        // file directory would change based on windows or linux
+        // need to specify full directory path
         String fileName = "log_peer_" + this.peerID + ".log";
+        try {
+            FileOutputStream outputStream = new FileOutputStream(fileName);
+            byte[] strToBytes = toPrint.getBytes();
+            outputStream.write(strToBytes);
+            outputStream.close();
+        } catch (IOException e) {
+            System.out.println("IO Exception");
+        }
+    }
+    public void logPiece(String toPrint) {
+        // file directory would change based on windows or linux
+        // need to specify full directory path
+        String fileName = "piece" + this.peerID + ".txt";
         try {
             FileOutputStream outputStream = new FileOutputStream(fileName);
             byte[] strToBytes = toPrint.getBytes();

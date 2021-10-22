@@ -285,8 +285,7 @@ public class Messages {
         int index = Integer.parseInt(payload.substring(0,32),2);
         String piece = binaryToString(payload.substring(32,length-32));
                                                                                   // Done: write the piece to a file (wherever it should be written, idk)  See Below, handles logging of the received piece
-        
-
+       
         pp.getRemotePeerInfo(senderPeer).incrementPiecesTransmitted();
         // update the bitfield
         pp.bitfield.set(index,true);

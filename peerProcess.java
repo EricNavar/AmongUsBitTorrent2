@@ -2,6 +2,8 @@ import java.io.*;
 import java.util.Vector;
 import static java.lang.Math.ceil;
 import java.util.Collections;
+import java.util.Random;
+
 
 class peerProcess {
     protected int numberOfPreferredNeighbors;
@@ -27,6 +29,7 @@ class peerProcess {
     Logger logger;
     Client client;
     Server server;
+    Messages message;
 
     public void incrementCollectedPieces() {
         collectedPieces++;
@@ -173,11 +176,31 @@ class peerProcess {
         // The first 4 peers are the peers that have transmitted the most.
         // Add their peerId to the list of preferred vectors
         for (int i = 0; i < 4 && i < peerInfoVector.size(); i++) {
+            // if tie, randomly choose among tied processes
             preferredNeighbors.add(peerInfoVector.get(i).getPeerId());
         }
         // choose another random peer from the rest
         int optimisicallyUnchokedNeighbor = chooseOptimisticallyUnchokedPeer();
         preferredNeighbors.add(optimisicallyUnchokedNeighbor);
+        //choke unchosen peers, unchoke chosen peers
+        for(RemotePeerInfo rpi : peerInfoVector)
+        {
+            if(!preferredNeighbors.contains(rpi.getPeerId()))
+            {
+                String chokeMessage = message.createChokeMessage();
+                // TODO: send choke message to this peer ID
+            }
+            else
+            {   // we need to unchoke the peers we selected
+
+                // already unchoked
+                if(!rpi.isChoked())
+                    continue;
+                String unchokeMessage = message.createUnchokeMessage();
+                // TODO: send unchoke message to this peer ID
+
+            }
+        }
         logger.onChangeOfOptimisticallyUnchokedNeighbor(optimisicallyUnchokedNeighbor);
         // after recalculating the preferred neighbors, reset the value of the
         // transmitted data of all remote peers
@@ -189,7 +212,21 @@ class peerProcess {
         Collections.sort(peerInfoVector, (o1, o2) -> {
             // We want the Vector to be in decreasing order, so we're comparing it backwards
             Integer o2Value = o2.getPiecesTransmitted();
+            // need to break ties - 2 or more?
+            //https://stackoverflow.com/questions/22968012/how-to-randomly-choose-between-two-choices/22968825
+            if(o2Value.compareTo(o1.getPiecesTransmitted()) == 0)
+            {
+                Random chooser = new Random();
+                if(chooser.nextInt(3) == 1)
+                {
+                    return -1;
+                }
+                else
+                    return 1;
+
+            }
             return o2Value.compareTo(o1.getPiecesTransmitted());
+
         });
     }
 
