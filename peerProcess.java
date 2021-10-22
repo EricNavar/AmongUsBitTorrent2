@@ -243,6 +243,8 @@ class peerProcess {
         int min = 4;
         int max = peerInfoVector.size();
         int randomPeerIndex = (int)Math.floor(Math.random()*(max-min+1)+min);
+        if(randomPeerIndex > peerInfoVector.size()-1)
+            randomPeerIndex = peerInfoVector.size()-1;
         return peerInfoVector.get(randomPeerIndex).getPeerId();
     }
 
