@@ -30,7 +30,7 @@ class peerProcess {
     Client client;
     Server server;
     Messages message;
-    boolean isServer = false;
+
     public void incrementCollectedPieces() {
         collectedPieces++;
         if (collectedPieces == totalPieces) {
@@ -146,7 +146,6 @@ class peerProcess {
         } else {
             System.out.println("This process has the file.");
             System.out.println("Starting a listener at the post and try to handshake with other processes...");
-            isServer = true;
             server = new Server(this);
             server.startServer();
         }
