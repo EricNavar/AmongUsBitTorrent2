@@ -30,7 +30,7 @@ class peerProcess {
     Client client;
     Server server;
     Messages message;
-
+    boolean isServer = false;
     public void incrementCollectedPieces() {
         collectedPieces++;
         if (collectedPieces == totalPieces) {
@@ -146,6 +146,7 @@ class peerProcess {
         } else {
             System.out.println("This process has the file.");
             System.out.println("Starting a listener at the post and try to handshake with other processes...");
+            isServer = true;
             server = new Server(this);
             server.startServer();
         }
@@ -188,7 +189,8 @@ class peerProcess {
             if(!preferredNeighbors.contains(rpi.getPeerId()))
             {
                 String chokeMessage = message.createChokeMessage();
-                // TODO: send choke message to this peer ID
+                // TODO: do we have to do anything else here?
+                rpi.setChoked(true);
             }
             else
             {   // we need to unchoke the peers we selected
@@ -196,8 +198,10 @@ class peerProcess {
                 // already unchoked
                 if(!rpi.isChoked())
                     continue;
-                String unchokeMessage = message.createUnchokeMessage();
-                // TODO: send unchoke message to this peer ID
+                // TODO: do we have to do anything else here?
+
+                rpi.setChoked(false);
+
 
             }
         }
