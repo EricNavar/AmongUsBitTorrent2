@@ -25,6 +25,7 @@ public class Client {
 	}
 
 	void run() {
+		pp.setBitfieldLength();
 		try {
 			// create a socket to connect to the server
 			requestSocket = new Socket("localhost", 8000);
@@ -37,26 +38,30 @@ public class Client {
 			// create handshake message and send send to server
 			String messageToSend = Messages.createHandshakeMessage(peerID);
 			sendMessage(messageToSend);
-			String bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
-			sendMessage(bitfieldMessage);
 
 			// expect a handshake message back
 			while (true) {
 				fromServer = (String) in.readObject();
 				System.out.println("Receive message"); // debug message
+
 				connectedToPeerId = Messages.decodeMessage(fromServer, pp);
+
 				pp.logger.onConnectingTo(connectedToPeerId);
 				String fromServer2 = (String) in.readObject();
 
-				bitfieldHandshake = Integer.toBinaryString(Messages.decodeMessage(fromServer2, pp));
+				System.out.println(fromServer2);
+
 				boolean missingPiece = false;
-				for(int i = 0; i < bitfieldHandshake.length(); i++)
+				for(int i = 0; i < fromServer2.length(); i++)
 				{// TODO: check for missing pieces
-					if(bitfieldHandshake.charAt(i) == '1' && pp.bitfield.get(i) == false)
+					if(fromServer2.charAt(i) == '1' && pp.bitfield.get(i) == false)
 					{
 						missingPiece = true;
 					}
 				}
+
+				String bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
+				sendMessage(bitfieldMessage);
 				if(missingPiece)
 				{
 					String interestedMessage = Messages.createInterestedMessage();

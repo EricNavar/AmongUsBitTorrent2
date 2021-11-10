@@ -54,6 +54,13 @@ class peerProcess {
         hasFile = false;
         preferredNeighbors = new Vector<Integer>(5);
     }
+    public void setBitfieldLength() {
+        totalPieces = (int) ceil((double) fileSize / pieceSize);
+        bitfield = new Vector<Boolean>(totalPieces);
+        for (int i = 0; i < bitfield.size(); i++) {
+            bitfield.set(i, hasFile);
+        }
+    }
 
     public boolean hasFile() {
         return hasFile;
