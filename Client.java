@@ -12,6 +12,8 @@ public class Client {
 	String fromServer; // capitalized message read from the server
 	int peerID;
 	int connectedToPeerId;
+	String bitfieldHandshake;
+
 	int socket;
 	peerProcess pp;
 
@@ -44,6 +46,33 @@ public class Client {
 				System.out.println("Receive message"); // debug message
 				connectedToPeerId = Messages.decodeMessage(fromServer, pp);
 				pp.logger.onConnectingTo(connectedToPeerId);
+				String fromServer2 = (String) in.readObject();
+
+				bitfieldHandshake = Integer.toBinaryString(Messages.decodeMessage(fromServer2, pp));
+				boolean missingPiece = false;
+				for(int i = 0; i < bitfieldHandshake.length(); i++)
+				{// TODO: check for missing pieces
+					if(bitfieldHandshake.charAt(i) == '1' && pp.bitfield.get(i) == false)
+					{
+						missingPiece = true;
+					}
+				}
+				if(missingPiece)
+				{
+					String interestedMessage = Messages.createInterestedMessage();
+					// TODO: does this send to the right process?
+					sendMessage(interestedMessage);
+
+				}
+				else
+				{
+					String notInterestedMessage = Messages.createNotInterestedMessage();
+					// TODO: does this send to the right process?
+					sendMessage(notInterestedMessage);
+
+				}
+
+
 			}
 			
 		} catch (ConnectException e) {

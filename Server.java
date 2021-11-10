@@ -91,8 +91,7 @@ public class Server {
 				pp.logger.onConnectingFrom(connectedFrom);
 				String messageToSend = Messages.createHandshakeMessage(pp.peerId);
 				sendMessage(messageToSend);
-				String bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
-				sendMessage(bitfieldMessage);
+
 
 				if(handlers.size() >= 2)
 				{
@@ -104,9 +103,35 @@ public class Server {
 						// exclude server
 						// coordinate piece distributuion between clients
 						handlers.get(i).sendMessage(messageToSend);
-						String bitfieldMessage = Messages.createBitfieldMessage(bitfield);
+						String bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
 						handlers.get(i).sendMessage(bitfieldMessage);
+						String fromClient = (String) in.readObject();
+						String bitfieldHandshake = Integer.toBinaryString(Messages.decodeMessage(message, pp));
+
+						boolean missingPiece = false;
+						for(int j = 0; j < bitfieldHandshake.length(); j++)
+						{// TODO: check for missing pieces
+							if(bitfieldHandshake.charAt(j) == '1' && pp.bitfield.get(j) == false)
+							{
+								missingPiece = true;
+							}
+						}
+						if(missingPiece)
+						{
+							String interestedMessage = Messages.createInterestedMessage();
+							// TODO: does this send to the right process?
+							sendMessage(interestedMessage);
+
+						}
+						else
+						{
+							String notInterestedMessage = Messages.createNotInterestedMessage();
+							// TODO: does this send to the right process?
+							sendMessage(notInterestedMessage);
+
+						}
 					}
+					// choke and unchoke different processes
 				}
 			}
 		}
