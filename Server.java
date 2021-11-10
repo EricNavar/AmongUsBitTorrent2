@@ -38,7 +38,6 @@ public class Server {
 				h.start();
 				handlers.add(h);
 				System.out.println("Client " + clientNum + " is connected!");
-			
 				clientNum++;
 			}
 		} finally {
@@ -84,7 +83,7 @@ public class Server {
 					pp.calculatePreferredNeighbors();
 				}
 			}, 0, 5*1000);
-			// https://stackoverflow.com/questions/2702980/java-loop-every-minute
+			// https://stackoverflow.com/ques1tions/2702980/java-loop-every-minute
 
 			while (true) {
 				message = (String) in.readObject();
@@ -92,11 +91,21 @@ public class Server {
 				pp.logger.onConnectingFrom(connectedFrom);
 				String messageToSend = Messages.createHandshakeMessage(pp.peerId);
 				sendMessage(messageToSend);
+				String bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
+				sendMessage(bitfieldMessage);
+
 				if(handlers.size() >= 2)
 				{
+
 					for(int i=0; i < handlers.size(); i++)
 					{
+						// start sending piece messages here
+						// request piece from client
+						// exclude server
+						// coordinate piece distributuion between clients
 						handlers.get(i).sendMessage(messageToSend);
+						String bitfieldMessage = Messages.createBitfieldMessage(bitfield);
+						handlers.get(i).sendMessage(bitfieldMessage);
 					}
 				}
 			}

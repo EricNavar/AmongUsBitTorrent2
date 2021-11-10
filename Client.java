@@ -35,6 +35,8 @@ public class Client {
 			// create handshake message and send send to server
 			String messageToSend = Messages.createHandshakeMessage(peerID);
 			sendMessage(messageToSend);
+			String bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
+			sendMessage(bitfieldMessage);
 
 			// expect a handshake message back
 			while (true) {
