@@ -43,8 +43,18 @@ class peerProcess {
     }
 
     public int getTotalPieces() {
+
         return totalPieces;
     }
+    public int getPeerId() {
+
+        return peerId;
+    }
+    public Vector<Boolean> getCurrBitfield() {
+
+        return bitfield;
+    }
+
 
     public int getCollectedPieces() {
         return collectedPieces;

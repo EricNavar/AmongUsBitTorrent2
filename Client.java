@@ -47,7 +47,6 @@ public class Client {
 
 				pp.logger.onConnectingTo(connectedToPeerId);
 				String fromServer2 = (String) in.readObject();
-				System.out.println(pp.bitfield.size());
 				int bitfieldRes = Messages.decodeMessage(fromServer2, pp);
 				String bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
 				sendMessage(bitfieldMessage);

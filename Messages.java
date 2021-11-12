@@ -235,22 +235,26 @@ public class Messages {
 
     //type 5
     private static void handleBitfieldMessage(String binary, peerProcess pp, int senderPeer, int length, String payload) {
-        Vector<Boolean> bitfield = new Vector<Boolean>(pp.getTotalPieces());
         // if the payload is empty, then the sender has no pieces.
-        System.out.println(payload.length());
-        System.out.println(bitfield.size());
+        boolean nowInterested = false;
 
         if (length == 0) {
-            for (int i = 0; i < payload.length(); i++) {
-                bitfield.set(i, false);
-            }
+                return;
         }
         else {
-            for (int i = 0; i < payload.length(); i++) {
-                bitfield.set(i, payload.charAt(i) == '1');
+
+            for (int i = 0; i < pp.getTotalPieces(); i++) {
+                if(pp.getCurrBitfield().get(i) == false && payload.charAt(i) == '1') {
+                    nowInterested = true;
+                    break;
+                }
             }
         }
-        pp.getRemotePeerInfo(senderPeer).setBitfield(bitfield);
+        System.out.println(nowInterested);
+        return;
+
+        // TODO: send interested message to sender process
+
     }
 
     /* REQUEST AND PIECE
@@ -317,8 +321,9 @@ public class Messages {
          * 1-bit message type
          * message payload
          */
-        int length = Integer.parseInt(binary.substring(0,32));
-        int type = Integer.parseInt(binary.substring(32,40));
+        int length = Integer.parseInt(binary.substring(0,32), 2);
+        int type = Integer.parseInt(binary.substring(32,40), 2);
+
         String payload = binary.substring(40,length * 8);
 
 
