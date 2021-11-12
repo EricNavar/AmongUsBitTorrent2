@@ -236,7 +236,10 @@ public class Messages {
     //type 5
     private static void handleBitfieldMessage(String binary, peerProcess pp, int senderPeer, int length, String payload) {
         Vector<Boolean> bitfield = new Vector<Boolean>(pp.getTotalPieces());
-        // if the payload is empty, then the sender has no pieces. 
+        // if the payload is empty, then the sender has no pieces.
+        System.out.println(payload.length());
+        System.out.println(bitfield.size());
+
         if (length == 0) {
             for (int i = 0; i < payload.length(); i++) {
                 bitfield.set(i, false);
@@ -305,6 +308,7 @@ public class Messages {
     public static int decodeMessage(String binary, peerProcess pp, int senderPeer) {
         String handshakeHeader = stringToBinary("P2PFILESHARINGPROJ");
         // if the message starts with the handShake header, then it's a handshake message
+
         if (binary.length() >= 143 && binary.substring(0,143).equals(handshakeHeader)) {
             return handleHandshakeMessage(binary, pp, senderPeer);
         }
@@ -316,6 +320,7 @@ public class Messages {
         int length = Integer.parseInt(binary.substring(0,32));
         int type = Integer.parseInt(binary.substring(32,40));
         String payload = binary.substring(40,length * 8);
+
 
         // The logic for handling the message types are here
         if (type == MessageType.CHOKE.ordinal()) { //type 0
@@ -334,6 +339,7 @@ public class Messages {
             handleHaveMessage(pp, senderPeer, payload);
         }
         else if (type == MessageType.BITFIELD.ordinal()) { //type 5
+
             handleBitfieldMessage(binary, pp, senderPeer, length, payload);
         }
         else if (type == MessageType.REQUEST.ordinal()) { //type 6

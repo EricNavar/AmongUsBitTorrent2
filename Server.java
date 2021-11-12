@@ -94,48 +94,9 @@ public class Server {
 				sendMessage(bitfieldMessage);
 				String fromClient = (String) in.readObject();
 
-				boolean missingPiece = false;
-				for(int j = 0; j < fromClient.length(); j++)
-				{// TODO: check for missing pieces
-					if(fromClient.charAt(j) == '1' && pp.bitfield.get(j) == false)
-					{
-						missingPiece = true;
-					}
-				}
-				if(missingPiece)
-				{
-					String interestedMessage = Messages.createInterestedMessage();
-					// TODO: does this send to the right process?
-					sendMessage(interestedMessage);
-
-				}
-				else
-				{
-					String notInterestedMessage = Messages.createNotInterestedMessage();
-					// TODO: does this send to the right process?
-					sendMessage(notInterestedMessage);
-
-				}
-				/*here we have choke/unchoke message sending, to be finished at a later date
-
-				  if(someCondition)
-					pp.calculatePreferredNeighbors();
-				  for(int i = 0; i < pp.peerInfoVector.size(); i++) {
-					  if (pp.peerInfoVector.get(i).isChoked())
-					  {
-						  String chokeMessage = message.createChokeMessage();
-						  sendMessage(chokeMessage);
-
-					  }
-					  else
-					  {
-
-						  String unchokeMessage = message.createUnchokeMessage();
-						  sendMessage(unchokeMessage);
-					  }
+				int bitfieldRes = Messages.decodeMessage(fromClient, pp);
 
 
-				  } */
 
 
 				if(handlers.size() >= 2)

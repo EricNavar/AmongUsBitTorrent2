@@ -47,53 +47,12 @@ public class Client {
 
 				pp.logger.onConnectingTo(connectedToPeerId);
 				String fromServer2 = (String) in.readObject();
-
-
-				boolean missingPiece = false;
-				for(int i = 0; i < fromServer2.length(); i++)
-				{// TODO: check for missing pieces
-					if(fromServer2.charAt(i) == '1' && pp.bitfield.get(i) == false)
-					{
-						missingPiece = true;
-					}
-				}
-
+				System.out.println(pp.bitfield.size());
+				int bitfieldRes = Messages.decodeMessage(fromServer2, pp);
 				String bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
 				sendMessage(bitfieldMessage);
-				if(missingPiece)
-				{
-					String interestedMessage = Messages.createInterestedMessage();
-					// TODO: does this send to the right process?
-					sendMessage(interestedMessage);
+				// TODO: send interested/not interested messages
 
-				}
-				else
-				{
-					String notInterestedMessage = Messages.createNotInterestedMessage();
-					// TODO: does this send to the right process?
-					sendMessage(notInterestedMessage);
-
-				}
-				/*here we have choke/unchoke message sending, to be finished at a later date
-
-				  if(someCondition)
-					pp.calculatePreferredNeighbors();
-				  for(int i = 0; i < pp.peerInfoVector.size(); i++) {
-					  if (pp.peerInfoVector.get(i).isChoked())
-					  {
-						  String chokeMessage = message.createChokeMessage();
-						  sendMessage(chokeMessage);
-
-					  }
-					  else
-					  {
-
-						  String unchokeMessage = message.createUnchokeMessage();
-						  sendMessage(unchokeMessage);
-					  }
-
-
-				  } */
 
 
 
