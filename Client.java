@@ -25,7 +25,6 @@ public class Client {
 	}
 
 	void run() {
-		pp.setBitfieldLength();
 		try {
 			// create a socket to connect to the server
 			requestSocket = new Socket("localhost", 8000);
@@ -49,7 +48,6 @@ public class Client {
 				pp.logger.onConnectingTo(connectedToPeerId);
 				String fromServer2 = (String) in.readObject();
 
-				System.out.println(fromServer2);
 
 				boolean missingPiece = false;
 				for(int i = 0; i < fromServer2.length(); i++)
@@ -76,6 +74,28 @@ public class Client {
 					sendMessage(notInterestedMessage);
 
 				}
+				/*here we have choke/unchoke message sending, to be finished at a later date
+
+				  if(someCondition)
+					pp.calculatePreferredNeighbors();
+				  for(int i = 0; i < pp.peerInfoVector.size(); i++) {
+					  if (pp.peerInfoVector.get(i).isChoked())
+					  {
+						  String chokeMessage = message.createChokeMessage();
+						  sendMessage(chokeMessage);
+
+					  }
+					  else
+					  {
+
+						  String unchokeMessage = message.createUnchokeMessage();
+						  sendMessage(unchokeMessage);
+					  }
+
+
+				  } */
+
+
 
 
 			}

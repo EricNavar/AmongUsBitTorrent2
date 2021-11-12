@@ -1,8 +1,12 @@
 import java.io.*;
+import java.nio.file.Files;
 import java.util.Vector;
 import static java.lang.Math.ceil;
 import java.util.Collections;
 import java.util.Random;
+import java.util.List;
+import java.nio.file.Paths;
+import java.nio.file.Path;
 
 
 class peerProcess {
@@ -24,7 +28,7 @@ class peerProcess {
     final protected int port = 5478;
     protected Vector<RemotePeerInfo> peerInfoVector;
     // denotes which pieces of the file this process has
-    Vector<Boolean> bitfield = new Vector<Boolean>();
+    Vector<Boolean> bitfield = new Vector<Boolean>(0);
     Vector<Integer> preferredNeighbors;
     Logger logger;
     Client client;
@@ -49,18 +53,29 @@ class peerProcess {
     public peerProcess(int peerId) {
         this.peerId = peerId;
         logger = new Logger(peerId);
+
+        try {
+            //https://www.educative.io/edpresso/reading-the-nth-line-from-a-file-in-java
+            Path tempFile = Paths.get("Common.cfg");
+            List<String> fileLines = Files.readAllLines(tempFile);
+            String fileSizeString = fileLines.get(4);
+            String pieceSizeString = fileLines.get(5);
+            String[] fileSizes = fileSizeString.split(" ");
+            String[] pieceSizes = pieceSizeString.split(" ");
+
+            fileSize = Integer.parseInt(fileSizes[1]);
+            pieceSize = Integer.parseInt(pieceSizes[1]);
+        }
+        catch(Exception e)
+        {
+
+        }
         totalPieces = (int) ceil((double) fileSize / pieceSize);
-        bitfield = new Vector<Boolean>(totalPieces);
+        bitfield.setSize(totalPieces);
         hasFile = false;
         preferredNeighbors = new Vector<Integer>(5);
     }
-    public void setBitfieldLength() {
-        totalPieces = (int) ceil((double) fileSize / pieceSize);
-        bitfield = new Vector<Boolean>(totalPieces);
-        for (int i = 0; i < bitfield.size(); i++) {
-            bitfield.set(i, hasFile);
-        }
-    }
+
 
     public boolean hasFile() {
         return hasFile;
@@ -194,8 +209,8 @@ class peerProcess {
         {
             if(!preferredNeighbors.contains(rpi.getPeerId()))
             {
-                String chokeMessage = message.createChokeMessage();
                 // TODO: do we have to do anything else here?
+
                 rpi.setChoked(true);
             }
             else
@@ -205,6 +220,7 @@ class peerProcess {
                 if(!rpi.isChoked())
                     continue;
                 // TODO: do we have to do anything else here?
+
 
                 rpi.setChoked(false);
 

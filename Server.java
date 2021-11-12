@@ -14,7 +14,6 @@ public class Server {
 	static private ArrayList<Handler> handlers = new ArrayList<Handler>();
 
 	private static peerProcess pp;
-
 	public Server(peerProcess pp_) {
 		pp = pp_;
 	}
@@ -117,6 +116,26 @@ public class Server {
 					sendMessage(notInterestedMessage);
 
 				}
+				/*here we have choke/unchoke message sending, to be finished at a later date
+
+				  if(someCondition)
+					pp.calculatePreferredNeighbors();
+				  for(int i = 0; i < pp.peerInfoVector.size(); i++) {
+					  if (pp.peerInfoVector.get(i).isChoked())
+					  {
+						  String chokeMessage = message.createChokeMessage();
+						  sendMessage(chokeMessage);
+
+					  }
+					  else
+					  {
+
+						  String unchokeMessage = message.createUnchokeMessage();
+						  sendMessage(unchokeMessage);
+					  }
+
+
+				  } */
 
 
 				if(handlers.size() >= 2)
