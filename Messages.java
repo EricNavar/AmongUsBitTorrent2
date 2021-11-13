@@ -254,7 +254,15 @@ public class Messages {
         return;
 
         // TODO: send interested message to sender process
+        if(nowInterested)
+        {
+            handleInterestedMessage(pp, senderPeer);
+        }
+        else
+        {
+            handleNotInterestedMessage(pp, senderPeer);
 
+        }
     }
 
     /* REQUEST AND PIECE
