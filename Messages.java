@@ -208,17 +208,16 @@ public class Messages {
 
     //type 2
     private static void handleInterestedMessage(peerProcess pp, int senderPeer) {
-
         Vector<Integer> interest = pp.getInterested();
         interest.add(senderPeer);
         pp.setInterested(interest);
 
         pp.logger.onReceiveInterestedMessage(senderPeer);
-
     }
 
     //type 3
     private static void handleNotInterestedMessage(peerProcess pp, int senderPeer) {
+
         Vector<Integer> interest = pp.getInterested();
         for(int i =0; i < interest.size(); i++)
         {
@@ -268,14 +267,19 @@ public class Messages {
         // TODO: send interested message to sender process
         if(nowInterested)
         {
-
-            handleInterestedMessage(pp, senderPeer);
+            pp.messagesToSend.add(Messages.createInterestedMessage());
+            pp.messagesToSend.add(Messages.integerToBinaryString(senderPeer, 2));
+            pp.messagesToSend.add(Messages.integerToBinaryString(pp.getPeerId(), 2));
         }
         else
         {
-            handleNotInterestedMessage(pp, senderPeer);
+            pp.messagesToSend.add(Messages.createNotInterestedMessage());
+            pp.messagesToSend.add(Messages.integerToBinaryString(senderPeer, 2));
+            pp.messagesToSend.add(Messages.integerToBinaryString(pp.getPeerId(), 2));
 
-        }        return;
+
+        }
+        return;
 
 
     }
@@ -346,8 +350,14 @@ public class Messages {
          */
         int length = Integer.parseInt(binary.substring(0,32), 2);
         int type = Integer.parseInt(binary.substring(32,40), 2);
-
-        String payload = binary.substring(40,length * 8);
+        String payload = null;
+        try {
+            payload = binary.substring(40, length * 8);
+        }
+        catch(Exception e)
+        {
+            
+        }
 
 
         // The logic for handling the message types are here
@@ -358,9 +368,12 @@ public class Messages {
             handleUnchokeMessage(pp, senderPeer);
         }
         else if (type == MessageType.INTERESTED.ordinal()) { //type 2
+
             handleInterestedMessage(pp, senderPeer);
+
         }
         else if (type == MessageType.NOT_INTERESTED.ordinal()) { //type 3
+
             handleNotInterestedMessage(pp, senderPeer);
         }
         else if (type == MessageType.HAVE.ordinal()) { //type 4
@@ -379,6 +392,7 @@ public class Messages {
         else {
             System.out.println("Invalid message type");
         }
+
         return -1;
     }
 }

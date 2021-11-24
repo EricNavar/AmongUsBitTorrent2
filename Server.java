@@ -84,6 +84,7 @@ public class Server {
 				}
 			}, 0, 5*1000);
 			// https://stackoverflow.com/ques1tions/2702980/java-loop-every-minute
+			FileHandling handler;
 
 			while (true) {
 				message = (String) in.readObject();
@@ -99,9 +100,25 @@ public class Server {
 				String fromClient2 = (String) in.readObject();
 				int newID = Integer.parseInt(fromClient2, 2);
 				int bitfieldRes = Messages.decodeMessage(fromClient, pp, newID);
+				for(int i =0; i < pp.messagesToSend.size(); i++)
+				{
+					sendMessage(pp.messagesToSend.get(i));
+				}
+				String fromClient3 = (String) in.readObject();
+				String fromClient4 = (String) in.readObject();
+				String fromClient5 = (String) in.readObject();
+				int newID2 = Integer.parseInt(fromClient4, 2);
+				int newID3 = Integer.parseInt(fromClient5, 2);
 
-
-
+				if(newID2 == pp.getPeerId())
+				{
+					int interestMessage = Messages.decodeMessage(fromClient3, pp, newID3);
+				}
+				System.out.println("Peers interested in 1001");
+				for(int i =0; i<pp.interested.size(); i++)
+				{
+					System.out.println(pp.interested.get(i));
+				}
 
 				if(handlers.size() >= 2)
 				{

@@ -1,4 +1,6 @@
 import java.io.*;
+import java.net.*;
+
 import java.nio.file.Files;
 import java.util.Vector;
 import static java.lang.Math.ceil;
@@ -31,6 +33,7 @@ class peerProcess {
     Vector<Boolean> bitfield = new Vector<Boolean>(0);
     Vector<Integer> preferredNeighbors;
     Vector<Integer> interested = new Vector<Integer>(0);
+    Vector<String> messagesToSend = new Vector<String>(0);
 
     Logger logger;
     Client client;
@@ -238,8 +241,8 @@ class peerProcess {
             if(!preferredNeighbors.contains(rpi.getPeerId()))
             {
                 // TODO: do we have to do anything else here?
-
                 rpi.setChoked(true);
+
             }
             else
             {   // we need to unchoke the peers we selected
@@ -249,9 +252,7 @@ class peerProcess {
                     continue;
                 // TODO: do we have to do anything else here?
 
-
                 rpi.setChoked(false);
-
 
             }
         }
@@ -259,6 +260,7 @@ class peerProcess {
         // after recalculating the preferred neighbors, reset the value of the
         // transmitted data of all remote peers
         resetPeerInfoPiecesTransmitted();
+
         logger.onChangeOfPreferredNeighbors(preferredNeighbors);
     }
 

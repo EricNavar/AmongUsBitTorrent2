@@ -16,6 +16,7 @@ public class Client {
 	int peerID;
 	int connectedToPeerId;
 	String bitfieldHandshake;
+	FileHandling handler;
 
 	int socket;
 	peerProcess pp;
@@ -66,6 +67,32 @@ public class Client {
 				sendMessage(bitfieldMessage);
 				sendMessage(Messages.integerToBinaryString(pp.getPeerId(), 2));
 				// TODO: send interested/not interested messages
+				String fromServer4 = (String) in.readObject();
+				String fromServer5 = (String) in.readObject();
+				String fromServer6 = (String) in.readObject();
+				int newID2 = Integer.parseInt(fromServer5, 2);
+				int newID3 = Integer.parseInt(fromServer6, 2);
+
+				if(newID2 == pp.getPeerId())
+				{
+
+					int interestMessage = Messages.decodeMessage(fromServer4, pp, newID3);
+
+				}
+				for(int i =0; i < pp.messagesToSend.size(); i++)
+				{
+					sendMessage(pp.messagesToSend.get(i));
+				}
+				System.out.println("Peers interested in 1002");
+				for(int i =0; i<pp.interested.size(); i++)
+				{
+					System.out.println(pp.interested.get(i));
+				}
+				
+				
+
+
+
 
 
 
