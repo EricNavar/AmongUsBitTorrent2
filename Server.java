@@ -6,6 +6,7 @@ import java.util.Vector;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.math.BigInteger;
 
 public class Server {
 
@@ -86,15 +87,18 @@ public class Server {
 
 			while (true) {
 				message = (String) in.readObject();
-				int connectedFrom = Messages.decodeMessage(message, pp);
+				int connectedFrom = Messages.decodeMessage(message, pp, 1002);
 				pp.logger.onConnectingFrom(connectedFrom);
 				String messageToSend = Messages.createHandshakeMessage(pp.peerId);
 				sendMessage(messageToSend);
 				String bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
 				sendMessage(bitfieldMessage);
-				String fromClient = (String) in.readObject();
+				sendMessage(Messages.integerToBinaryString(pp.getPeerId(), 2));
 
-				int bitfieldRes = Messages.decodeMessage(fromClient, pp);
+				String fromClient = (String) in.readObject();
+				String fromClient2 = (String) in.readObject();
+				int newID = Integer.parseInt(fromClient2, 2);
+				int bitfieldRes = Messages.decodeMessage(fromClient, pp, newID);
 
 
 
@@ -109,6 +113,7 @@ public class Server {
 						// exclude server
 						// coordinate piece distributuion between clients
 						handlers.get(i).sendMessage(messageToSend);
+
 
 					}
 					// choke and unchoke different processes

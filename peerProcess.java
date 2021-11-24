@@ -30,6 +30,8 @@ class peerProcess {
     // denotes which pieces of the file this process has
     Vector<Boolean> bitfield = new Vector<Boolean>(0);
     Vector<Integer> preferredNeighbors;
+    Vector<Integer> interested = new Vector<Integer>(0);
+
     Logger logger;
     Client client;
     Server server;
@@ -53,6 +55,14 @@ class peerProcess {
     public Vector<Boolean> getCurrBitfield() {
 
         return bitfield;
+    }
+    public Vector<Integer> getInterested() {
+
+        return interested;
+    }
+    public void setInterested(Vector<Integer> interest) {
+
+        interested = interest;
     }
 
 
@@ -209,8 +219,16 @@ class peerProcess {
         // Add their peerId to the list of preferred vectors
         for (int i = 0; i < 4 && i < peerInfoVector.size(); i++) {
             // if tie, randomly choose among tied processes
-            preferredNeighbors.add(peerInfoVector.get(i).getPeerId());
+            if(interested.size() > 0) {
+                for (int j = 0; j < interested.size(); j++) {
+                    if (peerInfoVector.get(i).getPeerId() == interested.get(j))
+                        preferredNeighbors.add(peerInfoVector.get(i).getPeerId());
+                }
+            }
+
+
         }
+
         // choose another random peer from the rest
         int optimisicallyUnchokedNeighbor = chooseOptimisticallyUnchokedPeer();
         preferredNeighbors.add(optimisicallyUnchokedNeighbor);

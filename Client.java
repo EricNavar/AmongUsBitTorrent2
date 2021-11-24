@@ -3,6 +3,9 @@
 
 import java.net.*;
 import java.io.*;
+import java.math.BigInteger;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Client {
 	Socket requestSocket; // socket connect to the server
@@ -39,17 +42,29 @@ public class Client {
 			sendMessage(messageToSend);
 
 			// expect a handshake message back
+			Timer timer = new Timer();
+			timer.schedule( new TimerTask() {
+				public void run() {
+					pp.calculatePreferredNeighbors();
+				}
+			}, 0, 5*1000);
 			while (true) {
 				fromServer = (String) in.readObject();
 				System.out.println("Receive message"); // debug message
 
-				connectedToPeerId = Messages.decodeMessage(fromServer, pp);
+				connectedToPeerId = Messages.decodeMessage(fromServer, pp, 1001);
 
 				pp.logger.onConnectingTo(connectedToPeerId);
 				String fromServer2 = (String) in.readObject();
-				int bitfieldRes = Messages.decodeMessage(fromServer2, pp);
+				String fromServer3 = (String) in.readObject();
+
+				int newID = Integer.parseInt(fromServer3, 2);
+
+				int bitfieldRes = Messages.decodeMessage(fromServer2, pp, newID);
+
 				String bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
 				sendMessage(bitfieldMessage);
+				sendMessage(Messages.integerToBinaryString(pp.getPeerId(), 2));
 				// TODO: send interested/not interested messages
 
 

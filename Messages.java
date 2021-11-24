@@ -45,6 +45,7 @@ public class Messages {
         return padWithZeroes(Integer.toBinaryString(i), length * 8);
     }
 
+
     // ==============================================================
     // ====================== MESSAGE CREATORS ======================
     // ==============================================================
@@ -179,6 +180,7 @@ public class Messages {
     //type 1
 
     private static void handleUnchokeMessage(peerProcess pp, int senderPeer) {
+
         pp.getRemotePeerInfo(senderPeer).setChoked(false);
         pp.logger.onUnchoking(senderPeer);
                                                                                               // DONE: request a random piece that the sender has and the receiver doesn't
@@ -206,13 +208,24 @@ public class Messages {
 
     //type 2
     private static void handleInterestedMessage(peerProcess pp, int senderPeer) {
-        pp.getRemotePeerInfo(senderPeer).setInterested(true);
+
+        Vector<Integer> interest = pp.getInterested();
+        interest.add(senderPeer);
+        pp.setInterested(interest);
+
         pp.logger.onReceiveInterestedMessage(senderPeer);
+
     }
 
     //type 3
     private static void handleNotInterestedMessage(peerProcess pp, int senderPeer) {
-        pp.getRemotePeerInfo(senderPeer).setInterested(false);
+        Vector<Integer> interest = pp.getInterested();
+        for(int i =0; i < interest.size(); i++)
+        {
+            if(interest.get(i) == senderPeer)
+                interest.remove(i);
+        }
+        pp.setInterested(interest);
         pp.logger.onReceiveNotInterestedMessage(senderPeer);
     }
 
@@ -251,18 +264,20 @@ public class Messages {
             }
         }
         System.out.println(nowInterested);
-        return;
 
         // TODO: send interested message to sender process
         if(nowInterested)
         {
+
             handleInterestedMessage(pp, senderPeer);
         }
         else
         {
             handleNotInterestedMessage(pp, senderPeer);
 
-        }
+        }        return;
+
+
     }
 
     /* REQUEST AND PIECE
@@ -313,11 +328,11 @@ public class Messages {
     }
 
     // returns the peerId of the sender if it's a handshake message.
-    public static int decodeMessage(String binary, peerProcess pp) {
-        return decodeMessage(binary, pp, -1);
+    public static int decodeMessage(String binary, peerProcess pp, int sender) {
+        return decodeMessage(pp, binary, sender);
     }
 
-    public static int decodeMessage(String binary, peerProcess pp, int senderPeer) {
+    public static int decodeMessage(peerProcess pp, String binary, int senderPeer) {
         String handshakeHeader = stringToBinary("P2PFILESHARINGPROJ");
         // if the message starts with the handShake header, then it's a handshake message
 
