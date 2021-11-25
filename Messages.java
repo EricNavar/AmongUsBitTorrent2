@@ -45,6 +45,7 @@ public class Messages {
         return padWithZeroes(Integer.toBinaryString(i), length * 8);
     }
 
+
     // ==============================================================
     // ====================== MESSAGE CREATORS ======================
     // ==============================================================
@@ -180,11 +181,13 @@ public class Messages {
 
     private static void handleUnchokeMessage(peerProcess pp, int senderPeer) {
         pp.getRemotePeerInfo(senderPeer).setChoked(false);
+
         pp.logger.onUnchoking(senderPeer);
                                                                                               // DONE: request a random piece that the sender has and the receiver doesn't
-                                                                                              // There's a method in RemotePeerInfo to select a random missing piece that can help.
+                                                                                                  // There's a method in RemotePeerInfo to select a random missing piece that can help.
 		int askForPiece = pp.getRemotePeerInfo(senderPeer).selectRandomMissingPiece();        // asking for this piece from the remote peer that is now unchoked
-		pp.client.sendMessage(createRequestMessage(askForPiece));                             // ask for this piece
+		pp.client.sendMessage(createRequestMessage(askForPiece));
+        // ask for this piece
     }
 
     /* INTERESTED AND NOT INTERESTED
@@ -206,13 +209,23 @@ public class Messages {
 
     //type 2
     private static void handleInterestedMessage(peerProcess pp, int senderPeer) {
-        pp.getRemotePeerInfo(senderPeer).setInterested(true);
+        Vector<Integer> interest = pp.getInterested();
+        interest.add(senderPeer);
+        pp.setInterested(interest);
+
         pp.logger.onReceiveInterestedMessage(senderPeer);
     }
 
     //type 3
     private static void handleNotInterestedMessage(peerProcess pp, int senderPeer) {
-        pp.getRemotePeerInfo(senderPeer).setInterested(false);
+
+        Vector<Integer> interest = pp.getInterested();
+        for(int i =0; i < interest.size(); i++)
+        {
+            if(interest.get(i) == senderPeer)
+                interest.remove(i);
+        }
+        pp.setInterested(interest);
         pp.logger.onReceiveNotInterestedMessage(senderPeer);
     }
 
@@ -251,18 +264,25 @@ public class Messages {
             }
         }
         System.out.println(nowInterested);
-        return;
 
         // TODO: send interested message to sender process
         if(nowInterested)
         {
-            handleInterestedMessage(pp, senderPeer);
+            pp.messagesToSend.add(Messages.createInterestedMessage());
+            pp.messagesToSend.add(Messages.integerToBinaryString(senderPeer, 2));
+            pp.messagesToSend.add(Messages.integerToBinaryString(pp.getPeerId(), 2));
         }
         else
         {
-            handleNotInterestedMessage(pp, senderPeer);
+            pp.messagesToSend.add(Messages.createNotInterestedMessage());
+            pp.messagesToSend.add(Messages.integerToBinaryString(senderPeer, 2));
+            pp.messagesToSend.add(Messages.integerToBinaryString(pp.getPeerId(), 2));
+
 
         }
+        return;
+
+
     }
 
     /* REQUEST AND PIECE
@@ -313,11 +333,11 @@ public class Messages {
     }
 
     // returns the peerId of the sender if it's a handshake message.
-    public static int decodeMessage(String binary, peerProcess pp) {
-        return decodeMessage(binary, pp, -1);
+    public static int decodeMessage(String binary, peerProcess pp, int sender) {
+        return decodeMessage(pp, binary, sender);
     }
 
-    public static int decodeMessage(String binary, peerProcess pp, int senderPeer) {
+    public static int decodeMessage(peerProcess pp, String binary, int senderPeer) {
         String handshakeHeader = stringToBinary("P2PFILESHARINGPROJ");
         // if the message starts with the handShake header, then it's a handshake message
 
@@ -331,8 +351,14 @@ public class Messages {
          */
         int length = Integer.parseInt(binary.substring(0,32), 2);
         int type = Integer.parseInt(binary.substring(32,40), 2);
-
-        String payload = binary.substring(40,length * 8);
+        String payload = null;
+        try {
+            payload = binary.substring(40, length * 8);
+        }
+        catch(Exception e)
+        {
+            
+        }
 
 
         // The logic for handling the message types are here
@@ -340,12 +366,16 @@ public class Messages {
             handleChokeMessage(pp, senderPeer);
         }
         else if (type == MessageType.UNCHOKE.ordinal()) { //type 1
+
             handleUnchokeMessage(pp, senderPeer);
         }
         else if (type == MessageType.INTERESTED.ordinal()) { //type 2
+
             handleInterestedMessage(pp, senderPeer);
+
         }
         else if (type == MessageType.NOT_INTERESTED.ordinal()) { //type 3
+
             handleNotInterestedMessage(pp, senderPeer);
         }
         else if (type == MessageType.HAVE.ordinal()) { //type 4
@@ -364,6 +394,7 @@ public class Messages {
         else {
             System.out.println("Invalid message type");
         }
+
         return -1;
     }
 }

@@ -1,4 +1,6 @@
 import java.io.*;
+import java.net.*;
+
 import java.nio.file.Files;
 import java.util.Vector;
 import static java.lang.Math.ceil;
@@ -30,6 +32,9 @@ class peerProcess {
     // denotes which pieces of the file this process has
     Vector<Boolean> bitfield = new Vector<Boolean>(0);
     Vector<Integer> preferredNeighbors;
+    Vector<Integer> interested = new Vector<Integer>(0);
+    Vector<String> messagesToSend = new Vector<String>(0);
+
     Logger logger;
     Client client;
     Server server;
@@ -53,6 +58,14 @@ class peerProcess {
     public Vector<Boolean> getCurrBitfield() {
 
         return bitfield;
+    }
+    public Vector<Integer> getInterested() {
+
+        return interested;
+    }
+    public void setInterested(Vector<Integer> interest) {
+
+        interested = interest;
     }
 
 
@@ -209,8 +222,17 @@ class peerProcess {
         // Add their peerId to the list of preferred vectors
         for (int i = 0; i < 4 && i < peerInfoVector.size(); i++) {
             // if tie, randomly choose among tied processes
-            preferredNeighbors.add(peerInfoVector.get(i).getPeerId());
+            if(interested.size() > 0) {
+                for (int j = 0; j < interested.size(); j++) {
+                    if (peerInfoVector.get(i).getPeerId() == interested.get(j))
+                        preferredNeighbors.add(peerInfoVector.get(i).getPeerId());
+                }
+            }
+
+
         }
+
+
         // choose another random peer from the rest
         int optimisicallyUnchokedNeighbor = chooseOptimisticallyUnchokedPeer();
         preferredNeighbors.add(optimisicallyUnchokedNeighbor);
@@ -220,20 +242,24 @@ class peerProcess {
             if(!preferredNeighbors.contains(rpi.getPeerId()))
             {
                 // TODO: do we have to do anything else here?
-
                 rpi.setChoked(true);
+                messagesToSend.add(Messages.createChokeMessage());
+                messagesToSend.add(Messages.integerToBinaryString(rpi.getPeerId(), 2));
+                messagesToSend.add(Messages.integerToBinaryString(peerId,2));
+
+
             }
             else
             {   // we need to unchoke the peers we selected
 
                 // already unchoked
-                if(!rpi.isChoked())
-                    continue;
+
                 // TODO: do we have to do anything else here?
 
-
                 rpi.setChoked(false);
-
+                messagesToSend.add(Messages.createUnchokeMessage());
+                messagesToSend.add(Messages.integerToBinaryString(rpi.getPeerId(), 2));
+                messagesToSend.add(Messages.integerToBinaryString(peerId, 2));
 
             }
         }
@@ -241,6 +267,7 @@ class peerProcess {
         // after recalculating the preferred neighbors, reset the value of the
         // transmitted data of all remote peers
         resetPeerInfoPiecesTransmitted();
+
         logger.onChangeOfPreferredNeighbors(preferredNeighbors);
     }
 

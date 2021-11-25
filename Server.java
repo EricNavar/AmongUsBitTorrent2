@@ -6,6 +6,7 @@ import java.util.Vector;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.math.BigInteger;
 
 public class Server {
 
@@ -75,30 +76,83 @@ public class Server {
 		}
 
 		private void serverLoop() throws ClassNotFoundException, IOException {
-			// Every 5 seconds, recalculate the preferred neighbors
-			Timer timer = new Timer(); 
-			timer.schedule( new TimerTask() {
-				public void run() {
-					pp.calculatePreferredNeighbors();
-				}
-			}, 0, 5*1000);
+
 			// https://stackoverflow.com/ques1tions/2702980/java-loop-every-minute
+			FileHandling handler;
 
 			while (true) {
 				message = (String) in.readObject();
-				int connectedFrom = Messages.decodeMessage(message, pp);
+				int connectedFrom = Messages.decodeMessage(message, pp, 1002);
 				pp.logger.onConnectingFrom(connectedFrom);
 				String messageToSend = Messages.createHandshakeMessage(pp.peerId);
 				sendMessage(messageToSend);
 				String bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
 				sendMessage(bitfieldMessage);
+				sendMessage(Messages.integerToBinaryString(pp.getPeerId(), 2));
+
+				// receive bitfield message
 				String fromClient = (String) in.readObject();
+				String fromClient2 = (String) in.readObject();
+				int newID = Integer.parseInt(fromClient2, 2);
+				int bitfieldRes = Messages.decodeMessage(fromClient, pp, newID);
 
-				int bitfieldRes = Messages.decodeMessage(fromClient, pp);
+				// send interested/not interested
+				for(int i =0; i < pp.messagesToSend.size(); i++)
+				{
+					sendMessage(pp.messagesToSend.get(i));
+				}
+				//receive interested/not interested
+				String fromClient3 = (String) in.readObject();
+				String fromClient4 = (String) in.readObject();
+				String fromClient5 = (String) in.readObject();
+				int newID2 = Integer.parseInt(fromClient4, 2);
+				int newID3 = Integer.parseInt(fromClient5, 2);
 
+				if(newID2 == pp.getPeerId())
+				{
+					int interestMessage = Messages.decodeMessage(fromClient3, pp, newID3);
+				}
+				System.out.println("Peers interested in 1001");
+				for(int i =0; i<pp.interested.size(); i++)
+				{
+					System.out.println(pp.interested.get(i));
+				}
+				pp.messagesToSend.clear();
+				// Every 5 seconds, recalculate the preferred neighbors
+				Timer timer = new Timer();
+				timer.schedule( new TimerTask() {
+					public void run() {
+						try {
+							pp.calculatePreferredNeighbors();
 
+							for (int i = 0; i < pp.messagesToSend.size(); i++) {
+								//send choke/unchoke messages
+								sendMessage(pp.messagesToSend.get(i));
+							}
 
+						}
+						catch(Exception e)
+						{}
+					}
 
+				}, 0, 5*1000);
+
+				// after calculating and sending choke/unchoke, get ready to receive any messages to choke/unchoke
+				while(true) {
+					String fromClient7 = (String) in.readObject();
+					String fromClient8 = (String) in.readObject();
+					String fromClient9 = (String) in.readObject();
+					int newID4 = Integer.parseInt(fromClient8, 2);
+					int newID5 = Integer.parseInt(fromClient9, 2);
+					if (newID4 == pp.getPeerId()) {
+						System.out.println("unchoking " + newID5 + " from " + newID4);
+
+						int chokeMessage = Messages.decodeMessage(fromClient7, pp, newID5);
+						break;
+
+					}
+
+				};
 				if(handlers.size() >= 2)
 				{
 
@@ -110,9 +164,15 @@ public class Server {
 						// coordinate piece distributuion between clients
 						handlers.get(i).sendMessage(messageToSend);
 
+
 					}
 					// choke and unchoke different processes
 				}
+				while(true)
+				{}
+
+
+
 			}
 		}
 
