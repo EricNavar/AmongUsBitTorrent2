@@ -88,12 +88,11 @@ public class Server {
 
 			while (true) {
 				message = (String) (in.readObject());
-				System.out.println(message);
 				int connectedFrom = Messages.decodeMessage(message, pp, 1002);
 				pp.logger.onConnectingFrom(connectedFrom);
 				ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.peerId);
 				sendMessageBB(messageToSend);
-				ByteBuffer bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
+				/*ByteBuffer bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
 				sendMessageBB(bitfieldMessage);
 				sendMessage(Messages.integerToBinaryString(pp.getPeerId(), 2));
 
@@ -176,7 +175,7 @@ public class Server {
 					// choke and unchoke different processes
 				}
 				while(true)
-				{}
+				{}*/
 
 
 

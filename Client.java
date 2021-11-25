@@ -62,7 +62,7 @@ public class Client {
 				pp.logger.onConnectingTo(connectedToPeerId);
 				
 				// receive bitfield message from server
-				String fromServer2 = (String) in.readObject();
+				/*String fromServer2 = (String) in.readObject();
 				String fromServer3 = (String) in.readObject();
 
 				int newID = Integer.parseInt(fromServer3, 2);
@@ -74,7 +74,6 @@ public class Client {
 				sendMessageBB(bitfieldMessage);
 				sendMessage(Messages.integerToBinaryString(pp.getPeerId(), 2));
 				// receive not interested message from server
-				System.out.println("hi");
 				String fromServer4 = (String) in.readObject();
 				String fromServer5 = (String) in.readObject();
 				String fromServer6 = (String) in.readObject();
@@ -136,7 +135,7 @@ public class Client {
 
 				}, 0, 5*1000);
 				while (true)
-				{}
+				{}*/
 
 
 			}
