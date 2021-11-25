@@ -63,6 +63,20 @@ public class FileHandlingTest1{
         return result;
     }
 
+    // ==============================================================
+    // ====================== MESSAGE CREATORS ======================
+    // ==============================================================
+    public static ByteBuffer createHandshakeMessageBB(int peerId) {
+        // This code is the best
+		ByteBuffer MessageAssembly = ByteBuffer.allocate(32);  // Handshake Messages are 32 byte payload messages
+        String HeaderInformation = "P2PFILESHARINGPROJ";
+		MessageAssembly.put(HeaderInformation.getBytes());
+        // Add 10 bytes of zeroes
+		MessageAssembly.put(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+		MessageAssembly.putInt(peerId);
+        return MessageAssembly;
+    }
+
     // message contains no body
     public static String createChokeMessage() {
         return encodeLength(0) + encodeType(MessageType.CHOKE.ordinal());
@@ -125,9 +139,18 @@ public static void main(String args[]) {
 		SecondObject.WriteFileOut("UnitTest/TreeCopy2.jpg");
 		SecondObject.WriteFileOut("UnitTest/TreeCopy3.jpg");
 		
-	    String messageToSend = Messages.createHandshakeMessage(1001);
+		System.out.println(" ");		
+	    String messageToSend = Messages.createHandshakeMessageOld_DO_NOT_USE(1001);
         System.out.println("Handshake Message is  [" + messageToSend + "]");
 		System.out.println("           and has a length of " + messageToSend.length() + " bytes.\n");
+		System.out.println(" ");		
+	    ByteBuffer messageToSendBB = Messages.createHandshakeMessage(1001);
+		String getData = new String(messageToSendBB.array());
+        System.out.println("Handshake Message Byte Buffer is  [" + getData + "] and");
+		System.out.println("in Hex it is [" + new BigInteger(1, messageToSendBB.array()).toString(16) + "]");
+		messageToSendBB.flip();
+		System.out.println("           and has a length of " + messageToSendBB.remaining() + " bytes.\n");
+		System.out.println(" ");		
 		messageToSend = createChokeMessage();
 		System.out.println("Choke Message is  [" + messageToSend + "] and has a length of " + messageToSend.length() + " bytes.\n");
 		FirstObject.Shutdown();

@@ -7,6 +7,12 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.math.BigInteger;
+import java.nio.*;
+import java.util.*;
+                            // idean of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
+import java.io.IOException; 
+import java.nio.channels.FileChannel;
+import java.io.FileOutputStream;
 
 public class Server {
 
@@ -84,8 +90,8 @@ public class Server {
 				message = (String) in.readObject();
 				int connectedFrom = Messages.decodeMessage(message, pp, 1002);
 				pp.logger.onConnectingFrom(connectedFrom);
-				String messageToSend = Messages.createHandshakeMessage(pp.peerId);
-				sendMessage(messageToSend);
+				ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.peerId);
+				sendMessageBB(messageToSend);
 				String bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
 				sendMessage(bitfieldMessage);
 				sendMessage(Messages.integerToBinaryString(pp.getPeerId(), 2));
@@ -162,7 +168,7 @@ public class Server {
 						// request piece from client
 						// exclude server
 						// coordinate piece distributuion between clients
-						handlers.get(i).sendMessage(messageToSend);
+						handlers.get(i).sendMessageBB(messageToSend);
 
 
 					}
@@ -211,6 +217,16 @@ public class Server {
 		public void sendMessage(String msg) {
 			try {
 				out.writeObject(msg);
+				out.flush();
+				System.out.println("Send message to Client " + no); // debug message
+			} catch (IOException ioException) {
+				ioException.printStackTrace();
+			}
+		}
+		// send a message to the output stream
+		public void sendMessageBB(ByteBuffer msg) {
+			try {
+				out.write(msg.array());
 				out.flush();
 				System.out.println("Send message to Client " + no); // debug message
 			} catch (IOException ioException) {

@@ -7,6 +7,13 @@ import java.math.BigInteger;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import java.nio.*;
+import java.util.*;
+                            // idean of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
+import java.io.IOException; 
+import java.nio.channels.FileChannel;
+import java.io.FileOutputStream;
+
 public class Client {
 	Socket requestSocket; // socket connect to the server
 	ObjectOutputStream out; // stream write to the socket
@@ -39,8 +46,8 @@ public class Client {
 			in = new ObjectInputStream(requestSocket.getInputStream());
 
 			// create handshake message and send send to server
-			String messageToSend = Messages.createHandshakeMessage(peerID);
-			sendMessage(messageToSend);
+			ByteBuffer messageToSend = Messages.createHandshakeMessage(peerID);
+			sendMessageBB(messageToSend);
 
 
 			while (true) {
@@ -157,6 +164,16 @@ public class Client {
 		try {
 			// stream write the message
 			out.writeObject(msg);
+			out.flush();
+		} catch (IOException ioException) {
+			ioException.printStackTrace();
+		}
+	}
+	// send a message to the output stream
+	void sendMessageBB(ByteBuffer msg) {
+		try {
+			// stream write the message
+			out.write(msg.array());
 			out.flush();
 		} catch (IOException ioException) {
 			ioException.printStackTrace();

@@ -1,6 +1,21 @@
 import java.math.BigInteger;
 import java.util.Vector;
 
+import java.net.*;
+import java.io.*;
+import java.nio.*;
+import java.io.File;
+import java.util.*;
+
+import java.io.FileWriter;   // https://www.w3schools.com/java/java_files_create.asp examples utilized as basis for creating file i/o code
+import java.io.FileOutputStream;
+import java.io.FileInputStream;
+import java.io.FileReader;
+                             // idean of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
+import java.io.IOException; 
+import java.nio.channels.FileChannel;
+import java.io.FileOutputStream;
+
 // This class is to hold the logic for creating and decoding messages.
 public class Messages {
     // this function is to take a string of binary and pad it on the left with
@@ -49,10 +64,27 @@ public class Messages {
     // ==============================================================
     // ====================== MESSAGE CREATORS ======================
     // ==============================================================
-    public static String createHandshakeMessage(int peerId) {
+    public static ByteBuffer createHandshakeMessage(int peerId) {
         // This code is the best
-        String result = stringToBinary("P2PFILESHARINGPROJ");
+		ByteBuffer MessageAssembly = ByteBuffer.allocate(32);  // Handshake Messages are 32 byte payload messages
+        String HeaderInformation = "P2PFILESHARINGPROJ";
+		MessageAssembly.put(HeaderInformation.getBytes());
         // Add 10 bytes of zeroes
+		MessageAssembly.put(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+		MessageAssembly.putInt(peerId);
+        return MessageAssembly;
+    }
+
+    // ==============================================================
+    // ====================== MESSAGE CREATORS ======================
+    // ==============================================================
+    public static String createHandshakeMessageOld_DO_NOT_USE(int peerId) {
+        // This code is the best
+		ByteBuffer MessageAssembly = ByteBuffer.allocate(32);  // Handshake Messages are 32 byte payload messages
+        String HeaderInformation = "P2PFILESHARINGPROJ";
+		MessageAssembly.put(HeaderInformation.getBytes());
+        // Add 10 bytes of zeroes
+		String result = " ";
         result = result + "00000000000000000000000000000000000000000000000000000000000000000000000000000000";
         result = result + padWithZeroes(Integer.toBinaryString(peerId), 32);
         return result;
