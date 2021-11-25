@@ -347,7 +347,7 @@ public class Messages {
             // Answer: they identify orig/dest peers of message
 			// Comment: The message specification is defined as shown, sending two more messages on the wire line won't solve the issue as it isn't 
 			// inline with the specification.  It seems like we know the sender from the ipV4 packet and need to decipher it in a different manner than
-			// adding two more messages to the end of the current message or modifying the defined message.fs
+			// adding two more messages to the end of the current message or modifying the defined message.
             //pp.messagesToSend.add(Messages.integerToBinaryString(senderPeer, 2));
             //pp.messagesToSend.add(Messages.integerToBinaryString(pp.getPeerId(), 2));
         }

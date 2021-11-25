@@ -250,6 +250,9 @@ class peerProcess {
                 messagesToSend.add(Messages.createChokeMessage());
                 // TODO: Question: what purpose do the next two lines serve?
                 // Answer: they identify orig/dest peers of message
+		    	// Comment: The message specification is defined as shown, sending two more messages on the wire line won't solve the issue as it isn't 
+			    // inline with the specification.  It seems like we know the sender from the ipV4 packet and need to decipher it in a different manner than
+			    // adding two more messages to the end of the current message or modifying the defined message.
                 //messagesToSendBB.add(Messages.integerToBinaryString(rpi.getPeerId(), 2));
                 //messagesToSendBB.add(Messages.integerToBinaryString(peerId,2));
 
@@ -266,6 +269,9 @@ class peerProcess {
                 messagesToSend.add(Messages.createUnchokeMessage());
                 // TODO: Question: what purpose do the next two lines serve?
                 // Answer: they identify orig/dest peers of message
+			    // Comment: The message specification is defined as shown, sending two more messages on the wire line won't solve the issue as it isn't 
+			    // inline with the specification.  It seems like we know the sender from the ipV4 packet and need to decipher it in a different manner than
+			    // adding two more messages to the end of the current message or modifying the defined message.
                 //messagesToSendBB.add(Messages.integerToBinaryString(rpi.getPeerId(), 2));
                 //messagesToSendBB.add(Messages.integerToBinaryString(peerId, 2));
 
