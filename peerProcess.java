@@ -10,6 +10,9 @@ import java.util.List;
 import java.nio.file.Paths;
 import java.nio.file.Path;
 
+import java.nio.*;
+import java.util.*;
+  
 
 class peerProcess {
     protected int numberOfPreferredNeighbors;
@@ -33,7 +36,8 @@ class peerProcess {
     Vector<Boolean> bitfield = new Vector<Boolean>(0);
     Vector<Integer> preferredNeighbors;
     Vector<Integer> interested = new Vector<Integer>(0);
-    Vector<String> messagesToSend = new Vector<String>(0);
+    // No Longer Sending Strings...  Vector<String> messagesToSend = new Vector<String>(0);
+    Vector<ByteBuffer> messagesToSend = new Vector<ByteBuffer>(0);
 
     Logger logger;
     Client client;
@@ -244,8 +248,9 @@ class peerProcess {
                 // TODO: do we have to do anything else here?
                 rpi.setChoked(true);
                 messagesToSend.add(Messages.createChokeMessage());
-                messagesToSend.add(Messages.integerToBinaryString(rpi.getPeerId(), 2));
-                messagesToSend.add(Messages.integerToBinaryString(peerId,2));
+                // TODO: Question: what purpose do the next two lines serve?
+				//messagesToSendBB.add(Messages.integerToBinaryString(rpi.getPeerId(), 2));
+                //messagesToSendBB.add(Messages.integerToBinaryString(peerId,2));
 
 
             }
@@ -258,8 +263,9 @@ class peerProcess {
 
                 rpi.setChoked(false);
                 messagesToSend.add(Messages.createUnchokeMessage());
-                messagesToSend.add(Messages.integerToBinaryString(rpi.getPeerId(), 2));
-                messagesToSend.add(Messages.integerToBinaryString(peerId, 2));
+                // TODO: Question: what purpose do the next two lines serve?
+                //messagesToSendBB.add(Messages.integerToBinaryString(rpi.getPeerId(), 2));
+                //messagesToSendBB.add(Messages.integerToBinaryString(peerId, 2));
 
             }
         }

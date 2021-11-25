@@ -87,7 +87,7 @@ public class Client {
 				// send interested message to server, this messagesToSend is created in messsages.java
 				for(int i =0; i < pp.messagesToSend.size(); i++)
 				{
-					sendMessage(pp.messagesToSend.get(i));
+					sendMessageBB(pp.messagesToSend.get(i));
 				}
 				System.out.println("Peers interested in 1002: none");
 
@@ -124,7 +124,7 @@ public class Client {
 
 							for (int i = 0; i < pp.messagesToSend.size(); i++) {
 								// send choke/unchoke messages
-								sendMessage(pp.messagesToSend.get(i));
+								sendMessageBB(pp.messagesToSend.get(i));
 							}
 
 						}

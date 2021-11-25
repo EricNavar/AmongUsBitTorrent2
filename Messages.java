@@ -50,10 +50,12 @@ public class Messages {
         return padWithZeroes(Integer.toBinaryString(length), 32);
     }
 
+
     // takes an enum for the message type and creates a 32-bit binary string 
-    private static String encodeType(int type) {
-        return padWithZeroes(Integer.toBinaryString(type), 8);
+    private static byte encodeType(int type) {
+        return  (byte) (type & (int) 0xff);
     }
+
 
     // takes an integer and creates a binary string of the specified length in bytes
     public static String integerToBinaryString(int i, int length) {
@@ -74,32 +76,57 @@ public class Messages {
 		MessageAssembly.putInt(peerId);
         return MessageAssembly;
     }
+	//  Message Format
+	//  [ Length of 4 bytes ] [ Message Type 1 byte ] { Message Payload ]
+    //   The 4-byte message length specifies the message length in bytes. It does not include the
+    //   length of the message length field itself.
+    //   The 1-byte message type field specifies the type of the message.
+	//   ‘choke’, ‘unchoke’, ‘interested’ and ‘not interested’ messages have no payload.
+	//   Therefore, the four messages above are all of length 1.
+	//   NOTE: Length should be 4 bytes Uunsigned Integer.  Switching length over to unsigned integers.
 
-    // message contains no body
-    public static String createChokeMessage() {
-        return encodeLength(0) + encodeType(MessageType.CHOKE.ordinal());
+    // message contains no body, length set to 1 because of above statement "does not include length" but guessing it does
+	//         include the message type as part of the message.
+    public static ByteBuffer createChokeMessage() {
+		ByteBuffer MessageAssembly = ByteBuffer.allocate(5);  // Message is 5 bytes
+		MessageAssembly.putInt(1);  // length is equal to 1
+		MessageAssembly.put(encodeType(MessageType.CHOKE.ordinal()));
+        return MessageAssembly;
     }
 
-    // message contains no body
-    public static String createUnchokeMessage() {
-        return encodeLength(0) + encodeType(MessageType.UNCHOKE.ordinal());
+    public static ByteBuffer createUnchokeMessage() {
+		ByteBuffer MessageAssembly = ByteBuffer.allocate(5);  // Message is 5 bytes
+		MessageAssembly.putInt(1);  // length is equal to 1
+		MessageAssembly.put(encodeType(MessageType.UNCHOKE.ordinal()));
+        return MessageAssembly;
     }
 
-    // message contains no body
-    public static String createInterestedMessage() {
-        return encodeLength(0) + encodeType(MessageType.INTERESTED.ordinal());
+    // message contains no body, length set to 1 because of above statement "does not include length" but guessing it does
+	//         include the message type as part of the message.
+    public static ByteBuffer createInterestedMessage() {
+		ByteBuffer MessageAssembly = ByteBuffer.allocate(5);  // Message is 5 bytes
+		MessageAssembly.putInt(1);  // length is equal to 1
+		MessageAssembly.put(encodeType(MessageType.INTERESTED.ordinal()));
+        return MessageAssembly;
     }
 
-    // message contains no body
-    public static String createNotInterestedMessage() {
-        return encodeLength(0) + encodeType(MessageType.NOT_INTERESTED.ordinal());
+    // message contains no body, length set to 1 because of above statement "does not include length" but guessing it does
+	//         include the message type as part of the message.
+    public static ByteBuffer createNotInterestedMessage() {
+		ByteBuffer MessageAssembly = ByteBuffer.allocate(5);  // Message is 5 bytes
+		MessageAssembly.putInt(1);  // length is equal to 1
+		MessageAssembly.put(encodeType(MessageType.NOT_INTERESTED.ordinal()));
+        return MessageAssembly;
     }
-
-    // message contains no body
-    public static String createHaveMessage(int index) {
-        final int length = 4;
-        String message = encodeLength(length) + encodeType(MessageType.HAVE.ordinal());
-        return message + integerToBinaryString(MessageType.BITFIELD.ordinal(), length);
+	
+    // message contains no body, length set to 1 because of above statement "does not include length" but guessing it does
+	//         include the message type as part of the message.
+    public static ByteBuffer createHaveMessage(int index) {
+		ByteBuffer MessageAssembly = ByteBuffer.allocate(9);  // Message is 9 bytes
+		MessageAssembly.putInt(5);  // length is equal to 5
+		MessageAssembly.put(encodeType(MessageType.BITFIELD.ordinal()));
+		MessageAssembly.putInt(index);  // piece number is index 
+        return MessageAssembly;
     }
 
     public static String createBitfieldMessage(Vector<Boolean> bitfield) {
@@ -112,10 +139,12 @@ public class Messages {
         return message.toString();
     }
 
-    public static String createRequestMessage(int index) {                                 // Type 6 Message, takes inthe index, creates the message and returns string
-        final int length = 4;
-        String message = encodeLength(length) + encodeType(MessageType.REQUEST.ordinal()); 
-        return message + integerToBinaryString(MessageType.BITFIELD.ordinal(), length);
+    public static ByteBuffer createRequestMessage(int index) {
+		ByteBuffer MessageAssembly = ByteBuffer.allocate(9);  // Message is 9 bytes
+		MessageAssembly.putInt(5);  // length is equal to 5
+		MessageAssembly.put(encodeType(MessageType.REQUEST.ordinal()));
+		MessageAssembly.putInt(index);  // piece number is index 
+        return MessageAssembly;
     }
 
     public static String createPieceMessage(String payload) {
@@ -203,7 +232,7 @@ public class Messages {
                                                                                               // DONE: request a random piece that the sender has and the receiver doesn't
                                                                                                   // There's a method in RemotePeerInfo to select a random missing piece that can help.
 		int askForPiece = pp.getRemotePeerInfo(senderPeer).selectRandomMissingPiece();        // asking for this piece from the remote peer that is now unchoked
-		pp.client.sendMessage(createRequestMessage(askForPiece));
+		pp.client.sendMessageBB(createRequestMessage(askForPiece));
         // ask for this piece
     }
 
@@ -256,10 +285,10 @@ public class Messages {
           Else, send an interested message.
         */ 
         if (pp.bitfield.get(index)) {                                     // if this message is already in possession, skip getting it again
-            pp.client.sendMessage(createNotInterestedMessage());
+            pp.client.sendMessageBB(createNotInterestedMessage());
         }
         else {                                                            // else ask for the message
-            pp.client.sendMessage(createInterestedMessage());
+            pp.client.sendMessageBB(createInterestedMessage());
         }
     }
 
@@ -286,14 +315,16 @@ public class Messages {
         if(nowInterested)
         {
             pp.messagesToSend.add(Messages.createInterestedMessage());
-            pp.messagesToSend.add(Messages.integerToBinaryString(senderPeer, 2));
-            pp.messagesToSend.add(Messages.integerToBinaryString(pp.getPeerId(), 2));
+            // TODO: Question: what purpose do the next two lines serve?
+            //pp.messagesToSend.add(Messages.integerToBinaryString(senderPeer, 2));
+            //pp.messagesToSend.add(Messages.integerToBinaryString(pp.getPeerId(), 2));
         }
         else
         {
             pp.messagesToSend.add(Messages.createNotInterestedMessage());
-            pp.messagesToSend.add(Messages.integerToBinaryString(senderPeer, 2));
-            pp.messagesToSend.add(Messages.integerToBinaryString(pp.getPeerId(), 2));
+            // TODO: Question: what purpose do the next two lines serve?
+            //pp.messagesToSend.add(Messages.integerToBinaryString(senderPeer, 2));
+            //pp.messagesToSend.add(Messages.integerToBinaryString(pp.getPeerId(), 2));
 
 
         }

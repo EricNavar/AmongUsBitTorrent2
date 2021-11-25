@@ -105,7 +105,7 @@ public class Server {
 				// send interested/not interested
 				for(int i =0; i < pp.messagesToSend.size(); i++)
 				{
-					sendMessage(pp.messagesToSend.get(i));
+					sendMessageBB(pp.messagesToSend.get(i));
 				}
 				//receive interested/not interested
 				String fromClient3 = (String) in.readObject();
@@ -133,7 +133,7 @@ public class Server {
 
 							for (int i = 0; i < pp.messagesToSend.size(); i++) {
 								//send choke/unchoke messages
-								sendMessage(pp.messagesToSend.get(i));
+								sendMessageBB(pp.messagesToSend.get(i));
 							}
 
 						}
