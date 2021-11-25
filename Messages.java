@@ -153,7 +153,7 @@ public class Messages {
 		MessageAssembly.putInt(PieceLength + 5);  // length is equal to 1 (message type) + 4 (piece index size) +  piece size (bytes)
 		MessageAssembly.put(encodeType(MessageType.PIECE.ordinal()));
 		MessageAssembly.putInt(PieceNumber);  // piece number is index 
-		MessageAssembly.put(payload.array());  // piece number is index 
+		MessageAssembly.put(Arrays.copyOfRange(payload.array(), 0, PieceLength));  // piece number is index 
         return MessageAssembly;
     }
 	
@@ -448,4 +448,16 @@ public class Messages {
 
         return -1;
     }
+	
+	
+    public static String HexPrint(ByteBuffer bytes) {  // modifed from idea at https://mkyong.com/java/java-how-to-convert-bytes-to-hex/ By mkyong
+        StringBuilder result = new StringBuilder();
+        for (int x = 0; x < bytes.remaining(); ++x) {
+            result.append(String.format("%02x ", bytes.array()[x]));
+            // upper case
+            // result.append(String.format("%02X", aByte));
+        }
+        return result.toString();
+    }
+
 }

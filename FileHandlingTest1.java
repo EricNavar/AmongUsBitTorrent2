@@ -54,33 +54,6 @@ public class FileHandlingTest1{
         return padWithZeroes(Integer.toBinaryString(i), length * 8);
     }
 
-     public static String createHandshakeMessage(int peerId) {
-        // This code is the best
-        String result = stringToBinary("P2PFILESHARINGPROJ");
-        // Add 10 bytes of zeroes
-        result = result + "00000000000000000000000000000000000000000000000000000000000000000000000000000000";
-        result = result + padWithZeroes(Integer.toBinaryString(peerId), 32);
-        return result;
-    }
-
-    // ==============================================================
-    // ====================== MESSAGE CREATORS ======================
-    // ==============================================================
-    public static ByteBuffer createHandshakeMessageBB(int peerId) {
-        // This code is the best
-		ByteBuffer MessageAssembly = ByteBuffer.allocate(32);  // Handshake Messages are 32 byte payload messages
-        String HeaderInformation = "P2PFILESHARINGPROJ";
-		MessageAssembly.put(HeaderInformation.getBytes());
-        // Add 10 bytes of zeroes
-		MessageAssembly.put(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
-		MessageAssembly.putInt(peerId);
-        return MessageAssembly;
-    }
-
-    // message contains no body
-    public static String createChokeMessage() {
-        return encodeLength(0) + encodeType(MessageType.CHOKE.ordinal());
-    }
 
 
 public static void main(String args[]) {
@@ -148,16 +121,53 @@ public static void main(String args[]) {
 	    ByteBuffer messageToSendBB = Messages.createHandshakeMessage(1001);
 		String getData = new String(messageToSendBB.array());
         System.out.println("Handshake Message Byte Buffer is  [" + getData + "] and");
-		System.out.println("in Hex it is [" + new BigInteger(1, messageToSendBB.array()).toString(16) + "]");
+		System.out.println("in Hex it is [" + Messages.HexPrint(messageToSendBB)+ "]");
 		messageToSendBB.flip();
 		System.out.println("           and has a length of " + messageToSendBB.remaining() + " bytes.\n");
 		
 		System.out.println(" ");		
-        String messageToSend;
-        messageToSend = createChokeMessage();
-		System.out.println("Choke Message is  [" + messageToSend + "] and has a length of " + messageToSend.length() + " bytes.\n");
+        ByteBuffer messageToSend;
+        messageToSend = Messages.createChokeMessage();
+		messageToSend.flip();
+		System.out.println("Choke Message is  [" + Messages.HexPrint(messageToSend)  + "] and has a length of " + messageToSend.remaining() + " bytes.\n");
+		
+		System.out.println(" ");	
+        messageToSend = Messages.createUnchokeMessage();
+		messageToSend.flip();
+		System.out.println("UnChoke Message is  [" + Messages.HexPrint(messageToSend)  + "] and has a length of " + messageToSend.remaining() + " bytes.\n");
+		
+		System.out.println(" ");;
+        messageToSend = Messages.createInterestedMessage();
+		messageToSend.flip();
+		System.out.println("Interested Message is  [" + Messages.HexPrint(messageToSend)  + "] and has a length of " + messageToSend.remaining() + " bytes.\n");
+		
+		System.out.println(" ");	
+        messageToSend = Messages.createNotInterestedMessage();
+		messageToSend.flip();
+		System.out.println("Not Interested Message is  [" + Messages.HexPrint(messageToSend)  + "] and has a length of " + messageToSend.remaining() + " bytes.\n");
+
+		System.out.println(" ");	
+        messageToSend = Messages.createHaveMessage(13);
+		messageToSend.flip();
+		System.out.println("Have Message for Piece Number 13 is  [" + Messages.HexPrint(messageToSend)  + "] and has a length of " + messageToSend.remaining() + " bytes.\n");
+
+		System.out.println(" ");	
+        messageToSend = Messages.createRequestMessage(13);
+		messageToSend.flip();
+		System.out.println("Request Message for Piece Number 13 is  [" + Messages.HexPrint(messageToSend)  + "] and has a length of " + messageToSend.remaining() + " bytes.\n");
+		
+		
+		ByteBuffer MessageAssemblyBB = ByteBuffer.allocate(70);  // Handshake Messages are 32 byte payload messages
+        String PayloadInfo = "01234567890123456789  Payload 0123456789012345678912";
+		MessageAssemblyBB.put(PayloadInfo.getBytes());
+		System.out.println(" HERE ");	
+        messageToSend = Messages.createPieceMessage(MessageAssemblyBB, 13, 52);  // payload has 42 characters and is piece number 13 to be sent...
+		messageToSend.flip();
+		System.out.println("Create Piece to Send Message for Piece Number 13 is  [" + Messages.HexPrint(messageToSend)  + "] and has a length of " + messageToSend.remaining() + " bytes.\n");
+		
 		FirstObject.Shutdown();
 		SecondObject.Shutdown();
+		
 	}
 	
 
