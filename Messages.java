@@ -348,6 +348,7 @@ public class Messages {
 			// Comment: The message specification is defined as shown, sending two more messages on the wire line won't solve the issue as it isn't 
 			// inline with the specification.  It seems like we know the sender from the ipV4 packet and need to decipher it in a different manner than
 			// adding two more messages to the end of the current message or modifying the defined message.
+			// Each Handler is associated with a TCP connection (or should be) and should define the identify of the peer this is connected to.
             //pp.messagesToSend.add(Messages.integerToBinaryString(senderPeer, 2));
             //pp.messagesToSend.add(Messages.integerToBinaryString(pp.getPeerId(), 2));
         }
@@ -359,6 +360,7 @@ public class Messages {
 			// Comment: The message specification is defined as shown, sending two more messages on the wire line won't solve the issue as it isn't 
 			// inline with the specification.  It seems like we know the sender from the ipV4 packet and need to decipher it in a different manner than
 			// adding two more messages to the end of the current message or modifying the defined message.
+	        // Each Handler is associated with a TCP connection (or should be) and should define the identify of the peer this is connected to.
             //pp.messagesToSend.add(Messages.integerToBinaryString(senderPeer, 2));
             //pp.messagesToSend.add(Messages.integerToBinaryString(pp.getPeerId(), 2));
 

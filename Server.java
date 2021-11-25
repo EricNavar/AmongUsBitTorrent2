@@ -75,9 +75,10 @@ public class Server {
 				// show the message to the user
 				System.out.println("Receive message: " + message + " from client " + no);
 				// Capitalize all letters in the message
-				MESSAGE = message.toUpperCase();
+				// Question: Why are we resending the incoming message back to the sender?
+				//MESSAGE = message.toUpperCase();
 				// send MESSAGE back to the client
-				sendMessage(MESSAGE);
+				//sendMessage(MESSAGE);
 			}
 		}
 
@@ -95,7 +96,7 @@ public class Server {
 				sendMessageBB(messageToSend);
 				ByteBuffer bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
 				sendMessageBB(bitfieldMessage);
-				sendMessage(Messages.integerToBinaryString(pp.getPeerId(), 2));
+				//sendMessage(Messages.integerToBinaryString(pp.getPeerId(), 2));
 
 				// receive bitfield message
 				String fromClient = (String) in.readObject();
@@ -215,15 +216,15 @@ public class Server {
 		}
 
 		// send a message to the output stream
-		public void sendMessage(String msg) {
-			try {
-				out.writeObject(msg);
-				out.flush();
-				System.out.println("Send message to Client " + no); // debug message
-			} catch (IOException ioException) {
-				ioException.printStackTrace();
-			}
-		}
+		//public void sendMessage(String msg) {
+		//	try {
+		//		out.writeObject(msg);
+		//		out.flush();
+		//		System.out.println("Send message to Client " + no); // debug message
+		//	} catch (IOException ioException) {
+		//		ioException.printStackTrace();
+		//	}
+		//}
 		// send a message to the output stream
 		public void sendMessageBB(ByteBuffer msg) {
 			try {
