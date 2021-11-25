@@ -154,7 +154,7 @@ public class Messages {
 			   bitnumber = 8*x + y;
 			   assembleTheByte = (byte) (assembleTheByte << 1);
 			   if (bitnumber < bitfield.size()) {
-			      if (bitfield.get(bitnumber)) {
+			       if (bitfield.get(bitnumber)) {
 			         assembleTheByte = (byte) (assembleTheByte | 0x01);
 			      } 
 			   } // else it is a zero be default and just keep accumulating those
@@ -343,7 +343,11 @@ public class Messages {
         if(nowInterested)
         {
             pp.messagesToSend.add(Messages.createInterestedMessage());
-            // TODO: Question: what purpose do the next two lines serve?
+            // TODO: Question: what purpose do the next two lines serve?fs
+            // Answer: they identify orig/dest peers of message
+			// Comment: The message specification is defined as shown, sending two more messages on the wire line won't solve the issue as it isn't 
+			// inline with the specification.  It seems like we know the sender from the ipV4 packet and need to decipher it in a different manner than
+			// adding two more messages to the end of the current message or modifying the defined message.fs
             //pp.messagesToSend.add(Messages.integerToBinaryString(senderPeer, 2));
             //pp.messagesToSend.add(Messages.integerToBinaryString(pp.getPeerId(), 2));
         }
@@ -351,6 +355,10 @@ public class Messages {
         {
             pp.messagesToSend.add(Messages.createNotInterestedMessage());
             // TODO: Question: what purpose do the next two lines serve?
+            // Answer: they identify orig/dest peers of message
+			// Comment: The message specification is defined as shown, sending two more messages on the wire line won't solve the issue as it isn't 
+			// inline with the specification.  It seems like we know the sender from the ipV4 packet and need to decipher it in a different manner than
+			// adding two more messages to the end of the current message or modifying the defined message.
             //pp.messagesToSend.add(Messages.integerToBinaryString(senderPeer, 2));
             //pp.messagesToSend.add(Messages.integerToBinaryString(pp.getPeerId(), 2));
 
