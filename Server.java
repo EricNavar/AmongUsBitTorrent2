@@ -103,7 +103,7 @@ public class Server {
 				
 				int newID = Integer.parseInt(fromClient2, 2);
 				int bitfieldRes = Messages.decodeMessage(fromClient, pp, newID);
-
+				/*
 				// send interested/not interested
 				for(int i =0; i < pp.messagesToSend.size(); i++)
 				{
@@ -177,7 +177,7 @@ public class Server {
 					// choke and unchoke different processes
 				}
 				while(true)
-				{}
+				{}*/
 
 
 

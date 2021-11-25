@@ -132,10 +132,11 @@ public class Messages {
     public static String createBitfieldMessage(Vector<Boolean> bitfield) {
         // This may work weird if the bitfield size is not divisible by 8
         int length = bitfield.size() / 8;
-        StringBuilder message = new StringBuilder(encodeLength(length) + encodeType(MessageType.BITFIELD.ordinal()));
+        StringBuilder message = new StringBuilder(encodeLength(length) +padWithZeroes(Integer.toBinaryString(5), 8));
         for (Boolean b : bitfield) {
             message.append(b ? "1" : "0");
         }
+
         return message.toString();
     }
 

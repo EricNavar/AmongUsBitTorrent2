@@ -75,6 +75,8 @@ public class Client {
 				String bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
 				sendMessage(bitfieldMessage);
 				sendMessage(Messages.integerToBinaryString(pp.getPeerId(), 2));
+
+				/*
 				// receive not interested message from server
 				
 				String fromServer4 = (String) in.readObject();
@@ -138,7 +140,7 @@ public class Client {
 
 				}, 0, 5*1000);
 				while (true)
-				{}
+				{}*/
 
 
 			}
