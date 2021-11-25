@@ -249,7 +249,8 @@ class peerProcess {
                 rpi.setChoked(true);
                 messagesToSend.add(Messages.createChokeMessage());
                 // TODO: Question: what purpose do the next two lines serve?
-				//messagesToSendBB.add(Messages.integerToBinaryString(rpi.getPeerId(), 2));
+                // Answer: they identify orig/dest peers of message
+                //messagesToSendBB.add(Messages.integerToBinaryString(rpi.getPeerId(), 2));
                 //messagesToSendBB.add(Messages.integerToBinaryString(peerId,2));
 
 
@@ -264,6 +265,7 @@ class peerProcess {
                 rpi.setChoked(false);
                 messagesToSend.add(Messages.createUnchokeMessage());
                 // TODO: Question: what purpose do the next two lines serve?
+                // Answer: they identify orig/dest peers of message
                 //messagesToSendBB.add(Messages.integerToBinaryString(rpi.getPeerId(), 2));
                 //messagesToSendBB.add(Messages.integerToBinaryString(peerId, 2));
 

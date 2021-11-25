@@ -320,6 +320,7 @@ public class Messages {
         {
             pp.messagesToSend.add(Messages.createInterestedMessage());
             // TODO: Question: what purpose do the next two lines serve?
+            // Answer: they identify orig/dest peers of message
             //pp.messagesToSend.add(Messages.integerToBinaryString(senderPeer, 2));
             //pp.messagesToSend.add(Messages.integerToBinaryString(pp.getPeerId(), 2));
         }
@@ -327,6 +328,7 @@ public class Messages {
         {
             pp.messagesToSend.add(Messages.createNotInterestedMessage());
             // TODO: Question: what purpose do the next two lines serve?
+            // Answer: they identify orig/dest peers of message
             //pp.messagesToSend.add(Messages.integerToBinaryString(senderPeer, 2));
             //pp.messagesToSend.add(Messages.integerToBinaryString(pp.getPeerId(), 2));
 
