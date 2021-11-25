@@ -400,6 +400,7 @@ public class Messages {
          * 1-bit message type
          * message payload
          */
+
         int length = Integer.parseInt(binary.substring(0,32), 2);
         int type = Integer.parseInt(binary.substring(32,40), 2);
         String payload = null;

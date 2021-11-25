@@ -2,6 +2,8 @@
 
 
 import java.net.*;
+import java.math.*;
+
 import java.io.*;
 import java.math.BigInteger;
 import java.util.Timer;
@@ -12,6 +14,8 @@ import java.util.*;
                             // idean of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
 import java.io.IOException; 
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
+
 import java.io.FileOutputStream;
 
 public class Client {
@@ -173,7 +177,9 @@ public class Client {
 	void sendMessageBB(ByteBuffer msg) {
 		try {
 			// stream write the message
-			out.write(msg.array());
+			BigInteger temp = new BigInteger(msg.array());
+			
+			out.writeObject(temp.toString(2));
 			out.flush();
 		} catch (IOException ioException) {
 			ioException.printStackTrace();
