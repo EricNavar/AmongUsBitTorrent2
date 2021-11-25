@@ -74,7 +74,7 @@ public class Client {
 				sendMessageBB(bitfieldMessage);
 				sendMessage(Messages.integerToBinaryString(pp.getPeerId(), 2));
 				// receive not interested message from server
-				
+				System.out.println("hi");
 				String fromServer4 = (String) in.readObject();
 				String fromServer5 = (String) in.readObject();
 				String fromServer6 = (String) in.readObject();
@@ -175,7 +175,8 @@ public class Client {
 	void sendMessageBB(ByteBuffer msg) {
 		try {
 			// stream write the message
-			out.write(msg.array());
+			BigInteger temp = new BigInteger(msg.array());
+			out.writeObject(temp.toString(2));
 			out.flush();
 		} catch (IOException ioException) {
 			ioException.printStackTrace();
