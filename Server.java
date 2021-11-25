@@ -228,7 +228,8 @@ public class Server {
 		// send a message to the output stream
 		public void sendMessageBB(ByteBuffer msg) {
 			try {
-				out.write(msg.array());
+				BigInteger temp = new BigInteger(msg.array());
+				out.writeObject(temp.toString(2));
 				out.flush();
 				System.out.println("Send message to Client " + no); // debug message
 			} catch (IOException ioException) {
