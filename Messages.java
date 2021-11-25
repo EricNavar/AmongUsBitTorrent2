@@ -180,13 +180,14 @@ public class Messages {
     //type 1
 
     private static void handleUnchokeMessage(peerProcess pp, int senderPeer) {
-
         pp.getRemotePeerInfo(senderPeer).setChoked(false);
+
         pp.logger.onUnchoking(senderPeer);
                                                                                               // DONE: request a random piece that the sender has and the receiver doesn't
-                                                                                              // There's a method in RemotePeerInfo to select a random missing piece that can help.
+                                                                                                  // There's a method in RemotePeerInfo to select a random missing piece that can help.
 		int askForPiece = pp.getRemotePeerInfo(senderPeer).selectRandomMissingPiece();        // asking for this piece from the remote peer that is now unchoked
-		pp.client.sendMessage(createRequestMessage(askForPiece));                             // ask for this piece
+		pp.client.sendMessage(createRequestMessage(askForPiece));
+        // ask for this piece
     }
 
     /* INTERESTED AND NOT INTERESTED
@@ -365,6 +366,7 @@ public class Messages {
             handleChokeMessage(pp, senderPeer);
         }
         else if (type == MessageType.UNCHOKE.ordinal()) { //type 1
+
             handleUnchokeMessage(pp, senderPeer);
         }
         else if (type == MessageType.INTERESTED.ordinal()) { //type 2

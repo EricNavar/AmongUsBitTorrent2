@@ -232,6 +232,7 @@ class peerProcess {
 
         }
 
+
         // choose another random peer from the rest
         int optimisicallyUnchokedNeighbor = chooseOptimisticallyUnchokedPeer();
         preferredNeighbors.add(optimisicallyUnchokedNeighbor);
@@ -242,17 +243,23 @@ class peerProcess {
             {
                 // TODO: do we have to do anything else here?
                 rpi.setChoked(true);
+                messagesToSend.add(Messages.createChokeMessage());
+                messagesToSend.add(Messages.integerToBinaryString(rpi.getPeerId(), 2));
+                messagesToSend.add(Messages.integerToBinaryString(peerId,2));
+
 
             }
             else
             {   // we need to unchoke the peers we selected
 
                 // already unchoked
-                if(!rpi.isChoked())
-                    continue;
+
                 // TODO: do we have to do anything else here?
 
                 rpi.setChoked(false);
+                messagesToSend.add(Messages.createUnchokeMessage());
+                messagesToSend.add(Messages.integerToBinaryString(rpi.getPeerId(), 2));
+                messagesToSend.add(Messages.integerToBinaryString(peerId, 2));
 
             }
         }

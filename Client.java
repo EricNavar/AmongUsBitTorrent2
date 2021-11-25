@@ -42,20 +42,17 @@ public class Client {
 			String messageToSend = Messages.createHandshakeMessage(peerID);
 			sendMessage(messageToSend);
 
-			// expect a handshake message back
-			Timer timer = new Timer();
-			timer.schedule( new TimerTask() {
-				public void run() {
-					pp.calculatePreferredNeighbors();
-				}
-			}, 0, 5*1000);
+
 			while (true) {
 				fromServer = (String) in.readObject();
 				System.out.println("Receive message"); // debug message
 
+				// receive handshake message from server
 				connectedToPeerId = Messages.decodeMessage(fromServer, pp, 1001);
 
 				pp.logger.onConnectingTo(connectedToPeerId);
+				
+				// receive bitfield message from server
 				String fromServer2 = (String) in.readObject();
 				String fromServer3 = (String) in.readObject();
 
@@ -63,10 +60,12 @@ public class Client {
 
 				int bitfieldRes = Messages.decodeMessage(fromServer2, pp, newID);
 
+				// send bitfield message and process id to server
 				String bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
 				sendMessage(bitfieldMessage);
 				sendMessage(Messages.integerToBinaryString(pp.getPeerId(), 2));
-				// TODO: send interested/not interested messages
+				// receive not interested message from server
+				
 				String fromServer4 = (String) in.readObject();
 				String fromServer5 = (String) in.readObject();
 				String fromServer6 = (String) in.readObject();
@@ -75,27 +74,60 @@ public class Client {
 
 				if(newID2 == pp.getPeerId())
 				{
-
 					int interestMessage = Messages.decodeMessage(fromServer4, pp, newID3);
-
 				}
+				
+				// send interested message to server, this messagesToSend is created in messsages.java
 				for(int i =0; i < pp.messagesToSend.size(); i++)
 				{
 					sendMessage(pp.messagesToSend.get(i));
 				}
-				System.out.println("Peers interested in 1002");
+				System.out.println("Peers interested in 1002: none");
+
+				
+				// print out any peers interested in 1002
 				for(int i =0; i<pp.interested.size(); i++)
 				{
 					System.out.println(pp.interested.get(i));
 				}
-				
-				
+				pp.messagesToSend.clear();
+				// receive unchoke message from server
+				while(true) {
+					String fromServer7 = (String) in.readObject();
+					String fromServer8 = (String) in.readObject();
+					String fromServer9 = (String) in.readObject();
+					int newID4 = Integer.parseInt(fromServer8, 2);
+					int newID5 = Integer.parseInt(fromServer9, 2);
+					if (newID4 == pp.getPeerId()) {
+						System.out.println("unchoking " + newID5 + " from " + newID4);
 
+						int chokeMessage = Messages.decodeMessage(fromServer7, pp, newID5);
+						break;
 
+					}
 
+				};
 
+				// Every 5 seconds, recalculate the preferred neighbors
+				Timer timer = new Timer();
+				timer.schedule( new TimerTask() {
+					public void run() {
+						try {
+							pp.calculatePreferredNeighbors();
 
+							for (int i = 0; i < pp.messagesToSend.size(); i++) {
+								// send choke/unchoke messages
+								sendMessage(pp.messagesToSend.get(i));
+							}
 
+						}
+						catch(Exception e)
+						{}
+					}
+
+				}, 0, 5*1000);
+				while (true)
+				{}
 
 
 			}
