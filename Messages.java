@@ -147,13 +147,16 @@ public class Messages {
         return MessageAssembly;
     }
 
-    public static String createPieceMessage(String payload) {
-        String binaryMessage = stringToBinary(payload);
-        // This may work weird if the binary message length is not divisible by 8
-        String message = encodeLength(binaryMessage.length() / 8) + encodeType(MessageType.PIECE.ordinal());
-        message = message + binaryMessage;
-        return message;
+    public static ByteBuffer createPieceMessage(ByteBuffer payload, int PieceNumber, int PieceLength) {
+
+		ByteBuffer MessageAssembly = ByteBuffer.allocate(65536);  // Message is 9 bytes
+		MessageAssembly.putInt(PieceLength + 5);  // length is equal to 1 (message type) + 4 (piece index size) +  piece size (bytes)
+		MessageAssembly.put(encodeType(MessageType.PIECE.ordinal()));
+		MessageAssembly.putInt(PieceNumber);  // piece number is index 
+		MessageAssembly.put(payload.array());  // piece number is index 
+        return MessageAssembly;
     }
+	
     // ==============================================================
     // ====================== MESSAGE HANDLERS ======================
     // ==============================================================
@@ -355,10 +358,10 @@ public class Messages {
     */
 
     //type 6
-    private static void handleRequestMessage(peerProcess pp, int senderPeer, String payload) {  // a peer (senderPeer) has requested (payload) index message
+    private static void handleRequestMessage(peerProcess pp, int senderPeer, ByteBuffer payload) {  // a peer (senderPeer) has requested (payload) index message
                                                                                   // DONE: if the receiver of the message has the piece, then send the piece
-        int index = Integer.parseInt(payload);                                    // parse out the requestd item into payload
-		pp.client.sendMessage(createPieceMessage(payload));                        // send the piece
+        //int index = Integer.parseInt(payload);                                    // parse out the requestd item into payload
+		//pp.client.sendMessageBB(createPieceMessage(payload));                        // send the piece
 		                                                                          // ToDo: Read the file piece and send it with the pay load encoded as a bitstream
 		                                                                          // doesn't set peer information of this payload to true until the peer says the message was received with a HAVE message
     }
@@ -434,7 +437,7 @@ public class Messages {
             handleBitfieldMessage(binary, pp, senderPeer, length, payload);
         }
         else if (type == MessageType.REQUEST.ordinal()) { //type 6
-            handleRequestMessage(pp, senderPeer, payload);
+            //handleRequestMessage(pp, senderPeer, payload);
         }
         else if (type == MessageType.PIECE.ordinal()) { //type 7
             handlePieceMessage(pp, senderPeer, length, payload);
