@@ -84,6 +84,7 @@ public class Server {
 		private void serverLoop() throws ClassNotFoundException, IOException {
 
 			// https://stackoverflow.com/ques1tions/2702980/java-loop-every-minute
+			FileHandling handler;
 
 			while (true) {
 				message = (String) (in.readObject());
@@ -92,18 +93,16 @@ public class Server {
 				pp.logger.onConnectingFrom(connectedFrom);
 				ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.peerId);
 				sendMessageBB(messageToSend);
-				String bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
-				//send bitfield message along with peer ID
-				sendMessage(bitfieldMessage);
+				ByteBuffer bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
+				sendMessageBB(bitfieldMessage);
 				sendMessage(Messages.integerToBinaryString(pp.getPeerId(), 2));
 
 				// receive bitfield message
 				String fromClient = (String) in.readObject();
 				String fromClient2 = (String) in.readObject();
-				
 				int newID = Integer.parseInt(fromClient2, 2);
 				int bitfieldRes = Messages.decodeMessage(fromClient, pp, newID);
-				/*
+
 				// send interested/not interested
 				for(int i =0; i < pp.messagesToSend.size(); i++)
 				{
@@ -177,7 +176,7 @@ public class Server {
 					// choke and unchoke different processes
 				}
 				while(true)
-				{}*/
+				{}
 
 
 
@@ -228,8 +227,7 @@ public class Server {
 		// send a message to the output stream
 		public void sendMessageBB(ByteBuffer msg) {
 			try {
-				BigInteger temp = new BigInteger(msg.array());
-				out.writeObject(temp.toString(2));
+				out.write(msg.array());
 				out.flush();
 				System.out.println("Send message to Client " + no); // debug message
 			} catch (IOException ioException) {

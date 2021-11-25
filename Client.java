@@ -3,19 +3,17 @@
 
 import java.net.*;
 import java.math.*;
-
 import java.io.*;
 import java.math.BigInteger;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.nio.charset.StandardCharsets;
 
 import java.nio.*;
 import java.util.*;
                             // idean of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
 import java.io.IOException; 
 import java.nio.channels.FileChannel;
-import java.nio.charset.StandardCharsets;
-
 import java.io.FileOutputStream;
 
 public class Client {
@@ -72,11 +70,9 @@ public class Client {
 				int bitfieldRes = Messages.decodeMessage(fromServer2, pp, newID);
 
 				// send bitfield message and process id to server
-				String bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
-				sendMessage(bitfieldMessage);
+				ByteBuffer bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
+				sendMessageBB(bitfieldMessage);
 				sendMessage(Messages.integerToBinaryString(pp.getPeerId(), 2));
-
-				/*
 				// receive not interested message from server
 				
 				String fromServer4 = (String) in.readObject();
@@ -140,7 +136,7 @@ public class Client {
 
 				}, 0, 5*1000);
 				while (true)
-				{}*/
+				{}
 
 
 			}
@@ -179,9 +175,7 @@ public class Client {
 	void sendMessageBB(ByteBuffer msg) {
 		try {
 			// stream write the message
-			BigInteger temp = new BigInteger(msg.array());
-			
-			out.writeObject(temp.toString(2));
+			out.write(msg.array());
 			out.flush();
 		} catch (IOException ioException) {
 			ioException.printStackTrace();

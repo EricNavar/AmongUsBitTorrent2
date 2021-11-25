@@ -157,14 +157,63 @@ public static void main(String args[]) {
 		System.out.println("Request Message for Piece Number 13 is  [" + Messages.HexPrint(messageToSend)  + "] and has a length of " + messageToSend.remaining() + " bytes.\n");
 		
 		
-		ByteBuffer MessageAssemblyBB = ByteBuffer.allocate(70);  // Handshake Messages are 32 byte payload messages
+		ByteBuffer MessagePayloadAssemblyBB = ByteBuffer.allocate(70);  // Handshake Messages are 32 byte payload messages
         String PayloadInfo = "01234567890123456789  Payload 0123456789012345678912";
-		MessageAssemblyBB.put(PayloadInfo.getBytes());
-		System.out.println(" HERE ");	
-        messageToSend = Messages.createPieceMessage(MessageAssemblyBB, 13, 52);  // payload has 42 characters and is piece number 13 to be sent...
+		MessagePayloadAssemblyBB.put(PayloadInfo.getBytes());
+        messageToSend = Messages.createPieceMessage(MessagePayloadAssemblyBB, 13, 52);  // payload has 42 characters and is piece number 13 to be sent...
 		messageToSend.flip();
 		System.out.println("Create Piece to Send Message for Piece Number 13 is  [" + Messages.HexPrint(messageToSend)  + "] and has a length of " + messageToSend.remaining() + " bytes.\n");
 		
+		int peerId = 1001;
+	    peerProcess pp = new peerProcess(peerId);	
+        int totalPieces = (int) Math.ceil((double) 24301474 / 16394);
+ 
+		System.out.println(" ");	
+        totalPieces = (int) 12;
+        pp.bitfield.setSize(totalPieces);
+		Random randomnum = new Random();
+        for (int i = 0; i < pp.bitfield.size(); i++) {
+			boolean hasfile = false;;
+			if ((randomnum.nextInt() & 0x01) == 0x01) {
+				hasfile = true;
+			}
+            pp.bitfield.set(i, hasfile);
+        }
+        messageToSend = Messages.createBitfieldMessage(pp.bitfield);
+		messageToSend.flip();
+		System.out.println("Create BitField Message for " + totalPieces + " pieces  [" + Messages.HexPrint(messageToSend)  + "] and has a length of " + messageToSend.remaining() + " bytes.\n");
+	
+ 
+		System.out.println(" ");	
+        totalPieces = (int) 32;
+        pp.bitfield.setSize(totalPieces);
+        for (int i = 0; i < pp.bitfield.size(); i++) {
+			boolean hasfile = false;;
+			if ((randomnum.nextInt() & 0x01) == 0x01) {
+				hasfile = true;
+			}
+            pp.bitfield.set(i, hasfile);
+        }
+        messageToSend = Messages.createBitfieldMessage(pp.bitfield);
+		messageToSend.flip();
+		System.out.println("Create BitField Message for " + totalPieces + " pieces  [" + Messages.HexPrint(messageToSend)  + "] and has a length of " + messageToSend.remaining() + " bytes.\n");		
+ 
+		System.out.println(" ");	
+        totalPieces = (int) 254;
+        pp.bitfield.setSize(totalPieces);
+        for (int i = 0; i < pp.bitfield.size(); i++) {
+			boolean hasfile = false;;
+			if ((randomnum.nextInt() & 0x01) == 0x01) {
+				hasfile = true;
+			}
+            pp.bitfield.set(i, hasfile);
+        }
+        messageToSend = Messages.createBitfieldMessage(pp.bitfield);
+		messageToSend.flip();
+		System.out.println("Create BitField Message for " + totalPieces + " pieces  [" + Messages.HexPrint(messageToSend)  + "] and has a length of " + messageToSend.remaining() + " bytes.\n");
+
+		System.out.println(" ");	
+		System.out.println(" ");	
 		FirstObject.Shutdown();
 		SecondObject.Shutdown();
 		

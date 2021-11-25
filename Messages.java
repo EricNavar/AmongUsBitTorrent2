@@ -128,16 +128,40 @@ public class Messages {
 		MessageAssembly.putInt(index);  // piece number is index 
         return MessageAssembly;
     }
+   
+    // exracts the payload length of this message
+    public static int ExtractPayloadLength(ByteBuffer Message) {
+        return (int) (Message.array()[4]);
+    }
 
-    public static String createBitfieldMessage(Vector<Boolean> bitfield) {
+
+    // BitField Messages
+    // ‘bitfield’ messages is only sent as the first message right after handshaking is done when 
+    // a connection is established. ‘bitfield’ messages have a bitfield as its payload. Each bit in 
+    // the bitfield payload represents whether the peer has the corresponding piece or not. The 
+    // first byte of the bitfield corresponds to piece indices 0 – 7 from high bit to low bit, 
+    // respectively. The next one corresponds to piece indices 8 – 15, etc. Spare bits at the end 
+    // are set to zero. Peers that don’t have anything yet may skip a ‘bitfield’ message
+    //
+    public static ByteBuffer createBitfieldMessage(Vector<Boolean> bitfield) {
         // This may work weird if the bitfield size is not divisible by 8
-        int length = bitfield.size() / 8;
-        StringBuilder message = new StringBuilder(encodeLength(length) +padWithZeroes(Integer.toBinaryString(5), 8));
-        for (Boolean b : bitfield) {
-            message.append(b ? "1" : "0");
-        }
-
-        return message.toString();
+        int lengthBytes = (int) (Math.ceil(((float) bitfield.size()) / 8.0f));  // odd bitfields are a problem so ceiling to increase to max size...
+		ByteBuffer MessageAssembly = ByteBuffer.allocate(lengthBytes+1);  // Message is length_1 bytes
+		int bitnumber;
+		for (int x = 0; x < lengthBytes; ++x) {
+			byte assembleTheByte = 0;
+			for (int y = 0; y < 8; ++y) { 
+			   bitnumber = 8*x + y;
+			   assembleTheByte = (byte) (assembleTheByte << 1);
+			   if (bitnumber < bitfield.size()) {
+			      if (bitfield.get(bitnumber)) {
+			         assembleTheByte = (byte) (assembleTheByte | 0x01);
+			      } 
+			   } // else it is a zero be default and just keep accumulating those
+			}
+			MessageAssembly.put(assembleTheByte);
+		}
+        return MessageAssembly;
     }
 
     public static ByteBuffer createRequestMessage(int index) {
@@ -320,7 +344,6 @@ public class Messages {
         {
             pp.messagesToSend.add(Messages.createInterestedMessage());
             // TODO: Question: what purpose do the next two lines serve?
-            // Answer: they identify orig/dest peers of message
             //pp.messagesToSend.add(Messages.integerToBinaryString(senderPeer, 2));
             //pp.messagesToSend.add(Messages.integerToBinaryString(pp.getPeerId(), 2));
         }
@@ -328,7 +351,6 @@ public class Messages {
         {
             pp.messagesToSend.add(Messages.createNotInterestedMessage());
             // TODO: Question: what purpose do the next two lines serve?
-            // Answer: they identify orig/dest peers of message
             //pp.messagesToSend.add(Messages.integerToBinaryString(senderPeer, 2));
             //pp.messagesToSend.add(Messages.integerToBinaryString(pp.getPeerId(), 2));
 
@@ -403,7 +425,6 @@ public class Messages {
          * 1-bit message type
          * message payload
          */
-
         int length = Integer.parseInt(binary.substring(0,32), 2);
         int type = Integer.parseInt(binary.substring(32,40), 2);
         String payload = null;
