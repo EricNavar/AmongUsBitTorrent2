@@ -75,21 +75,6 @@ public class Messages {
         return MessageAssembly;
     }
 
-    // ==============================================================
-    // ====================== MESSAGE CREATORS ======================
-    // ==============================================================
-    public static String createHandshakeMessageOld_DO_NOT_USE(int peerId) {
-        // This code is the best
-		ByteBuffer MessageAssembly = ByteBuffer.allocate(32);  // Handshake Messages are 32 byte payload messages
-        String HeaderInformation = "P2PFILESHARINGPROJ";
-		MessageAssembly.put(HeaderInformation.getBytes());
-        // Add 10 bytes of zeroes
-		String result = " ";
-        result = result + "00000000000000000000000000000000000000000000000000000000000000000000000000000000";
-        result = result + padWithZeroes(Integer.toBinaryString(peerId), 32);
-        return result;
-    }
-
     // message contains no body
     public static String createChokeMessage() {
         return encodeLength(0) + encodeType(MessageType.CHOKE.ordinal());

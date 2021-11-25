@@ -139,10 +139,11 @@ public static void main(String args[]) {
 		SecondObject.WriteFileOut("UnitTest/TreeCopy2.jpg");
 		SecondObject.WriteFileOut("UnitTest/TreeCopy3.jpg");
 		
-		System.out.println(" ");		
-	    String messageToSend = Messages.createHandshakeMessageOld_DO_NOT_USE(1001);
-        System.out.println("Handshake Message is  [" + messageToSend + "]");
-		System.out.println("           and has a length of " + messageToSend.length() + " bytes.\n");
+		//System.out.println(" ");		
+	    //String messageToSend = Messages.createHandshakeMessageOld_DO_NOT_USE(1001);
+        //System.out.println("Handshake Message is  [" + messageToSend + "]");
+		//System.out.println("           and has a length of " + messageToSend.length() + " bytes.\n");
+		
 		System.out.println(" ");		
 	    ByteBuffer messageToSendBB = Messages.createHandshakeMessage(1001);
 		String getData = new String(messageToSendBB.array());
@@ -150,8 +151,10 @@ public static void main(String args[]) {
 		System.out.println("in Hex it is [" + new BigInteger(1, messageToSendBB.array()).toString(16) + "]");
 		messageToSendBB.flip();
 		System.out.println("           and has a length of " + messageToSendBB.remaining() + " bytes.\n");
+		
 		System.out.println(" ");		
-		messageToSend = createChokeMessage();
+        String messageToSend;
+        messageToSend = createChokeMessage();
 		System.out.println("Choke Message is  [" + messageToSend + "] and has a length of " + messageToSend.length() + " bytes.\n");
 		FirstObject.Shutdown();
 		SecondObject.Shutdown();
