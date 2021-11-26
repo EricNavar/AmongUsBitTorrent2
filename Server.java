@@ -62,7 +62,7 @@ public class Server {
 		private ObjectInputStream in; // stream read from the socket
 		private ObjectOutputStream out; // stream write to the socket
 		private int no; // The index number of the client
-
+		int connectedFrom;
 		public Handler(Socket connection, int no) {
 			this.connection = connection;
 			this.no = no;
@@ -85,16 +85,15 @@ public class Server {
 		private void serverLoop() throws ClassNotFoundException, IOException {
 
 			// https://stackoverflow.com/ques1tions/2702980/java-loop-every-minute
-			FileHandling handler;
 
 			while (true) {
 				message = (String) (in.readObject());
-				System.out.println(message);
-				int connectedFrom = Messages.decodeMessage(message, pp, 1002);
+				connectedFrom = Messages.decodeMessage(message, pp, -1);
 				pp.logger.onConnectingFrom(connectedFrom);
 				ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.peerId);
 				sendMessageBB(messageToSend);
-				ByteBuffer bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
+				System.out.println("I am peer " +pp.getPeerId()+ " and I am connected to " + connectedFrom);
+				/*ByteBuffer bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
 				sendMessageBB(bitfieldMessage);
 				//sendMessage(Messages.integerToBinaryString(pp.getPeerId(), 2));
 
@@ -160,7 +159,7 @@ public class Server {
 
 					}
 
-				};
+				};*/
 				if(handlers.size() >= 2)
 				{
 
@@ -176,8 +175,8 @@ public class Server {
 					}
 					// choke and unchoke different processes
 				}
-				while(true)
-				{}
+				/*while(true)
+				{}*/
 
 
 
@@ -228,9 +227,9 @@ public class Server {
 		// send a message to the output stream
 		public void sendMessageBB(ByteBuffer msg) {
 			try {
+
 				BigInteger temp = new BigInteger(msg.array());
 				out.writeObject(temp.toString(2));
-				out.flush();
 				System.out.println("Send message to Client " + no); // debug message
 			} catch (IOException ioException) {
 				ioException.printStackTrace();
