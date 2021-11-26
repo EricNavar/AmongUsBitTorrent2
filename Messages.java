@@ -201,10 +201,46 @@ public class Messages {
     * peer A sends "interested" message to peer B. Otherwise, it sends
     * "not interested" message.
     */
-    public static int handleHandshakeMessage(String binary, peerProcess pp, int senderPeer) {
-        // (18 + 10) * 8 - 1 = 223 is the bit where the peerId starts. The peerId is 4 bytes.
-        int handshakeFrom = Integer.parseInt(binary.substring(223, 255),2);
-        System.out.println("Handshake message from peer " + handshakeFrom);
+	
+	public static String ParseString( ByteBuffer IncomingBuffer, int startLocation, int length) {
+        StringBuilder result = new StringBuilder();
+		for (int x = startLocation; x < (startLocation + length); ++x) {
+           result.append(String.format("%c", IncomingBuffer.array()[x]));
+		}
+		return result.toString();
+	}
+	
+	public static int ParseInteger( ByteBuffer IncomingBuffer, int startLocation) {
+		 return   ( ((IncomingBuffer.array()[startLocation  ]&0x0FF)<<24) | ((IncomingBuffer.array()[startLocation+1]&0x0FF)<<16) | 
+                    ((IncomingBuffer.array()[startLocation+2]&0x0FF)<<8 ) | ((IncomingBuffer.array()[startLocation+3]&0x0FF)<<0 )    );
+	}
+	
+	public static byte ParseByte( ByteBuffer IncomingBuffer, int location) {
+		 return   (byte) (IncomingBuffer.array()[location]&0x0FF);
+	}
+	
+	public static int GetMessageLength( ByteBuffer IncomingBuffer ) {
+		 return   ParseInteger(IncomingBuffer, 0);
+	}
+	
+	public static int GetMessageType( ByteBuffer IncomingBuffer ) {
+		 return   (int) (ParseByte(IncomingBuffer, 0));
+	}
+	
+	public static int GetHandshakePeerID(ByteBuffer IncomingBuffer) {
+		return ParseInteger( IncomingBuffer, 28);
+	} 
+	
+	public static String GetHandshakeString(ByteBuffer IncomingBuffer) {
+		return ParseString(IncomingBuffer, 0, 18);
+	} 
+	
+    public static int handleHandshakeMessage(ByteBuffer IncomingBuffer) {
+        // The peerID is 4 bytes, located at 
+        int handshakeFrom = GetHandshakePeerID(IncomingBuffer);
+        System.out.println("Received a Handshake Message from peer " + handshakeFrom);
+        //System.out.println("  Message String was [" + GetHandshakeString(IncomingBuffer) + "]");
+		//System.out.println("  The first byte value is " + ParseByte(IncomingBuffer, 0));
         return handshakeFrom;
     }
 
@@ -419,32 +455,36 @@ public class Messages {
     }
 
     // returns the peerId of the sender if it's a handshake message.
-    public static int decodeMessage(String binary, peerProcess pp, int sender) {
-        return decodeMessage(pp, binary, sender);
+    public static int decodeMessage(ByteBuffer IncomingMessage, peerProcess pp, int sender) {
+        return decodeMessage(pp, IncomingMessage, sender);
     }
 
-    public static int decodeMessage(peerProcess pp, String binary, int senderPeer) {
-        String handshakeHeader = stringToBinary("P2PFILESHARINGPROJ");
+    public static int decodeMessage(peerProcess pp, ByteBuffer IncomingMessage, int senderPeer) {
+        String handshakeHeader = "P2PFILESHARINGPROJ";
         // if the message starts with the handShake header, then it's a handshake message
 
-        if (binary.length() >= 143 && binary.substring(0,143).equals(handshakeHeader)) {
-            return handleHandshakeMessage(binary, pp, senderPeer);
-        }
+        if (IncomingMessage.remaining() >= 32) {
+			if (GetHandshakeString(IncomingMessage) == handshakeHeader) {
+				return handleHandshakeMessage(IncomingMessage);
+			}
+		}
+		
         /* if it's not a handshake message then it's an actual message. This is the format:
          * 4-byte message length field (length is in bytes)
          * 1-bit message type
          * message payload
          */
-        int length = Integer.parseInt(binary.substring(0,32), 2);
-        int type = Integer.parseInt(binary.substring(32,40), 2);
+        int length = GetMessageLength(IncomingMessage);
+        int type   = GetMessageType(IncomingMessage);
         String payload = null;
-        try {
-            payload = binary.substring(40, length * 8);
-        }
-        catch(Exception e)
-        {
-            
-        }
+		// TODO Delete after below handle messages has been completed
+        //try {
+        //    payload = binary.substring(40, length * 8);
+        //}
+        //catch(Exception e)
+        //{
+        //    
+        //}
 
 
         // The logic for handling the message types are here
@@ -469,7 +509,7 @@ public class Messages {
         }
         else if (type == MessageType.BITFIELD.ordinal()) { //type 5
 
-            handleBitfieldMessage(binary, pp, senderPeer, length, payload);
+            //handleBitfieldMessage(IncomingMessage, pp, senderPeer, length, payload);
         }
         else if (type == MessageType.REQUEST.ordinal()) { //type 6
             //handleRequestMessage(pp, senderPeer, payload);

@@ -121,9 +121,12 @@ public static void main(String args[]) {
 	    ByteBuffer messageToSendBB = Messages.createHandshakeMessage(1001);
 		String getData = new String(messageToSendBB.array());
         System.out.println("Handshake Message Byte Buffer is  [" + getData + "] and");
-		System.out.println("in Hex it is [" + Messages.HexPrint(messageToSendBB)+ "]");
 		messageToSendBB.flip();
+		System.out.println("in Hex it is [" + Messages.HexPrint(messageToSendBB)+ "]");
 		System.out.println("           and has a length of " + messageToSendBB.remaining() + " bytes.\n");
+		
+		System.out.println(" ");		
+		Messages.handleHandshakeMessage(messageToSendBB);
 		
 		System.out.println(" ");		
         ByteBuffer messageToSend;
