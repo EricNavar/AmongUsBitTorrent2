@@ -110,7 +110,6 @@ public class Server {
 				
 
 				in.read(message2);
-				System.out.println(message2);
 
 				ByteBuffer buff2 = ByteBuffer.wrap(message2);
 
@@ -119,30 +118,35 @@ public class Server {
 				ByteBuffer bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
 				sendMessageBB(bitfieldMessage);
 
-
 				
-				/*// send interested/not interested
-				for(int i =0; i < pp.messagesToSend.size(); i++)
-				{
-					sendMessageBB(pp.messagesToSend.get(i));
-				}
-				//receive interested/not interested
-				String fromClient3 = (String) in.readObject();
-				String fromClient4 = (String) in.readObject();
-				String fromClient5 = (String) in.readObject();
-				int newID2 = Integer.parseInt(fromClient4, 2);
-				int newID3 = Integer.parseInt(fromClient5, 2);
+				while(in.available() <= 0)
+				{}
+				message = new byte[in.available()];
 
-				if(newID2 == pp.getPeerId())
-				{
-					int interestMessage = Messages.decodeMessage(fromClient3, pp, newID3);
-				}
-				System.out.println("Peers interested in 1001");
+				in.read(message);
+
+				buff = ByteBuffer.wrap(message);
+				
+				connectedFrom = Messages.decodeMessage(buff, pp, connectedFrom);
+				
+			
+				System.out.println("Peers interested in 1001: ");
 				for(int i =0; i<pp.interested.size(); i++)
 				{
 					System.out.println(pp.interested.get(i));
 				}
+				
+
+				// send interested/not interested
+				for(int i =0; i < pp.messagesToSend.size(); i++)
+				{
+					sendMessageBB(pp.messagesToSend.get(i));
+				}
 				pp.messagesToSend.clear();
+
+				/*
+				
+
 				// Every 5 seconds, recalculate the preferred neighbors
 				Timer timer = new Timer();
 				timer.schedule( new TimerTask() {
