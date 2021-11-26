@@ -469,10 +469,11 @@ public class Messages {
 
         // TODO: What do they mean by "partial files" maintained in current directory?
         //       Are we supposed to support 100GB file transfers and cache to the drive?
-        if (pp.FileObject.CheckForAllPieces()) {
+	// TODO: Santosh - I negated this condition, not sure what its supposed to be doing
+        if (!pp.FileObject.CheckForAllPieces()) {
 	   
             StringBuilder filenameWrite = new StringBuilder();            
-filenameWrite.append(String.format("./peer_%04d/TreeCopy.jpg", pp.peerId));
+filenameWrite.append(String.format("./peer_%04d/thefile", pp.peerId));
 
 
 			pp.FileObject.WriteFileOut(filenameWrite.toString());

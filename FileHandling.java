@@ -69,9 +69,10 @@ public class FileHandling {
 	public void openFile() {
 		try {
 if(this.peerID == 1001)
-fileNameWithPath = ".\\1001\\thefile";
-else if(this.peerID == 1002)
-fileNameWithPath = ".\\1002\\thefile";
+fileNameWithPath = ".\\peer_1001\\thefile";
+
+if(this.peerID == 1002)
+fileNameWithPath = ".\\peer_1002\\thefile";
 			File file = new File(fileNameWithPath);
 
 			Desktop desktop = Desktop.getDesktop();
@@ -133,7 +134,7 @@ fileNameWithPath = ".\\1002\\thefile";
 					localByteBuffer.clear();
 					loadLocalByteBufferPieceNumber(x);  // this says copy data from EntireFile to local byte buffer
 					//localByteBuffer = EntireFile.get(Integer.valueOf(x)); // this was a mistake, it moved the pointer to EntireFile's copy and then cleared it on next round... bad...
-					pieceLength = PieceLengths.get(Integer.valueOf(x));
+					
 				    //System.out.println(" Round Number " + x + " First Byte  " + localByteBuffer.get(1370)  + " Writing " + pieceLength + " bytes from buffer with " + localByteBuffer.position() + " bytes in it.");
 					localByteBuffer.flip();  // flips from reading to writing data
 					//System.out.println(" Wrote " + writingFileStream.write( localByteBuffer ) + " bytes " ); // , PieceLengths.get(Integer.valueOf(x)) ); // EntireFile.get(Integer.valueOf(x)));
