@@ -289,7 +289,7 @@ public class Messages {
 
 
         pp.logger.onUnchoking(senderPeer);
-                                                                                              // DONE: request a random piece that the sender has and the receiver doesn't
+        // DONE: request a random piece that the sender has and the receiver doesn't
         
 
 		Vector<Integer> missingPieces = new Vector<Integer>();     // Create a temporary vector to hold missing piece values
@@ -306,23 +306,6 @@ public class Messages {
 	pp.client.sendMessageBB(createRequestMessage(askForPiece));
         // ask for this piece
     }
-
-    /* INTERESTED AND NOT INTERESTED
-     * Regardless of the connection state of choked or unchoked, if a neighbor has some
-     * interesting pieces, then a peer sends "interested" message to the neighbor. Whenever a
-     * peer receives a "bitfield" or "have" message from a neighbor, it determines whether it
-     * should send an "interested" message to the neighbor. For example, suppose that peer A
-     * makes a connection to peer B and receiv es a "bitfield" message that shows peer B has
-     * some pieces not in peer A. Then peer A sends an "interested" message to peer B. In
-     * another example, suppose that peer A receives a "have" message from peer C that
-     * contains the index of a piece not in peer A. T hen peer A sends an "interested" message
-     * to peer C. Each peer maintains bitfields for all neighbors and updates them whenever it
-     * receives "have" messages from its neighbors. If a neighbor does not have any interesting 
-     * pieces, then the peer sends a "not interested" message to the neighbor. Whenever a peer
-     * receives a piece completely, it checks a piece completely, it checks the the bitfields of
-     * its neighbors and decide bitfields of its neighbors and decides whether it should it should 
-     * send "not interested" messages to some neighbors.messages to some neighbors.
-    */
 
     //type 2
     private static void handleInterestedMessage(peerProcess pp, int senderPeer) {
@@ -419,27 +402,6 @@ public class Messages {
         }
         return;
     }
-
-    /* REQUEST AND PIECE
-     * When a connection is unchoked by a neighbor, a peer sends a "request" message for
-     * requesting a piece that it does not have and has not requested from other neighbors.
-     * Suppose that peer A receives an "unchoke" message from peer B. Peer A selects a piece
-     * randomly among the pieces that peer B has and peer A does not have, and peer A has
-     * not requested yet. Note that we use a random selection strategy, which is not the rarest
-     * first strategy usually used in BitTorrent. On receiving peer A’s "request" message, peer
-     * B sends a "piece" message that contains the actual piece. After completely downloading
-     * the piece, peer A sends another "request" message to peer B. The exchange of
-     * request/piece messages continues until peer A is choked by peer B or peer B does not
-     * have any more interesting pieces. The next ‘request’ message should be sent after the
-     * peer receives the piece message for the previous ‘requestrequest’ message. Note that this
-     * behavior is different from the pipelining approach of BitTorrent. This is less efficient but
-     * simpler to implement . Note also that you don’t have to implement the "endgame mode"
-     * used in BitTorrent. So we don’t have the "cancel" message. Even though peer A sends a 
-     * "request" message to peer B, it may not receive a "piece" message corresponding to it.
-     * This situation happens when peer B re-determines preferred neighbors or optimistically
-     * unchoked a neighbor and peer A is choked as the result before peer B responds to peer
-     * A. Your program should consider this case.
-    */
 
     //type 6
     private static void handleRequestMessage(peerProcess pp, int senderPeer, ByteBuffer IncomingMessage) {  // a peer (senderPeer) has requested (payload) index message
