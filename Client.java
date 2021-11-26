@@ -76,7 +76,7 @@ public class Client {
                 }
             }
 
-        }, 0, pp.unchokingInterval * 1000);
+        }, 0, pp.unchokingInterval* 1000);
     }
 
     void run() {
@@ -99,7 +99,7 @@ public class Client {
                 // busy wait for input
                 while (in.available() <= 0) {
                 }
-                runTimer();
+               
 
                 fromServer = new byte[in.available()];
                 in.read(fromServer);
@@ -143,7 +143,7 @@ public class Client {
                     System.out.println(pp.interested.get(i));
                 }
                 pp.messagesToSend.clear();
-
+ 		runTimer();
                 // receive unchoke message from server
                 while (in.available() <= 0) {
                 }

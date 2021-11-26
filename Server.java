@@ -105,7 +105,7 @@ public class Server {
                     }
                 }
 
-            }, 0, pp.unchokingInterval * 1000);
+            }, 0, pp.unchokingInterval* 1000);
         }
 
         private void serverLoop() throws ClassNotFoundException, IOException {
@@ -115,7 +115,7 @@ public class Server {
             while (true) {
                 while (in.available() <= 0) {
                 }
-                runTimer();
+                
                 message = new byte[in.available()];
 
                 in.read(message);
@@ -164,6 +164,7 @@ public class Server {
                     sendMessageBB(pp.messagesToSend.get(i));
                 }
                 pp.messagesToSend.clear();
+runTimer();
                 while (in.available() <= 0) {
                 }
                 message = new byte[in.available()];
