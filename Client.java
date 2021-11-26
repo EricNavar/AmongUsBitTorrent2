@@ -24,7 +24,6 @@ public class Client {
 	byte[] fromServer; // capitalized message read from the server
 	int peerID;
 	int connectedToPeerId;
-	// String bitfieldHandshake;
 	// FileHandling handler;
 
 	// int socket;
@@ -95,7 +94,6 @@ count++;
 	}
 
 	void run() {
-
 		try {
 			// create a socket to connect to the server
 
@@ -118,16 +116,16 @@ count++;
 				fromServer = new byte[in.available()];
 				in.read(fromServer);
 				ByteBuffer buff = ByteBuffer.wrap(fromServer);
-				System.out.println("Receive message"); // debug message
 
 				// receive handshake message from server
 				connectedToPeerId = Messages.decodeMessage(buff, pp, -1);
 
 				pp.logger.onConnectingTo(connectedToPeerId);
-				System.out.println("I am peer " + pp.getPeerId() + " and I am connected to " + connectedToPeerId);
+				System.out.println("I am peer " + pp.getPeerId() + " (client) and I am connected to " + connectedToPeerId);
 
 				//send bitfield to server
 				messageToSend = Messages.createBitfieldMessage(pp.getCurrBitfield());
+				System.out.println("Sending bitfield message to " + connectedToPeerId);
 				sendMessageBB(messageToSend);
 				//expect a bitfield back
 				while(in.available() <= 0) {}
@@ -135,17 +133,23 @@ count++;
 
 				in.read(fromServer);
 				buff = ByteBuffer.wrap(fromServer);
-				// if it's a bitfield, message, then
-
-
+				// expect bitfield message back
+				System.out.println("Receieve bitfield message");
 				int bitfieldMsg = Messages.decodeMessage(pp, buff, connectedToPeerId);
-			
 
 				
 				// send interested message to server, this messagesToSend is created in messsages.java
 				for(int i =0; i < pp.messagesToSend.size(); i++)
 				{
 					sendMessageBB(pp.messagesToSend.get(i));
+				}
+
+				// continue reading from server
+				// TODO: make a better loop to handle a connection with the server
+				while (true) {
+					while(in.available() <= 0) {}
+					fromServer = new byte[in.available()];
+					in.read(fromServer);
 				}
 
 				// receive bitfield message from server
@@ -157,11 +161,10 @@ count++;
 				fromServer = new byte[in.available()];
 				in.read(fromServer);
 				buff = ByteBuffer.wrap(fromServer);
-				
 
+				connectedToPeerId = Messages.decodeMessage(buff, pp, -1);
 				
 				int interestMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
-
 
 				System.out.println("Peers interested in 1002: none");
 
@@ -175,6 +178,21 @@ count++;
 				
 					
 				// receive unchoke message from server
+        /*
+				while(true) {
+					String fromServer7 = (String) in.readObject();
+					String fromServer8 = (String) in.readObject();
+					String fromServer9 = (String) in.readObject();
+					int newID4 = Integer.parseInt(fromServer8, 2);
+					int newID5 = Integer.parseInt(fromServer9, 2);
+					if (newID4 == pp.getPeerId()) {
+						System.out.println("unchoking " + newID5 + " from " + newID4);
+
+						int chokeMessage = Messages.decodeMessage(fromServer7, pp, newID5);
+						break;
+					}
+				};
+				*/
 				while(in.available() <= 0) {}
 				byte [] message = new byte[in.available()];
 
@@ -184,11 +202,7 @@ count++;
 				
 				int chokeRes = Messages.decodeMessage(buff, pp, connectedToPeerId);
 				
-				
 				while(true){}
-				
-
-
 			}
 
 		} catch (ConnectException e) {
