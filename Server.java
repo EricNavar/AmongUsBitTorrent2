@@ -238,8 +238,7 @@ public class Server {
 		public void sendMessageBB(ByteBuffer msg) {
 			try {
 
-				BigInteger temp = new BigInteger(msg.array());
-				out.writeObject(temp.toString(2));
+				out.write(msg.array());
 				System.out.println("Send message to Client " + no); // debug message
 			} catch (IOException ioException) {
 				ioException.printStackTrace();
