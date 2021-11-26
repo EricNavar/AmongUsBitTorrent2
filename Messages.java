@@ -260,14 +260,10 @@ public class Messages {
     //type 0
     private static void handleChokeMessage(peerProcess pp, int senderPeer) {
         RemotePeerInfo sender = pp.getRemotePeerInfo(senderPeer);
-        try {
-            if (sender == null) {
-                throw new Exception("remote peer with id " + senderPeer + " info not found");
-            }
-        }
-        catch (Exception e)
+        if (sender == null)
         {
-            e.printStackTrace();
+            System.out.println("remote peer with id " + senderPeer + " info not found");
+            return;
         }
         sender.setChoked(true);
         pp.logger.onChoking(senderPeer);
@@ -276,7 +272,13 @@ public class Messages {
     //type 1
 
     private static void handleUnchokeMessage(peerProcess pp, int senderPeer) {
-        pp.getRemotePeerInfo(senderPeer).setChoked(false);
+        RemotePeerInfo sender = pp.getRemotePeerInfo(senderPeer);
+        if (sender == null)
+        {
+            System.out.println("remote peer with id " + senderPeer + " info not found");
+            return;
+        }
+        sender.setChoked(false);
 
         pp.logger.onUnchoking(senderPeer);
                                                                                               // DONE: request a random piece that the sender has and the receiver doesn't
@@ -328,7 +330,12 @@ public class Messages {
     //type 4
     private static void handleHaveMessage(peerProcess pp, int senderPeer, ByteBuffer IncomingMessage) {
         int index = GetHavePieceNumber(IncomingMessage);
-        pp.getRemotePeerInfo(senderPeer).getBitfield().set(index, true);  // sets the index to true of the peer that they have this message
+        RemotePeerInfo sender = pp.getRemotePeerInfo(senderPeer);
+        if (sender == null) {
+            System.out.println("getRemotePeer is null");
+            return;
+        }
+        sender.getBitfield().set(index, true);  // sets the index to true of the peer that they have this message
         pp.logger.onReceiveHaveMessage(senderPeer, index);                // log that we received this comment
                                                                           // If the receiver of this message does has the piece
                                                                           //    that the sender has, then send a not_interested message.
@@ -494,7 +501,7 @@ public class Messages {
 	
         int length = GetMessageLength(IncomingMessage);
         int type   = GetMessageType(IncomingMessage);
-	    System.out.println(type);
+	    System.out.println("Message type recieved: " + type);
 
         // The logic for handling the message types are here
         if (type == MessageType.CHOKE.ordinal()) { //type 0
