@@ -259,6 +259,7 @@ public class Messages {
 
     //type 0
     private static void handleChokeMessage(peerProcess pp, int senderPeer) {
+	System.out.println(senderPeer + " choked " + pp.getPeerId());
         pp.getRemotePeerInfo(senderPeer).setChoked(true);
         pp.logger.onChoking(senderPeer);
     }
@@ -266,13 +267,14 @@ public class Messages {
     //type 1
 
     private static void handleUnchokeMessage(peerProcess pp, int senderPeer) {
+       System.out.println(senderPeer + " unchoked " +  pp.getPeerId());
         pp.getRemotePeerInfo(senderPeer).setChoked(false);
 
         pp.logger.onUnchoking(senderPeer);
                                                                                               // DONE: request a random piece that the sender has and the receiver doesn't
                                                                                                   // There's a method in RemotePeerInfo to select a random missing piece that can help.
-		int askForPiece = pp.getRemotePeerInfo(senderPeer).selectRandomMissingPiece();        // asking for this piece from the remote peer that is now unchoked
-		pp.client.sendMessageBB(createRequestMessage(askForPiece));
+	int askForPiece = pp.getRemotePeerInfo(senderPeer).selectRandomMissingPiece();        // asking for this piece from the remote peer that is now unchoked
+	pp.client.sendMessageBB(createRequestMessage(askForPiece));
         // ask for this piece
     }
 
@@ -470,6 +472,7 @@ public class Messages {
 	
         int length = GetMessageLength(IncomingMessage);
         int type   = GetMessageType(IncomingMessage);
+	
 	
 
         // The logic for handling the message types are here

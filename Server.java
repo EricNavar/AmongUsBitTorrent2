@@ -81,6 +81,61 @@ public class Server {
 				//sendMessage(MESSAGE);
 			}
 		}
+	private void runTimer() {
+		// Every 5 seconds, recalculate the preferred neighbors
+		Timer timer = new Timer();
+		timer.schedule( new TimerTask() {
+			public void run() {
+				try {
+					pp.calculatePreferredNeighbors();
+
+					
+					/*for (int i = 0; i < pp.messagesToSend.size(); i++) {
+						// send choke/unchoke messages
+						sendMessageBB(pp.messagesToSend.get(i));
+					}*/
+ //choke unchosen peers, unchoke chosen peers
+	int count =0;
+        for(RemotePeerInfo rpi : pp.peerInfoVector)
+        {
+            if(!pp.preferredNeighbors.contains(rpi.getPeerId()))
+            {
+
+                pp.messagesToSend.add(Messages.createChokeMessage());
+		if(connectedFrom == rpi.getPeerId()){
+
+                
+                rpi.setChoked(true);
+                sendMessageBB(pp.messagesToSend.get(count));
+		}
+count++;
+      
+            }
+            else
+            {   
+
+
+                pp.messagesToSend.add(Messages.createUnchokeMessage());
+		if(connectedFrom == rpi.getPeerId()){
+
+                rpi.setChoked(false);
+          	sendMessageBB(pp.messagesToSend.get(count));
+		}
+count++;
+
+        
+
+         }
+}
+
+				}
+				catch(Exception e)
+				{}
+			}
+
+		}, 0, 5*1000);
+	}
+
 
 		private void serverLoop() throws ClassNotFoundException, IOException {
 
@@ -127,7 +182,7 @@ public class Server {
 
 				buff = ByteBuffer.wrap(message);
 				
-				connectedFrom = Messages.decodeMessage(buff, pp, connectedFrom);
+				int interestedRes = Messages.decodeMessage(buff, pp, connectedFrom);
 				
 			
 				System.out.println("Peers interested in 1001: ");
@@ -143,6 +198,18 @@ public class Server {
 					sendMessageBB(pp.messagesToSend.get(i));
 				}
 				pp.messagesToSend.clear();
+				runTimer();
+				while(in.available() <= 0) {}
+				message = new byte[in.available()];
+
+				in.read(message);
+
+				buff = ByteBuffer.wrap(message);
+				
+				int chokeRes = Messages.decodeMessage(buff, pp, connectedFrom);
+				
+			
+				while(true){}
 
 				/*
 				
@@ -183,7 +250,7 @@ public class Server {
 
 				};*/
 
-						if(handlers.size() >= 2)
+						/*if(handlers.size() >= 2)
 						{
 
 							for(int i=0; i < handlers.size(); i++)
@@ -204,7 +271,7 @@ public class Server {
 
 							}
 							// choke and unchoke different processes
-						}
+						}*/
 
 
 
@@ -262,7 +329,6 @@ public class Server {
 			try {
 				out.write(msg.array());
 				out.flush();
-				System.out.println("Send message to Client " + no); // debug message
 			} catch (IOException ioException) {
 				ioException.printStackTrace();
 			}
