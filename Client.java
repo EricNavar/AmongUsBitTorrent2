@@ -29,6 +29,7 @@ public class Client {
 
 	int socket;
 	peerProcess pp;
+	
 
 	void setPeerID(int t_peerID) {
 		peerID = t_peerID;
@@ -40,15 +41,16 @@ public class Client {
 	void run() {
 		try {
 			// create a socket to connect to the server
+
 			requestSocket = new Socket("localhost", 8000);
-			System.out.println("Connected to localhost in port 8000");
+			System.out.println("Connected to localhost");
 			// initialize inputStream and outputStream
 			out = new ObjectOutputStream(requestSocket.getOutputStream());
 			out.flush();
 			in = new ObjectInputStream(requestSocket.getInputStream());
 
 			// create handshake message and send send to server
-			ByteBuffer messageToSend = Messages.createHandshakeMessage(peerID);
+			ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.getPeerId());
 			sendMessageBB(messageToSend);
 
 
@@ -57,10 +59,11 @@ public class Client {
 				System.out.println("Receive message"); // debug message
 
 				// receive handshake message from server
-				connectedToPeerId = Messages.decodeMessage(fromServer, pp, 1001);
+				connectedToPeerId = Messages.decodeMessage(fromServer, pp, -1);
 
 				pp.logger.onConnectingTo(connectedToPeerId);
-				
+				System.out.println("I am peer " +pp.getPeerId()+ " and I am connected to " + connectedToPeerId);
+
 				// receive bitfield message from server
 				/*String fromServer2 = (String) in.readObject();
 				String fromServer3 = (String) in.readObject();
@@ -174,7 +177,9 @@ public class Client {
 	void sendMessageBB(ByteBuffer msg) {
 		try {
 			// stream write the message
-			out.write(msg.array());
+
+			BigInteger temp = new BigInteger(msg.array());
+			out.writeObject(temp.toString(2));
 			out.flush();
 		} catch (IOException ioException) {
 			ioException.printStackTrace();

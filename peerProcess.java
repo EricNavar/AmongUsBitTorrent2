@@ -38,7 +38,6 @@ class peerProcess {
     Vector<Integer> interested = new Vector<Integer>(0);
     // No Longer Sending Strings...  Vector<String> messagesToSend = new Vector<String>(0);
     Vector<ByteBuffer> messagesToSend = new Vector<ByteBuffer>(0);
-
     Logger logger;
     Client client;
     Server server;
@@ -184,16 +183,13 @@ class peerProcess {
     public void startTCPConnection(StartRemotePeers srp, int peerId) throws Exception {
         // start server
         System.out.println("Attempting to create server socket."); // debug message
-
-        if (!hasFile) {
-            System.out.print("This process does not have the file. ");
+        if(peerId != 1001) {
             System.out.println("Attempting to connect as a client to the port...");
             client = new Client(this);
             // Handshake just between 1001 and 1002 for now
             client.setPeerID(peerId);
             client.run();
         } else {
-            System.out.println("This process has the file.");
             System.out.println("Starting a listener at the post and try to handshake with other processes...");
             server = new Server(this);
             server.startServer();
