@@ -1,5 +1,5 @@
 import java.io.*;
-import java.net.*;
+// import java.net.*;
 
 import java.nio.file.Files;
 import java.util.Vector;
@@ -13,10 +13,9 @@ import java.nio.file.Paths;
 import java.nio.file.Path;
 
 import java.nio.*;
-import java.util.*;
+// import java.util.*;
 
 class peerProcess {
-    protected int numberOfPreferredNeighbors;
     protected int unchokingInterval;
     protected int optimisticUnchokingInterval;
     protected String fileName;
@@ -85,15 +84,21 @@ class peerProcess {
     public peerProcess(int peerId) {
         this.peerId = peerId;
         logger = new Logger(peerId);
+        int numberOfPreferredNeighbors = 5;
 
         try {
             // https://www.educative.io/edpresso/reading-the-nth-line-from-a-file-in-java
             Path tempFile = Paths.get("Common.cfg");
             List<String> fileLines = Files.readAllLines(tempFile);
+
+            numberOfPreferredNeighbors = Integer.valueOf(fileLines.get(0).split(" ")[1]);
+            unchokingInterval = Integer.valueOf(fileLines.get(1).split(" ")[1]);
+            optimisticUnchokingInterval = Integer.valueOf(fileLines.get(2).split(" ")[1]);
             String fileSizeString = fileLines.get(4);
             String pieceSizeString = fileLines.get(5);
             String[] fileSizes = fileSizeString.split(" ");
             String[] pieceSizes = pieceSizeString.split(" ");
+
 
             fileSize = Integer.parseInt(fileSizes[1]);
             pieceSize = Integer.parseInt(pieceSizes[1]);
@@ -104,7 +109,7 @@ class peerProcess {
         bitfield.setSize(totalPieces);
         FileObject = new FileHandling(this.peerId, totalPieces, pieceSize);
         hasFile = false;
-        preferredNeighbors = new Vector<Integer>(5);
+        preferredNeighbors = new Vector<Integer>(numberOfPreferredNeighbors);
     }
 
     public boolean hasFile() {
@@ -128,42 +133,6 @@ class peerProcess {
 
     public void setPrefferedNeighbors(Vector<Integer> preferredNeighbors) {
         this.preferredNeighbors = preferredNeighbors;
-    }
-
-    public void ReadCommongConfig(int peerId) {
-        String st = "";
-
-        try {
-            BufferedReader in = new BufferedReader(new FileReader("Common.cfg"));
-
-            st = in.readLine();
-            String[] tokens = st.split("\\s+");
-            this.numberOfPreferredNeighbors = Integer.parseInt(tokens[1]);
-
-            st = in.readLine();
-            tokens = st.split("\\s+");
-            this.unchokingInterval = Integer.parseInt(tokens[1]);
-
-            st = in.readLine();
-            tokens = st.split("\\s+");
-            this.optimisticUnchokingInterval = Integer.parseInt(tokens[1]);
-
-            st = in.readLine();
-            tokens = st.split("\\s+");
-            this.fileName = tokens[1];
-
-            st = in.readLine();
-            tokens = st.split("\\s+");
-            this.fileSize = Integer.parseInt(tokens[1]);
-
-            st = in.readLine();
-            tokens = st.split("\\s+");
-            this.pieceSize = Integer.parseInt(tokens[1]);
-
-            in.close();
-        } catch (Exception ex) {
-            System.out.println(ex.toString());
-        }
     }
 
     private static int GetProcessId(String[] args) {
@@ -207,7 +176,6 @@ class peerProcess {
         sortPeerInfoVector();
         // The first 4 peers are the peers that have transmitted the most.
         // Add their peerId to the list of preferred vectors
-        // for (int i = 0; i < 4 && i < peerInfoVector.size(); i++) {
         for (int i = 0; i < peerInfoVector.size(); i++) {
             // if tie, randomly choose among tied processes
             if (interested.size() > 0) {

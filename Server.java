@@ -6,13 +6,13 @@ import java.util.Vector;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.math.BigInteger;
+//import java.math.BigInteger;
 import java.nio.*;
-import java.util.*;
+//import java.util.*;
 // idean of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
 import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.io.FileOutputStream;
+//import java.nio.channels.FileChannel;
+//import java.io.FileOutputStream;
 
 public class Server {
     private static final int sPort = 8000; // The server will be listening on this port number
@@ -57,7 +57,6 @@ public class Server {
      */
     private static class Handler extends Thread {
         private byte[] message = new byte[50]; // message received from the client
-        private String MESSAGE; // uppercase message send to the client
         private Socket connection;
         private ObjectInputStream in; // stream read from the socket
         private ObjectOutputStream out; // stream write to the socket
@@ -67,20 +66,6 @@ public class Server {
         public Handler(Socket connection, int no) {
             this.connection = connection;
             this.no = no;
-        }
-
-        private void sampleClientLoop() throws ClassNotFoundException, IOException {
-            while (true) {
-                // receive the message sent from the client
-                in.read(message);
-                // show the message to the user
-                System.out.println("Receive message: " + message + " from client " + no);
-                // Capitalize all letters in the message
-                // Question: Why are we resending the incoming message back to the sender?
-                // MESSAGE = message.toUpperCase();
-                // send MESSAGE back to the client
-                // sendMessage(MESSAGE);
-            }
         }
 
         private void runTimer() {
@@ -120,7 +105,7 @@ public class Server {
                     }
                 }
 
-            }, 0, 5 * 1000);
+            }, 0, pp.unchokingInterval * 1000);
         }
 
         private void serverLoop() throws ClassNotFoundException, IOException {
@@ -130,6 +115,7 @@ public class Server {
             while (true) {
                 while (in.available() <= 0) {
                 }
+                runTimer();
                 message = new byte[in.available()];
 
                 in.read(message);
@@ -178,7 +164,6 @@ public class Server {
                     sendMessageBB(pp.messagesToSend.get(i));
                 }
                 pp.messagesToSend.clear();
-                runTimer();
                 while (in.available() <= 0) {
                 }
                 message = new byte[in.available()];
