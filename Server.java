@@ -2,22 +2,22 @@
 
 import java.net.*;
 import java.io.*;
-import java.util.Vector;
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.math.BigInteger;
 import java.nio.*;
-import java.util.*;
-                            // idean of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
-import java.io.IOException; 
-import java.nio.channels.FileChannel;
-import java.io.FileOutputStream;
+import java.io.IOException;
+//import java.util.Vector;
+//import java.util.Timer;
+//import java.util.TimerTask;
+//import java.math.BigInteger;
+//import java.util.*;
+//import java.nio.channels.FileChannel;
+//import java.io.FileOutputStream;
+
+// idea of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
 
 public class Server {
 
 	private static final int sPort = 8000; // The server will be listening on this port number
-	static private Vector<Integer> haveFile;
 	static private ArrayList<Handler> handlers = new ArrayList<Handler>();
 
 	private static peerProcess pp;
@@ -29,14 +29,6 @@ public class Server {
 		ServerSocket listener = new ServerSocket(sPort);
 		System.out.println("The server is running.");
 		int clientNum = 1;
-
-		// make list of peerIds that have the file
-		haveFile = new Vector<Integer>();
-		for (RemotePeerInfo rpi : pp.peerInfoVector) {
-			if (rpi.hasFile()) {
-				haveFile.addElement(rpi.getPeerId());
-			}
-		}
 
 		try {
 			while (true) {
@@ -57,7 +49,6 @@ public class Server {
 	 */
 	private static class Handler extends Thread {
 		private byte[] message = new byte[50]; // message received from the client
-		private String MESSAGE; // uppercase message send to the client
 		private Socket connection;
 		private ObjectInputStream in; // stream read from the socket
 		private ObjectOutputStream out; // stream write to the socket
@@ -66,20 +57,6 @@ public class Server {
 		public Handler(Socket connection, int no) {
 			this.connection = connection;
 			this.no = no;
-		}
-
-		private void sampleClientLoop() throws ClassNotFoundException, IOException {
-			while (true) {
-				// receive the message sent from the client
-				in.read(message);
-				// show the message to the user
-				System.out.println("Receive message: " + message + " from client " + no);
-				// Capitalize all letters in the message
-				// Question: Why are we resending the incoming message back to the sender?
-				//MESSAGE = message.toUpperCase();
-				// send MESSAGE back to the client
-				//sendMessage(MESSAGE);
-			}
 		}
 
 		private void serverLoop() throws ClassNotFoundException, IOException {
@@ -215,12 +192,6 @@ public class Server {
 
 			}
 		}
-
-		// try to handshake with processes that have the file
-		// for (Integer i : haveFile) {
-		// 	String messageToSend = createHandshakeMessage(peerId);
-		// 	// new Handler(listener.accept(), peerId).sendMessage(messageToSend);
-		// }
 
 		public void run() {
 			try {

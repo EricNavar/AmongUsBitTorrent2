@@ -371,7 +371,7 @@ public class Messages {
 				pp.getRemotePeerInfo(senderPeer).getBitfield().set(i, true);  // sets the index i to true of the peer that they have this piece
             }
         }
-        System.out.println("The interest of " + pp.getPeerId() + " is set to " + nowInterested);
+        System.out.println("The interest of " + pp.getPeerId() + " in " + senderPeer + " is set to " + nowInterested);
 
         // TODO: send interested message to sender process
         if(nowInterested)

@@ -288,7 +288,7 @@ class peerProcess {
 				catch(Exception e)
 				{}
 			}
-		}, 0, 1000); //TODO: it should be every 5000 ms, not 1000, but I made it every 1000 ms so that it's quicker to debug
+		}, 0, 5000);
 	}
 
     private void sortPeerInfoVector() {

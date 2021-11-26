@@ -24,7 +24,6 @@ public class Client {
 	byte[] fromServer; // capitalized message read from the server
 	int peerID;
 	int connectedToPeerId;
-	// String bitfieldHandshake;
 	// FileHandling handler;
 
 	// int socket;
@@ -39,7 +38,6 @@ public class Client {
 	}
 
 	void run() {
-
 		try {
 			// create a socket to connect to the server
 
@@ -61,16 +59,16 @@ public class Client {
 				fromServer = new byte[in.available()];
 				in.read(fromServer);
 				ByteBuffer buff = ByteBuffer.wrap(fromServer);
-				System.out.println("Receive message"); // debug message
 
 				// receive handshake message from server
 				connectedToPeerId = Messages.decodeMessage(buff, pp, -1);
 
 				pp.logger.onConnectingTo(connectedToPeerId);
-				System.out.println("I am peer " + pp.getPeerId() + " and I am connected to " + connectedToPeerId);
+				System.out.println("I am peer " + pp.getPeerId() + " (client) and I am connected to " + connectedToPeerId);
 
 				//send bitfield to server
 				messageToSend = Messages.createBitfieldMessage(pp.getCurrBitfield());
+				System.out.println("Sending bitfield message to " + connectedToPeerId);
 				sendMessageBB(messageToSend);
 				//expect a bitfield back
 				while(in.available() <= 0) {}
@@ -78,8 +76,8 @@ public class Client {
 
 				in.read(fromServer);
 				buff = ByteBuffer.wrap(fromServer);
-				// if it's a bitfield, message, then
-
+				// expect bitfield message back
+				System.out.println("Receieve bitfield message");
 				Messages.decodeMessage(pp, buff, connectedToPeerId);
 
 				
@@ -87,6 +85,14 @@ public class Client {
 				for(int i =0; i < pp.messagesToSend.size(); i++)
 				{
 					sendMessageBB(pp.messagesToSend.get(i));
+				}
+
+				// continue reading from server
+				// TODO: make a better loop to handle a connection with the server
+				while (true) {
+					while(in.available() <= 0) {}
+					fromServer = new byte[in.available()];
+					in.read(fromServer);
 				}
 
 				// receive bitfield message from server
@@ -99,11 +105,8 @@ public class Client {
 				fromServer = new byte[in.available()];
 				in.read(fromServer);
 				buff = ByteBuffer.wrap(fromServer);
-				
 
-				
 				connectedToPeerId = Messages.decodeMessage(buff, pp, -1);
-
 
 				System.out.println("Peers interested in 1002: none");
 
@@ -130,8 +133,6 @@ public class Client {
 					}
 				};
 				*/
-
-
 			}
 
 		} catch (ConnectException e) {
@@ -169,7 +170,7 @@ public class Client {
 			// stream write the message
 			out.write(msg.array());
 			out.flush();
-			System.out.println("Send message to"); // debug message
+			// System.out.println("Send message to");
 
 		} catch (IOException ioException) {
 			ioException.printStackTrace();
