@@ -30,6 +30,7 @@ public class StartRemotePeers {
 	public void getConfiguration() {
 		String st;
 		pp.peerInfoVector = new Vector<RemotePeerInfo>();
+		int count =0;
 		try {
 			BufferedReader in = new BufferedReader(new FileReader("PeerInfo.cfg"));
 			while ((st = in.readLine()) != null) {
@@ -44,6 +45,11 @@ public class StartRemotePeers {
 				}
 				else {	
 					pp.peerInfoVector.addElement(new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3]));
+					
+        				
+				
+
+
 				}
 			}
 

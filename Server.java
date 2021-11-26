@@ -101,17 +101,27 @@ public class Server {
 				sendMessageBB(messageToSend);
 				
 				System.out.println("I am peer " +pp.getPeerId()+ " and I am connected to " + connectedFrom);
-				/*ByteBuffer bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
-				sendMessageBB(bitfieldMessage);
-				//sendMessage(Messages.integerToBinaryString(pp.getPeerId(), 2));
 
 				// receive bitfield message
-				String fromClient = (String) in.readObject();
-				String fromClient2 = (String) in.readObject();
-				int newID = Integer.parseInt(fromClient2, 2);
-				int bitfieldRes = Messages.decodeMessage(fromClient, pp, newID);
+				
+				while(in.available() <= 0)
+				{}
+				byte [] message2 = new byte[in.available()];
+				
 
-				// send interested/not interested
+				in.read(message2);
+				System.out.println(message2);
+
+				ByteBuffer buff2 = ByteBuffer.wrap(message2);
+
+				int bitfieldRes = Messages.decodeMessage(buff2, pp, connectedFrom);
+
+				ByteBuffer bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
+				sendMessageBB(bitfieldMessage);
+
+
+				
+				/*// send interested/not interested
 				for(int i =0; i < pp.messagesToSend.size(); i++)
 				{
 					sendMessageBB(pp.messagesToSend.get(i));

@@ -107,7 +107,9 @@ public class Messages {
     public static ByteBuffer createBitfieldMessage(Vector<Boolean> bitfield) {
         // This may work weird if the bitfield size is not divisible by 8
         int lengthBytes = (int) (Math.ceil(((float) bitfield.size()) / 8.0f));  // odd bitfields are a problem so ceiling to increase to max size...
-		ByteBuffer MessageAssembly = ByteBuffer.allocate(lengthBytes+1);  // Message is length_1 bytes
+		ByteBuffer MessageAssembly = ByteBuffer.allocate(lengthBytes+1+5);  // Message is length_1 bytes
+		MessageAssembly.putInt(lengthBytes); 
+		MessageAssembly.put(encodeType(MessageType.BITFIELD.ordinal()));
 		int bitnumber;
 		for (int x = 0; x < lengthBytes; ++x) {
 			byte assembleTheByte = 0;
@@ -185,7 +187,7 @@ public class Messages {
 	}
 	
 	public static int GetMessageType( ByteBuffer IncomingBuffer ) {
-		 return   (int) (ParseByte(IncomingBuffer, 0));
+		 return   (int) (ParseByte(IncomingBuffer, 4));
 	}
 	
 	public static int GetHandshakePeerID(ByteBuffer IncomingBuffer) {
@@ -351,7 +353,7 @@ public class Messages {
 				pp.getRemotePeerInfo(senderPeer).getBitfield().set(i, true);  // sets the index i to true of the peer that they have this piece
             }
         }
-        System.out.println("The interest of senderPeer " + senderPeer + " is set to " + nowInterested);
+        System.out.println("The interest of " + pp.getPeerId() + " is set to " + nowInterested);
 
         // TODO: send interested message to sender process
         if(nowInterested)
@@ -464,8 +466,11 @@ public class Messages {
          * 1-bit message type
          * message payload
          */
+	
         int length = GetMessageLength(IncomingMessage);
         int type   = GetMessageType(IncomingMessage);
+	
+	
 
         // The logic for handling the message types are here
         if (type == MessageType.CHOKE.ordinal()) { //type 0

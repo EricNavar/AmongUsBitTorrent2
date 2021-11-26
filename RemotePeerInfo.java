@@ -1,4 +1,13 @@
 import java.util.Vector;
+import java.nio.file.Files;
+import java.util.Vector;
+import static java.lang.Math.ceil;
+import java.util.Collections;
+import java.util.Random;
+import java.util.List;
+import java.nio.file.Paths;
+import java.nio.file.Path;
+
 
 /*
  * This is the program starting remote processes.
@@ -13,7 +22,7 @@ public class RemotePeerInfo {
 	private String peerAddress;
 	private int peerPort;
 	private boolean hasFile;
-	private Vector<Boolean> bitfield;
+	private Vector<Boolean> bitfield = new Vector<Boolean>(0);
 	private boolean choked;
 	// this field means that the peer is interested in something from the running process
 	private boolean interested;
@@ -25,6 +34,29 @@ public class RemotePeerInfo {
 		this.peerPort = Integer.parseInt(pPort);
 		this.hasFile = "1".equals(hasFile);
 		choked = false;
+		int fileSize=0;
+		int pieceSize =0;
+    		try {
+            	//https://www.educative.io/edpresso/reading-the-nth-line-from-a-file-in-java
+            	Path tempFile = Paths.get("Common.cfg");
+            	List<String> fileLines = Files.readAllLines(tempFile);
+            	String fileSizeString = fileLines.get(4);
+            	String pieceSizeString = fileLines.get(5);
+            	String[] fileSizes = fileSizeString.split(" ");
+            	String[] pieceSizes = pieceSizeString.split(" ");
+
+            	fileSize = Integer.parseInt(fileSizes[1]);
+            	pieceSize = Integer.parseInt(pieceSizes[1]);
+        	}
+        	catch(Exception e)
+        	{
+
+        	}
+        	int totalPieces = (int) ceil((double) fileSize / pieceSize);
+        	bitfield.setSize(totalPieces);
+        	for (int i = 0; i < bitfield.size(); i++) {
+            		bitfield.set(i, this.hasFile);
+        	}
 	}
 
 	public int getPeerId() {

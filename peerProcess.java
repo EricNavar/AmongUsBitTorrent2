@@ -33,7 +33,7 @@ class peerProcess {
     final protected int port = 5478;
     protected Vector<RemotePeerInfo> peerInfoVector;
     // denotes which pieces of the file this process has
-    private Vector<Boolean> bitfield = new Vector<Boolean>(0);
+    Vector<Boolean> bitfield = new Vector<Boolean>(0);
     Vector<Integer> preferredNeighbors;
     Vector<Integer> interested = new Vector<Integer>(0);
     // No Longer Sending Strings...  Vector<String> messagesToSend = new Vector<String>(0);
@@ -307,7 +307,7 @@ class peerProcess {
         }
         peerProcess pp = new peerProcess(peerId);
         StartRemotePeers srp = new StartRemotePeers(pp);
-        // srp.Start(peerId);
+        //srp.Start(peerId);
         // if PeerInfo.cfg lists the current peerId as having the file
         for (int i = 0; i < pp.bitfield.size(); i++) {
             pp.bitfield.set(i, pp.hasFile);
