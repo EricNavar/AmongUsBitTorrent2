@@ -82,39 +82,30 @@ public class Client {
 
 				Messages.decodeMessage(pp, buff, connectedToPeerId);
 
-
-
-				// receive bitfield message from server
-				/*String fromServer2 = (String) in.readObject();
-				String fromServer3 = (String) in.readObject();
-
-				int newID = Integer.parseInt(fromServer3, 2);
-
-				int bitfieldRes = Messages.decodeMessage(fromServer2, pp, newID);
-
-				// send bitfield message and process id to server
-				ByteBuffer bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
-				sendMessageBB(bitfieldMessage);
-				sendMessage(Messages.integerToBinaryString(pp.getPeerId(), 2));
-				// receive not interested message from server
-				String fromServer4 = (String) in.readObject();
-				String fromServer5 = (String) in.readObject();
-				String fromServer6 = (String) in.readObject();
-				int newID2 = Integer.parseInt(fromServer5, 2);
-				int newID3 = Integer.parseInt(fromServer6, 2);
-
-				if(newID2 == pp.getPeerId())
-				{
-					int interestMessage = Messages.decodeMessage(fromServer4, pp, newID3);
-				}
-
+				
 				// send interested message to server, this messagesToSend is created in messsages.java
 				for(int i =0; i < pp.messagesToSend.size(); i++)
 				{
 					sendMessageBB(pp.messagesToSend.get(i));
 				}
-				System.out.println("Peers interested in 1002: none");
 
+				// receive bitfield message from server
+				/*String fromServer2 = (String) in.readObject();
+				String fromServer3 = (String) in.readObject();
+
+
+				while(in.available() <= 0) {}	
+				
+				fromServer = new byte[in.available()];
+				in.read(fromServer);
+				buff = ByteBuffer.wrap(fromServer);
+				
+
+				
+				connectedToPeerId = Messages.decodeMessage(buff, pp, -1);
+
+
+				System.out.println("Peers interested in 1002: none");
 
 				// print out any peers interested in 1002
 				for(int i =0; i<pp.interested.size(); i++)
@@ -122,6 +113,8 @@ public class Client {
 					System.out.println(pp.interested.get(i));
 				}
 				pp.messagesToSend.clear();
+
+				/*
 				// receive unchoke message from server
 				while(true) {
 					String fromServer7 = (String) in.readObject();
