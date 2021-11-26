@@ -161,7 +161,6 @@ public class Messages {
 			}
 			MessageAssembly.put(assembleTheByte);
 		}
-
         return MessageAssembly;
     }
 
