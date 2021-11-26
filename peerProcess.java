@@ -3,7 +3,9 @@ import java.net.*;
 
 import java.nio.file.Files;
 import java.util.Vector;
+
 import static java.lang.Math.ceil;
+
 import java.util.Collections;
 import java.util.Random;
 import java.util.List;
@@ -12,7 +14,6 @@ import java.nio.file.Path;
 
 import java.nio.*;
 import java.util.*;
-  
 
 class peerProcess {
     protected int numberOfPreferredNeighbors;
@@ -36,14 +37,15 @@ class peerProcess {
     Vector<Boolean> bitfield = new Vector<Boolean>(0);
     Vector<Integer> preferredNeighbors;
     Vector<Integer> interested = new Vector<Integer>(0);
-    // No Longer Sending Strings...  Vector<String> messagesToSend = new Vector<String>(0);
+    // No Longer Sending Strings... Vector<String> messagesToSend = new
+    // Vector<String>(0);
     Vector<ByteBuffer> messagesToSend = new Vector<ByteBuffer>(0);
-Vector<ByteBuffer> pieceMessages= new Vector<ByteBuffer>(0);
+    Vector<ByteBuffer> pieceMessages = new Vector<ByteBuffer>(0);
     Logger logger;
     Client client;
     Server server;
     Messages message;
-FileHandling FileObject;
+    FileHandling FileObject;
 
     public void incrementCollectedPieces() {
         collectedPieces++;
@@ -53,27 +55,26 @@ FileHandling FileObject;
     }
 
     public int getTotalPieces() {
-
         return totalPieces;
     }
-    public int getPeerId() {
 
+    public int getPeerId() {
         return peerId;
     }
+
     public Vector<Boolean> getCurrBitfield() {
         return bitfield;
     }
-    public Vector<Integer> getInterested() {
 
+    public Vector<Integer> getInterested() {
         return interested;
     }
-    public void setInterested(Vector<Integer> interest) {
 
+    public void setInterested(Vector<Integer> interest) {
         interested = interest;
     }
 
-public FileHandling getFileObject() {
-
+    public FileHandling getFileObject() {
         return FileObject;
     }
 
@@ -86,7 +87,7 @@ public FileHandling getFileObject() {
         logger = new Logger(peerId);
 
         try {
-            //https://www.educative.io/edpresso/reading-the-nth-line-from-a-file-in-java
+            // https://www.educative.io/edpresso/reading-the-nth-line-from-a-file-in-java
             Path tempFile = Paths.get("Common.cfg");
             List<String> fileLines = Files.readAllLines(tempFile);
             String fileSizeString = fileLines.get(4);
@@ -96,18 +97,15 @@ public FileHandling getFileObject() {
 
             fileSize = Integer.parseInt(fileSizes[1]);
             pieceSize = Integer.parseInt(pieceSizes[1]);
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
 
         }
         totalPieces = (int) ceil((double) fileSize / pieceSize);
         bitfield.setSize(totalPieces);
-FileObject = new FileHandling(this.peerId, totalPieces, pieceSize);
+        FileObject = new FileHandling(this.peerId, totalPieces, pieceSize);
         hasFile = false;
         preferredNeighbors = new Vector<Integer>(5);
     }
-
 
     public boolean hasFile() {
         return hasFile;
@@ -116,10 +114,12 @@ FileObject = new FileHandling(this.peerId, totalPieces, pieceSize);
     public void setHasFile(boolean hasFile) {
         this.hasFile = hasFile;
     }
-                                                           // finds the peer's handle to be able to get that peer's detailed information
-    public RemotePeerInfo getRemotePeerInfo(int peerId) {  // searches through a list of peers to find the one with the matching ID
-        for (RemotePeerInfo rfi : peerInfoVector) {        // iterates over the set of rfi peers
-            if (rfi.getPeerId() == peerId) {               // if the rfi's peerID matches, then return the rfi handle
+
+    // finds the peer's handle to be able to get that peer's detailed information
+    public RemotePeerInfo getRemotePeerInfo(int peerId) { // searches through a list of peers to find the one with the
+                                                          // matching ID
+        for (RemotePeerInfo rfi : peerInfoVector) { // iterates over the set of rfi peers
+            if (rfi.getPeerId() == peerId) { // if the rfi's peerID matches, then return the rfi handle
                 return rfi;
             }
         }
@@ -189,7 +189,7 @@ FileObject = new FileHandling(this.peerId, totalPieces, pieceSize);
     public void startTCPConnection(StartRemotePeers srp, int peerId) throws Exception {
         // start server
         System.out.println("Attempting to create server socket."); // debug message
-        if(peerId != 1001) { // if client
+        if (peerId != 1001) { // if client
             System.out.println("Attempting to connect as a client to the port...");
             client = new Client(this);
             client.setPeerID(peerId);
@@ -210,20 +210,18 @@ FileObject = new FileHandling(this.peerId, totalPieces, pieceSize);
         // for (int i = 0; i < 4 && i < peerInfoVector.size(); i++) {
         for (int i = 0; i < peerInfoVector.size(); i++) {
             // if tie, randomly choose among tied processes
-            if(interested.size() > 0) {
+            if (interested.size() > 0) {
                 for (int j = 0; j < interested.size(); j++) {
                     if (peerInfoVector.get(i).getPeerId() == interested.get(j))
                         preferredNeighbors.add(peerInfoVector.get(i).getPeerId());
                 }
             }
         }
-	
-
 
         // choose another random peer from the rest
         int optimisicallyUnchokedNeighbor = chooseOptimisticallyUnchokedPeer();
         preferredNeighbors.add(optimisicallyUnchokedNeighbor);
-       
+
         logger.onChangeOfOptimisticallyUnchokedNeighbor(optimisicallyUnchokedNeighbor);
         // after recalculating the preferred neighbors, reset the value of the
         // transmitted data of all remote peers
@@ -238,46 +236,23 @@ FileObject = new FileHandling(this.peerId, totalPieces, pieceSize);
     private int chooseOptimisticallyUnchokedPeer() {
         int min = 4;
         int max = peerInfoVector.size();
-        int randomPeerIndex = (int)Math.floor(Math.random()*(max-min+1)+min);
-        if(randomPeerIndex > peerInfoVector.size()-1)
-            randomPeerIndex = peerInfoVector.size()-1;
+        int randomPeerIndex = (int) Math.floor(Math.random() * (max - min + 1) + min);
+        if (randomPeerIndex > peerInfoVector.size() - 1)
+            randomPeerIndex = peerInfoVector.size() - 1;
         return peerInfoVector.get(randomPeerIndex).getPeerId();
     }
-
-	private void runTimer() {
-		// Every 5 seconds, recalculate the preferred neighbors
-		Timer timer = new Timer();
-		timer.schedule( new TimerTask() {
-			public void run() {
-				try {
-					calculatePreferredNeighbors();
-
-					for (int i = 0; i < messagesToSend.size(); i++) {
-						// send choke/unchoke messages
-						client.sendMessageBB(messagesToSend.get(i));
-					}
-
-				}
-				catch(Exception e)
-				{}
-			}
-		}, 0, 1000); //TODO: it should be every 5000 ms, not 1000, but I made it every 1000 ms so that it's quicker to debug
-	}
 
     private void sortPeerInfoVector() {
         Collections.sort(peerInfoVector, (o1, o2) -> {
             // We want the Vector to be in decreasing order, so we're comparing it backwards
             Integer o2Value = o2.getPiecesTransmitted();
             // need to break ties - 2 or more?
-            //https://stackoverflow.com/questions/22968012/how-to-randomly-choose-between-two-choices/22968825
-            if(o2Value.compareTo(o1.getPiecesTransmitted()) == 0)
-            {
+            // https://stackoverflow.com/questions/22968012/how-to-randomly-choose-between-two-choices/22968825
+            if (o2Value.compareTo(o1.getPiecesTransmitted()) == 0) {
                 Random chooser = new Random();
-                if(chooser.nextInt(3) == 1)
-                {
+                if (chooser.nextInt(3) == 1) {
                     return -1;
-                }
-                else
+                } else
                     return 1;
 
             }
@@ -309,9 +284,8 @@ FileObject = new FileHandling(this.peerId, totalPieces, pieceSize);
             return;
         }
         peerProcess pp = new peerProcess(peerId);
-        pp.runTimer();
         StartRemotePeers srp = new StartRemotePeers(pp);
-        //srp.Start(peerId);
+        // srp.Start(peerId);
         // if PeerInfo.cfg lists the current peerId as having the file
         for (int i = 0; i < pp.bitfield.size(); i++) {
             pp.bitfield.set(i, pp.hasFile);
