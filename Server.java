@@ -97,6 +97,7 @@ public class Server {
 				pp.logger.onConnectingFrom(connectedFrom);
 				ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.peerId);
 				sendMessageBB(messageToSend);
+				
 				System.out.println("I am peer " +pp.getPeerId()+ " and I am connected to " + connectedFrom);
 				/*ByteBuffer bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
 				sendMessageBB(bitfieldMessage);
@@ -242,8 +243,7 @@ public class Server {
 		// send a message to the output stream
 		public void sendMessageBB(ByteBuffer msg) {
 			try {
-
-				out.writeObject(msg.array());
+				out.write(msg.array());
 				out.flush();
 				System.out.println("Send message to Client " + no); // debug message
 			} catch (IOException ioException) {

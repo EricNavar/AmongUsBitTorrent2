@@ -56,10 +56,13 @@ public class Client {
 
 
 			while (true) {
+				while(in.available() <= 0)
+				{}
 				fromServer = new byte[in.available()];
 				in.read(fromServer);
-				System.out.println("Receive message"); // debug message
 				ByteBuffer buff = ByteBuffer.wrap(fromServer);
+				System.out.println("Receive message"); // debug message
+
 				// receive handshake message from server
 				connectedToPeerId = Messages.decodeMessage(buff, pp, -1);
 
@@ -179,6 +182,8 @@ public class Client {
 			// stream write the message
 			out.write(msg.array());
 			out.flush();
+			System.out.println("Send message to"); // debug message
+
 		} catch (IOException ioException) {
 			ioException.printStackTrace();
 		}
