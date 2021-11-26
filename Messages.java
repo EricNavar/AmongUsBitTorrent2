@@ -321,7 +321,7 @@ public class Messages {
                                                                           // If the receiver of this message does has the piece
                                                                           //    that the sender has, then send a not_interested message.
                                                                           //  Else, send an interested message.
-        if (pp.bitfield.get(index)) {                                     // if this message is already in possession, skip getting it again
+        if (pp.getCurrBitfield().get(index)) {                                     // if this message is already in possession, skip getting it again
             pp.client.sendMessageBB(createNotInterestedMessage());
         }
         else {                                                            // else ask for the message
@@ -342,6 +342,8 @@ public class Messages {
 				int y = i % 8;
 				int bitvalue = (int) IncomingMessage.array()[x+4]; // if 8 bits, i = 7 and x is 0, if 9th bit i=8 and x = 1
 				bitvalue = (bitvalue>>y) & 0x0FF;
+                // if the sender has a piece that this process does not, then this process will send an interested message.
+                // otherwise, send an uninterested message.
                 if((pp.getCurrBitfield().get(i) == false) && (bitvalue == 1)) {
                     nowInterested = true;
                     //  break;  // DO NOT Break, instead keep loading in and tracking the pieces this peer has in it's posession
@@ -358,7 +360,7 @@ public class Messages {
             // TODO: Question: what purpose do the next two lines serve?
             // Answer: they identify orig/dest peers of message
 			// Comment: The message specification is defined as shown, sending two more messages on the wire line won't solve the issue as it isn't 
-			// inline with the specification.  It seems like we know the sender from the ipV4 packet and need to decipher it in a different manner than
+			// inline with the specification. It seems like we know the sender from the ipV4 packet and need to decipher it in a different manner than
 			// adding two more messages to the end of the current message or modifying the defined message.
 			// Each Handler is associated with a TCP connection (or should be) and should define the identify of the peer this is connected to.
             //pp.messagesToSend.add(Messages.integerToBinaryString(senderPeer, 2));
@@ -375,12 +377,8 @@ public class Messages {
 	        // Each Handler is associated with a TCP connection (or should be) and should define the identify of the peer this is connected to.
             //pp.messagesToSend.add(Messages.integerToBinaryString(senderPeer, 2));
             //pp.messagesToSend.add(Messages.integerToBinaryString(pp.getPeerId(), 2));
-
-
         }
         return;
-
-
     }
 
     /* REQUEST AND PIECE
@@ -427,15 +425,17 @@ public class Messages {
 		GrabPieceData.put(Arrays.copyOfRange(IncomingMessage.array(), 9, length-9));  // Get the piece
         pp.FileObject.ReceivedAPiece(index, GrabPieceData, length-9);             // insert into the File Handler
 
-        if (pp.FileObject.CheckForAllPieces()) {                                  // TODO: What do they mean by "partial files" maintained in current directory?
-            StringBuilder filenameWrite = new StringBuilder();                    //       Are we supposed to support 100GB file transfers and cache to the drive?
+        // TODO: What do they mean by "partial files" maintained in current directory?
+        //       Are we supposed to support 100GB file transfers and cache to the drive?
+        if (pp.FileObject.CheckForAllPieces()) {
+            StringBuilder filenameWrite = new StringBuilder();
             filenameWrite.append(String.format("./peer_%04d/TreeCopy.jpg", pp.peerId));
 			pp.FileObject.WriteFileOut(filenameWrite.toString());
 		}
 
         pp.getRemotePeerInfo(senderPeer).incrementPiecesTransmitted();
         // update the bitfield
-        pp.bitfield.set(index,true);
+        pp.getCurrBitfield().set(index,true);
         pp.incrementCollectedPieces();
         pp.logger.onDownloadingAPiece(senderPeer, index, pp.getCollectedPieces());
         // log if this process now has the entire file

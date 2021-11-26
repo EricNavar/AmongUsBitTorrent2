@@ -81,7 +81,7 @@ public class RemotePeerInfo {
 
 	                                                               // gets the index of a random piece that is missing.
 	                                                               // Return -1 if no pieces are missing.
-	public int selectRandomMissingPiece() {                  
+	public int selectRandomMissingPiece() {
 		if (hasFile) {                                             // if this peer has everything it needs, this will return -1
 			return -1;
 		}
