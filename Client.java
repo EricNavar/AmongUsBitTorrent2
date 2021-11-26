@@ -114,7 +114,7 @@ count++;
 			while (true) {
 				// busy wait for input
 				while(in.available() <= 0) {}
-				
+
 				fromServer = new byte[in.available()];
 				in.read(fromServer);
 				ByteBuffer buff = ByteBuffer.wrap(fromServer);
@@ -127,15 +127,16 @@ count++;
 				System.out.println("I am peer " + pp.getPeerId() + " and I am connected to " + connectedToPeerId);
 
 				//send bitfield to server
-				messageToSend = Messages.createBitfieldMessage(pp.bitfield);
+				messageToSend = Messages.createBitfieldMessage(pp.getCurrBitfield());
 				sendMessageBB(messageToSend);
 				//expect a bitfield back
 				while(in.available() <= 0) {}
-
 				fromServer = new byte[in.available()];
+
 				in.read(fromServer);
 				buff = ByteBuffer.wrap(fromServer);
 				// if it's a bitfield, message, then
+
 
 				int bitfieldMsg = Messages.decodeMessage(pp, buff, connectedToPeerId);
 			
@@ -147,6 +148,8 @@ count++;
 					sendMessageBB(pp.messagesToSend.get(i));
 				}
 
+				// receive bitfield message from server
+				
 
 
 				while(in.available() <= 0) {}	

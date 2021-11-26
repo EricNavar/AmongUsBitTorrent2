@@ -155,7 +155,7 @@ count++;
 				ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.peerId);
 				sendMessageBB(messageToSend);
 				
-				System.out.println("I am peer " +pp.getPeerId()+ " and I am connected to " + connectedFrom);
+				System.out.println("I am peer " + pp.getPeerId() + "(server) and I am connected to " + connectedFrom);
 
 				// receive bitfield message
 				
@@ -201,55 +201,25 @@ count++;
 				runTimer();
 				while(in.available() <= 0) {}
 				message = new byte[in.available()];
+				
+				in.read(message);
 
+				buff = ByteBuffer.wrap(message);
+				// receive request msg
+				int reqRes = Messages.decodeMessage(buff, pp, connectedFrom);
+				
+				while(in.available() <= 0) {}
+				message = new byte[in.available()];
+				
 				in.read(message);
 
 				buff = ByteBuffer.wrap(message);
 				
 				int chokeRes = Messages.decodeMessage(buff, pp, connectedFrom);
 				
-			
 				while(true){}
 
-				/*
 				
-
-				// Every 5 seconds, recalculate the preferred neighbors
-				Timer timer = new Timer();
-				timer.schedule( new TimerTask() {
-					public void run() {
-						try {
-							pp.calculatePreferredNeighbors();
-
-							for (int i = 0; i < pp.messagesToSend.size(); i++) {
-								//send choke/unchoke messages
-								sendMessageBB(pp.messagesToSend.get(i));
-							}
-
-						}
-						catch(Exception e)
-						{}
-					}
-
-				}, 0, 5*1000);
-
-				// after calculating and sending choke/unchoke, get ready to receive any messages to choke/unchoke
-				while(true) {
-					String fromClient7 = (String) in.readObject();
-					String fromClient8 = (String) in.readObject();
-					String fromClient9 = (String) in.readObject();
-					int newID4 = Integer.parseInt(fromClient8, 2);
-					int newID5 = Integer.parseInt(fromClient9, 2);
-					if (newID4 == pp.getPeerId()) {
-						System.out.println("unchoking " + newID5 + " from " + newID4);
-
-						int chokeMessage = Messages.decodeMessage(fromClient7, pp, newID5);
-						break;
-
-					}
-
-				};*/
-
 						/*if(handlers.size() >= 2)
 						{
 
@@ -275,8 +245,7 @@ count++;
 
 
 
-				/*while(true)
-				{}*/
+				
 
 
 
