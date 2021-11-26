@@ -259,7 +259,17 @@ public class Messages {
 
     //type 0
     private static void handleChokeMessage(peerProcess pp, int senderPeer) {
-        pp.getRemotePeerInfo(senderPeer).setChoked(true);
+        RemotePeerInfo sender = pp.getRemotePeerInfo(senderPeer);
+        try {
+            if (sender == null) {
+                throw new Exception("remote peer with id " + senderPeer + " info not found");
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        sender.setChoked(true);
         pp.logger.onChoking(senderPeer);
     }
 
@@ -445,6 +455,19 @@ public class Messages {
         if (pp.hasFile()) {
             pp.logger.onCompletionOfDownload();
         }
+
+        updateInterestedStatus(pp);
+    }
+
+    // Whenever a peer receives
+    //     a piece completely, it checks the bitfields of its neighbors and decides whether it should
+    //     send ‘not interested’ messages to some neighbors.
+    public static void updateInterestedStatus(peerProcess pp) {
+        for (int neighborId: pp.preferredNeighbors) {
+            if (!pp.checkInterested(pp.getRemotePeerInfo(neighborId).getBitfield())) {
+                pp.messagesToSend.add(createNotInterestedMessage());
+            }
+        }
     }
 
     // returns the peerId of the sender if it's a handshake message.
@@ -452,6 +475,7 @@ public class Messages {
         return decodeMessage(pp, IncomingMessage, sender);
     }
 
+    // returns the peerId of the sender if it's a handshake message.
     public static int decodeMessage(peerProcess pp, ByteBuffer IncomingMessage, int senderPeer) {
         String handshakeHeader = "P2PFILESHARINGPROJ";
         // if the message starts with the handShake header, then it's a handshake message
@@ -470,7 +494,7 @@ public class Messages {
 	
         int length = GetMessageLength(IncomingMessage);
         int type   = GetMessageType(IncomingMessage);
-	
+	    System.out.println(type);
 
         // The logic for handling the message types are here
         if (type == MessageType.CHOKE.ordinal()) { //type 0

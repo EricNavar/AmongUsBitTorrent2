@@ -9,21 +9,6 @@ To compile, run: ./compile.sh
 - Greg Bolling
 - Santosh Tirumala
 
-## Progress
-
-For the first check we have to have 800 lines of runnable code.
-
-- peerProcess.java:       226
-- RemotePeerInfo.java:     68
-- Logger.java:             88
-- Messages.java           321
-- MessageType.java:         5
-- Server.java             164
-- Client.java              77
-- StartRemotePeers.java    84
-
-Total:                   1033
-
 # Files
 
 ## peerProcess.java
