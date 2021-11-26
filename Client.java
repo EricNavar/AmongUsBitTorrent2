@@ -20,14 +20,14 @@ public class Client {
 	Socket requestSocket; // socket connect to the server
 	ObjectOutputStream out; // stream write to the socket
 	ObjectInputStream in; // stream read from the socket
-	String message; // message send to the server
+	// String message; // message send to the server
 	byte[] fromServer; // capitalized message read from the server
 	int peerID;
 	int connectedToPeerId;
-	String bitfieldHandshake;
-	FileHandling handler;
+	// String bitfieldHandshake;
+	// FileHandling handler;
 
-	int socket;
+	// int socket;
 	peerProcess pp;
 
 
@@ -38,26 +38,48 @@ public class Client {
 		this.pp = pp;
 	}
 
+	private void runTimer() {
+		// Every 5 seconds, recalculate the preferred neighbors
+		Timer timer = new Timer();
+		timer.schedule( new TimerTask() {
+			public void run() {
+				try {
+					pp.calculatePreferredNeighbors();
+
+					for (int i = 0; i < pp.messagesToSend.size(); i++) {
+						// send choke/unchoke messages
+						sendMessageBB(pp.messagesToSend.get(i));
+					}
+
+				}
+				catch(Exception e)
+				{}
+			}
+
+		}, 0, 5*1000);
+	}
+
 	void run() {
 
 		try {
 			// create a socket to connect to the server
 
 			requestSocket = new Socket("localhost", 8000);
-			System.out.println("Connected to localhost");
+			System.out.println("Connected to localhost 8000");
 			// initialize inputStream and outputStream
 			out = new ObjectOutputStream(requestSocket.getOutputStream());
 			out.flush();
 			in = new ObjectInputStream(requestSocket.getInputStream());
 
-			// create handshake message and send send to server
+			// create handshake message and send to server
 			ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.getPeerId());
 			sendMessageBB(messageToSend);
 
 
 			while (true) {
-				while(in.available() <= 0)
-				{}
+				// busy wait for input
+				while(in.available() <= 0) {}
+				runTimer();
 				fromServer = new byte[in.available()];
 				in.read(fromServer);
 				ByteBuffer buff = ByteBuffer.wrap(fromServer);
@@ -67,7 +89,23 @@ public class Client {
 				connectedToPeerId = Messages.decodeMessage(buff, pp, -1);
 
 				pp.logger.onConnectingTo(connectedToPeerId);
-				System.out.println("I am peer " +pp.getPeerId()+ " and I am connected to " + connectedToPeerId);
+				System.out.println("I am peer " + pp.getPeerId() + " and I am connected to " + connectedToPeerId);
+
+				//send bitfield to server
+				sendMessageBB(Messages.createBitfieldMessage(pp.bitfield));
+				//expect a bitfield back
+				in.read(fromServer);
+				while(in.available() <= 0) {}
+				in.read(fromServer);
+				buff = ByteBuffer.wrap(fromServer);
+				// if it's a bitfield, message, then
+
+				if (Messages.GetMessageType(buff) == 5) {
+					Messages.decodeMessage(pp, buff, connectedToPeerId);
+				}
+
+
+
 
 				// receive bitfield message from server
 				/*String fromServer2 = (String) in.readObject();
@@ -119,31 +157,9 @@ public class Client {
 
 						int chokeMessage = Messages.decodeMessage(fromServer7, pp, newID5);
 						break;
-
 					}
-
 				};
-
-				// Every 5 seconds, recalculate the preferred neighbors
-				Timer timer = new Timer();
-				timer.schedule( new TimerTask() {
-					public void run() {
-						try {
-							pp.calculatePreferredNeighbors();
-
-							for (int i = 0; i < pp.messagesToSend.size(); i++) {
-								// send choke/unchoke messages
-								sendMessageBB(pp.messagesToSend.get(i));
-							}
-
-						}
-						catch(Exception e)
-						{}
-					}
-
-				}, 0, 5*1000);
-				while (true)
-				{}*/
+				*/
 
 
 			}
@@ -154,7 +170,8 @@ public class Client {
 			System.err.println("You are trying to connect to an unknown host!");
 		} catch (IOException ioException) {
 			ioException.printStackTrace();
-		} finally {
+		}
+		finally {
 			// Close connections
 			try {
 				in.close();

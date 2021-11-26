@@ -33,7 +33,7 @@ class peerProcess {
     final protected int port = 5478;
     protected Vector<RemotePeerInfo> peerInfoVector;
     // denotes which pieces of the file this process has
-    Vector<Boolean> bitfield = new Vector<Boolean>(0);
+    private Vector<Boolean> bitfield = new Vector<Boolean>(0);
     Vector<Integer> preferredNeighbors;
     Vector<Integer> interested = new Vector<Integer>(0);
     // No Longer Sending Strings...  Vector<String> messagesToSend = new Vector<String>(0);
@@ -60,7 +60,6 @@ class peerProcess {
         return peerId;
     }
     public Vector<Boolean> getCurrBitfield() {
-
         return bitfield;
     }
     public Vector<Integer> getInterested() {
@@ -184,37 +183,18 @@ class peerProcess {
     public void startTCPConnection(StartRemotePeers srp, int peerId) throws Exception {
         // start server
         System.out.println("Attempting to create server socket."); // debug message
-        if(peerId != 1001) {
+        if(peerId != 1001) { // if client
             System.out.println("Attempting to connect as a client to the port...");
             client = new Client(this);
-            // Handshake just between 1001 and 1002 for now
             client.setPeerID(peerId);
             client.run();
-        } else {
-            System.out.println("Starting a listener at the post and try to handshake with other processes...");
+        } else { // if server
+            System.out.println("Starting a listener at the port and try to handshake with other processes...");
             server = new Server(this);
             server.startServer();
         }
     }
 
-    /*
-     * CALCULATING PREFERRED NEIGHBORS
-     * Each peer determines preferred neighbors every p seconds. Suppose that the 
-     * unchoking interval is p. Then every p seconds, peer A reselects its preferred
-     * neighbors. To make the decision, peer A calculates the downloading rate from
-     * each of its neighbors, respectively, during the previous unchoking interval.
-     * Among neighbors that are interested in its data, peer A picks k neighbors that
-     * has fed its data at the highest rate. If more than two peers have the same rate,
-     * the tie should be broken randomly. Then it unchokes those preferred neighbors by
-     * sending "unchoke" messages and it expects to receive "request" messages from
-     * them. If a preferred neighbor is already unchoked, then peer A does not have
-     * to send ‘unchokeunchoke’ message to it. All other neighbors previously
-     * unchoked but not selected as preferred neighbors at this time should be
-     * choked unless it is an optimistically should be choked unless it is an
-     * optimistically unchoked neighbor. To choke those neighbors, peer A sends
-     * unchoked neighbor. To choke those neighbors, peer A sends "choke" messages
-     * to them messages to them and stop sending pieces.and stop sending pieces.
-     */
     public void calculatePreferredNeighbors() {
         preferredNeighbors.clear();
         // Sort the vector of peers
@@ -229,8 +209,6 @@ class peerProcess {
                         preferredNeighbors.add(peerInfoVector.get(i).getPeerId());
                 }
             }
-
-
         }
 
 
@@ -247,13 +225,11 @@ class peerProcess {
                 messagesToSend.add(Messages.createChokeMessage());
                 // TODO: Question: what purpose do the next two lines serve?
                 // Answer: they identify orig/dest peers of message
-		    	// Comment: The message specification is defined as shown, sending two more messages on the wire line won't solve the issue as it isn't 
+		    	// Comment: The message specification is defined as shown, sending two more messages on the wire line won't solve the issue as it isn't
 			    // inline with the specification.  It seems like we know the sender from the ipV4 packet and need to decipher it in a different manner than
 			    // adding two more messages to the end of the current message or modifying the defined message.
                 //messagesToSendBB.add(Messages.integerToBinaryString(rpi.getPeerId(), 2));
                 //messagesToSendBB.add(Messages.integerToBinaryString(peerId,2));
-
-
             }
             else
             {   // we need to unchoke the peers we selected
@@ -266,7 +242,7 @@ class peerProcess {
                 messagesToSend.add(Messages.createUnchokeMessage());
                 // TODO: Question: what purpose do the next two lines serve?
                 // Answer: they identify orig/dest peers of message
-			    // Comment: The message specification is defined as shown, sending two more messages on the wire line won't solve the issue as it isn't 
+			    // Comment: The message specification is defined as shown, sending two more messages on the wire line won't solve the issue as it isn't
 			    // inline with the specification.  It seems like we know the sender from the ipV4 packet and need to decipher it in a different manner than
 			    // adding two more messages to the end of the current message or modifying the defined message.
                 //messagesToSendBB.add(Messages.integerToBinaryString(rpi.getPeerId(), 2));
@@ -280,6 +256,18 @@ class peerProcess {
         resetPeerInfoPiecesTransmitted();
 
         logger.onChangeOfPreferredNeighbors(preferredNeighbors);
+    }
+
+    // this chooses which peer to optimisically unchoke. The peerInfoVector is
+    // sorted by pieces transmitted, so choose any peer other than the first 4
+    // https://www.educative.io/edpresso/how-to-generate-random-numbers-in-java
+    private int chooseOptimisticallyUnchokedPeer() {
+        int min = 4;
+        int max = peerInfoVector.size();
+        int randomPeerIndex = (int)Math.floor(Math.random()*(max-min+1)+min);
+        if(randomPeerIndex > peerInfoVector.size()-1)
+            randomPeerIndex = peerInfoVector.size()-1;
+        return peerInfoVector.get(randomPeerIndex).getPeerId();
     }
 
     private void sortPeerInfoVector() {
@@ -310,17 +298,7 @@ class peerProcess {
         }
     }
 
-    // this chooses which peer to optimisically unchoke. The peerInfoVector is
-    // sorted by pieces transmitted, so choose any peer other than the first 4
-    // https://www.educative.io/edpresso/how-to-generate-random-numbers-in-java
-    private int chooseOptimisticallyUnchokedPeer() {
-        int min = 4;
-        int max = peerInfoVector.size();
-        int randomPeerIndex = (int)Math.floor(Math.random()*(max-min+1)+min);
-        if(randomPeerIndex > peerInfoVector.size()-1)
-            randomPeerIndex = peerInfoVector.size()-1;
-        return peerInfoVector.get(randomPeerIndex).getPeerId();
-    }
+
 
     public static void main(String[] args) {
         int peerId = GetProcessId(args);
