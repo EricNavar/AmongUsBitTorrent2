@@ -37,6 +37,62 @@ public class Client {
 		this.pp = pp;
 	}
 
+	private void runTimer() {
+		// Every 5 seconds, recalculate the preferred neighbors
+		Timer timer = new Timer();
+		timer.schedule( new TimerTask() {
+			public void run() {
+				try {
+					pp.calculatePreferredNeighbors();
+
+         //choke unchosen peers, unchoke chosen peers
+	int count =0;
+        for(RemotePeerInfo rpi : pp.peerInfoVector)
+        {
+            if(!pp.preferredNeighbors.contains(rpi.getPeerId()))
+            {
+
+                pp.messagesToSend.add(Messages.createChokeMessage());
+		
+		if(connectedToPeerId == rpi.getPeerId()){
+                
+                rpi.setChoked(true);
+		sendMessageBB(pp.messagesToSend.get(count));
+		}
+count++;
+      
+            }
+            else
+            {   
+
+
+                pp.messagesToSend.add(Messages.createUnchokeMessage());
+
+		if(connectedToPeerId == rpi.getPeerId()){
+		
+                rpi.setChoked(false);
+		sendMessageBB(pp.messagesToSend.get(count));
+	     }
+count++;
+
+        
+
+         }
+}
+
+					/*for (int i = 0; i < pp.messagesToSend.size(); i++) {
+						// send choke/unchoke messages
+						sendMessageBB(pp.messagesToSend.get(i));
+					}*/
+
+				}
+				catch(Exception e)
+				{}
+			}
+
+		}, 0, 5*1000);
+	}
+
 	void run() {
 		try {
 			// create a socket to connect to the server
@@ -56,6 +112,7 @@ public class Client {
 			while (true) {
 				// busy wait for input
 				while(in.available() <= 0) {}
+
 				fromServer = new byte[in.available()];
 				in.read(fromServer);
 				ByteBuffer buff = ByteBuffer.wrap(fromServer);
@@ -78,7 +135,7 @@ public class Client {
 				buff = ByteBuffer.wrap(fromServer);
 				// expect bitfield message back
 				System.out.println("Receieve bitfield message");
-				Messages.decodeMessage(pp, buff, connectedToPeerId);
+				int bitfieldMsg = Messages.decodeMessage(pp, buff, connectedToPeerId);
 
 				
 				// send interested message to server, this messagesToSend is created in messsages.java
@@ -96,8 +153,7 @@ public class Client {
 				}
 
 				// receive bitfield message from server
-				/*String fromServer2 = (String) in.readObject();
-				String fromServer3 = (String) in.readObject();
+				
 
 
 				while(in.available() <= 0) {}	
@@ -107,6 +163,8 @@ public class Client {
 				buff = ByteBuffer.wrap(fromServer);
 
 				connectedToPeerId = Messages.decodeMessage(buff, pp, -1);
+				
+				int interestMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
 
 				System.out.println("Peers interested in 1002: none");
 
@@ -116,9 +174,11 @@ public class Client {
 					System.out.println(pp.interested.get(i));
 				}
 				pp.messagesToSend.clear();
-
-				/*
+				runTimer();
+				
+					
 				// receive unchoke message from server
+        /*
 				while(true) {
 					String fromServer7 = (String) in.readObject();
 					String fromServer8 = (String) in.readObject();
@@ -133,6 +193,16 @@ public class Client {
 					}
 				};
 				*/
+				while(in.available() <= 0) {}
+				byte [] message = new byte[in.available()];
+
+				in.read(message);
+
+				buff = ByteBuffer.wrap(message);
+				
+				int chokeRes = Messages.decodeMessage(buff, pp, connectedToPeerId);
+				
+				while(true){}
 			}
 
 		} catch (ConnectException e) {
@@ -170,7 +240,6 @@ public class Client {
 			// stream write the message
 			out.write(msg.array());
 			out.flush();
-			// System.out.println("Send message to");
 
 		} catch (IOException ioException) {
 			ioException.printStackTrace();

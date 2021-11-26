@@ -196,13 +196,13 @@ class peerProcess {
     }
 
     public void calculatePreferredNeighbors() {
-        System.out.println("Calculating preferred neighbors");
         preferredNeighbors.clear();
         // Sort the vector of peers
         sortPeerInfoVector();
         // The first 4 peers are the peers that have transmitted the most.
         // Add their peerId to the list of preferred vectors
-        for (int i = 0; i < 4 && i < peerInfoVector.size(); i++) {
+        // for (int i = 0; i < 4 && i < peerInfoVector.size(); i++) {
+        for (int i = 0; i < peerInfoVector.size(); i++) {
             // if tie, randomly choose among tied processes
             if(interested.size() > 0) {
                 for (int j = 0; j < interested.size(); j++) {
@@ -211,46 +211,13 @@ class peerProcess {
                 }
             }
         }
+	
 
 
         // choose another random peer from the rest
         int optimisicallyUnchokedNeighbor = chooseOptimisticallyUnchokedPeer();
         preferredNeighbors.add(optimisicallyUnchokedNeighbor);
-        //choke unchosen peers, unchoke chosen peers
-        for(RemotePeerInfo rpi : peerInfoVector)
-        {
-            if(!preferredNeighbors.contains(rpi.getPeerId()))
-            {
-                // TODO: do we have to do anything else here?
-                rpi.setChoked(true);
-                messagesToSend.add(Messages.createChokeMessage());
-                // TODO: Question: what purpose do the next two lines serve?
-                // Answer: they identify orig/dest peers of message
-		    	// Comment: The message specification is defined as shown, sending two more messages on the wire line won't solve the issue as it isn't
-			    // inline with the specification.  It seems like we know the sender from the ipV4 packet and need to decipher it in a different manner than
-			    // adding two more messages to the end of the current message or modifying the defined message.
-                //messagesToSendBB.add(Messages.integerToBinaryString(rpi.getPeerId(), 2));
-                //messagesToSendBB.add(Messages.integerToBinaryString(peerId,2));
-            }
-            else
-            {   // we need to unchoke the peers we selected
-
-                // already unchoked
-
-                // TODO: do we have to do anything else here?
-
-                rpi.setChoked(false);
-                messagesToSend.add(Messages.createUnchokeMessage());
-                // TODO: Question: what purpose do the next two lines serve?
-                // Answer: they identify orig/dest peers of message
-			    // Comment: The message specification is defined as shown, sending two more messages on the wire line won't solve the issue as it isn't
-			    // inline with the specification.  It seems like we know the sender from the ipV4 packet and need to decipher it in a different manner than
-			    // adding two more messages to the end of the current message or modifying the defined message.
-                //messagesToSendBB.add(Messages.integerToBinaryString(rpi.getPeerId(), 2));
-                //messagesToSendBB.add(Messages.integerToBinaryString(peerId, 2));
-
-            }
-        }
+       
         logger.onChangeOfOptimisticallyUnchokedNeighbor(optimisicallyUnchokedNeighbor);
         // after recalculating the preferred neighbors, reset the value of the
         // transmitted data of all remote peers

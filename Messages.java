@@ -259,6 +259,9 @@ public class Messages {
 
     //type 0
     private static void handleChokeMessage(peerProcess pp, int senderPeer) {
+
+	System.out.println(senderPeer + " choked " + pp.getPeerId());
+
         RemotePeerInfo sender = pp.getRemotePeerInfo(senderPeer);
         if (sender == null)
         {
@@ -266,12 +269,16 @@ public class Messages {
             return;
         }
         sender.setChoked(true);
+
         pp.logger.onChoking(senderPeer);
     }
 
     //type 1
 
     private static void handleUnchokeMessage(peerProcess pp, int senderPeer) {
+
+       System.out.println(senderPeer + " unchoked " +  pp.getPeerId());
+ 
         RemotePeerInfo sender = pp.getRemotePeerInfo(senderPeer);
         if (sender == null)
         {
@@ -280,11 +287,12 @@ public class Messages {
         }
         sender.setChoked(false);
 
+
         pp.logger.onUnchoking(senderPeer);
                                                                                               // DONE: request a random piece that the sender has and the receiver doesn't
                                                                                                   // There's a method in RemotePeerInfo to select a random missing piece that can help.
-		int askForPiece = pp.getRemotePeerInfo(senderPeer).selectRandomMissingPiece();        // asking for this piece from the remote peer that is now unchoked
-		pp.client.sendMessageBB(createRequestMessage(askForPiece));
+	int askForPiece = pp.getRemotePeerInfo(senderPeer).selectRandomMissingPiece();        // asking for this piece from the remote peer that is now unchoked
+	pp.client.sendMessageBB(createRequestMessage(askForPiece));
         // ask for this piece
     }
 
@@ -501,7 +509,9 @@ public class Messages {
 	
         int length = GetMessageLength(IncomingMessage);
         int type   = GetMessageType(IncomingMessage);
-	    System.out.println("Message type recieved: " + type);
+
+	System.out.println("Message type received: " + type);
+
 
         // The logic for handling the message types are here
         if (type == MessageType.CHOKE.ordinal()) { //type 0

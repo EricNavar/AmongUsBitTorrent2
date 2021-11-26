@@ -59,6 +59,7 @@ public class Server {
 			this.no = no;
 		}
 
+
 		private void serverLoop() throws ClassNotFoundException, IOException {
 
 			// https://stackoverflow.com/ques1tions/2702980/java-loop-every-minute
@@ -104,7 +105,7 @@ public class Server {
 
 				buff = ByteBuffer.wrap(message);
 				
-				connectedFrom = Messages.decodeMessage(buff, pp, connectedFrom);
+				int interestedRes = Messages.decodeMessage(buff, pp, connectedFrom);
 				
 			
 				System.out.println("Peers interested in 1001: ");
@@ -120,47 +121,29 @@ public class Server {
 					sendMessageBB(pp.messagesToSend.get(i));
 				}
 				pp.messagesToSend.clear();
-
-				/*
+				runTimer();
+				while(in.available() <= 0) {}
+				message = new byte[in.available()];
 				
+				in.read(message);
 
-				// Every 5 seconds, recalculate the preferred neighbors
-				Timer timer = new Timer();
-				timer.schedule( new TimerTask() {
-					public void run() {
-						try {
-							pp.calculatePreferredNeighbors();
+				buff = ByteBuffer.wrap(message);
+				// receive request msg
+				int reqRes = Messages.decodeMessage(buff, pp, connectedFrom);
+				
+				while(in.available() <= 0) {}
+				message = new byte[in.available()];
+				
+				in.read(message);
 
-							for (int i = 0; i < pp.messagesToSend.size(); i++) {
-								//send choke/unchoke messages
-								sendMessageBB(pp.messagesToSend.get(i));
-							}
+				buff = ByteBuffer.wrap(message);
+				
+				int chokeRes = Messages.decodeMessage(buff, pp, connectedFrom);
+				
+				while(true){}
 
-						}
-						catch(Exception e)
-						{}
-					}
-
-				}, 0, 5*1000);
-
-				// after calculating and sending choke/unchoke, get ready to receive any messages to choke/unchoke
-				while(true) {
-					String fromClient7 = (String) in.readObject();
-					String fromClient8 = (String) in.readObject();
-					String fromClient9 = (String) in.readObject();
-					int newID4 = Integer.parseInt(fromClient8, 2);
-					int newID5 = Integer.parseInt(fromClient9, 2);
-					if (newID4 == pp.getPeerId()) {
-						System.out.println("unchoking " + newID5 + " from " + newID4);
-
-						int chokeMessage = Messages.decodeMessage(fromClient7, pp, newID5);
-						break;
-
-					}
-
-				};*/
-
-						if(handlers.size() >= 2)
+				
+						/*if(handlers.size() >= 2)
 						{
 
 							for(int i=0; i < handlers.size(); i++)
@@ -181,12 +164,11 @@ public class Server {
 
 							}
 							// choke and unchoke different processes
-						}
+						}*/
 
 
 
-				while(true)
-				{}
+				
 
 
 
@@ -233,7 +215,6 @@ public class Server {
 			try {
 				out.write(msg.array());
 				out.flush();
-				System.out.println("Send message to Client " + no); // debug message
 			} catch (IOException ioException) {
 				ioException.printStackTrace();
 			}
