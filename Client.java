@@ -174,8 +174,7 @@ public class Client {
 	void sendMessageBB(ByteBuffer msg) {
 		try {
 			// stream write the message
-			BigInteger temp = new BigInteger(msg.array());
-			out.writeObject(temp.toString(2));
+			out.write(msg.array());
 			out.flush();
 		} catch (IOException ioException) {
 			ioException.printStackTrace();
