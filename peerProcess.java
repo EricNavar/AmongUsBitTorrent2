@@ -38,11 +38,12 @@ class peerProcess {
     Vector<Integer> interested = new Vector<Integer>(0);
     // No Longer Sending Strings...  Vector<String> messagesToSend = new Vector<String>(0);
     Vector<ByteBuffer> messagesToSend = new Vector<ByteBuffer>(0);
+Vector<ByteBuffer> pieceMessages= new Vector<ByteBuffer>(0);
     Logger logger;
     Client client;
     Server server;
     Messages message;
-	FileHandling FileObject;
+FileHandling FileObject;
 
     public void incrementCollectedPieces() {
         collectedPieces++;
@@ -71,6 +72,10 @@ class peerProcess {
         interested = interest;
     }
 
+public FileHandling getFileObject() {
+
+        return FileObject;
+    }
 
     public int getCollectedPieces() {
         return collectedPieces;
@@ -98,6 +103,7 @@ class peerProcess {
         }
         totalPieces = (int) ceil((double) fileSize / pieceSize);
         bitfield.setSize(totalPieces);
+FileObject = new FileHandling(this.peerId, totalPieces, pieceSize);
         hasFile = false;
         preferredNeighbors = new Vector<Integer>(5);
     }

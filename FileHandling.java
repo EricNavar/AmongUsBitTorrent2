@@ -68,16 +68,22 @@ public class FileHandling {
 	// contents of the file and load a buffer.
 	public void openFile() {
 		try {
+if(this.peerID == 1001)
+fileNameWithPath = ".\\1001\\thefile";
+else if(this.peerID == 1002)
+fileNameWithPath = ".\\1002\\thefile";
 			File file = new File(fileNameWithPath);
+
 			Desktop desktop = Desktop.getDesktop();
+			
 			if(file.exists()) { //checks file exists or not
 				desktop.open(file); //opens the specified file
 			}
 			else { //create file
 				file.createNewFile();
 			}
-
 			if (this.peerID == 1001) { // if peer is the server, write contents of file to buffer
+				
 				ReadFileIn(fileNameWithPath);
 			}
 			// if peer is a client, empty the contents of the file
@@ -189,6 +195,7 @@ public class FileHandling {
 	
 	    // allocate the buffer for this piece
 		ByteBuffer newByteBuffer = ByteBuffer.allocate(pieceSize);	
+
 		//System.out.println(" Received and loaded a piece of length " + PieceLength + " comparing incomingPiece.remaining() " + incomingPiece.remaining() + " to newByteBuffer.remaining() " + newByteBuffer.remaining() + " versus PieceLength " + PieceLength);
         newByteBuffer.put(EntireFile.get(Integer.valueOf(pieceNumber)).array(), 0, PieceLengths.get(Integer.valueOf(pieceNumber)));  // put(byte[] src, int offset, int length) wjere byte[] is incomingPiece.array(), start 0, length PieceLength
 		

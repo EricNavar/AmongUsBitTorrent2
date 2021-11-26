@@ -217,6 +217,12 @@ count++;
 				
 				int chokeRes = Messages.decodeMessage(buff, pp, connectedFrom);
 				
+
+				while(pp.pieceMessages.size() ==0){}
+				for(int i =0; i < pp.pieceMessages.size(); i++)
+				{
+					sendMessageBB(pp.pieceMessages.get(i));
+				}
 				while(true){}
 
 				

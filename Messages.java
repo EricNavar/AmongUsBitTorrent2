@@ -290,8 +290,19 @@ public class Messages {
 
         pp.logger.onUnchoking(senderPeer);
                                                                                               // DONE: request a random piece that the sender has and the receiver doesn't
-                                                                                                  // There's a method in RemotePeerInfo to select a random missing piece that can help.
-	int askForPiece = pp.getRemotePeerInfo(senderPeer).selectRandomMissingPiece();        // asking for this piece from the remote peer that is now unchoked
+        
+
+		Vector<Integer> missingPieces = new Vector<Integer>();     // Create a temporary vector to hold missing piece values
+		for (int i = 0; i < pp.bitfield.size(); i++) {                // walk the entire bitfield vector 
+			if (!pp.bitfield.get(i)) {                                // look for bitfields that are not true yet, so missing...
+				missingPieces.add(i);                              // add them to the missing piecese collection
+			} 
+		}
+
+        int missingPieceIndex = (int)Math.floor(Math.random()*(pp.bitfield.size()));  
+		                                                                                      
+	int askForPiece = missingPieces.get(missingPieceIndex);   
+  
 	pp.client.sendMessageBB(createRequestMessage(askForPiece));
         // ask for this piece
     }
@@ -432,14 +443,17 @@ public class Messages {
 
     //type 6
     private static void handleRequestMessage(peerProcess pp, int senderPeer, ByteBuffer IncomingMessage) {  // a peer (senderPeer) has requested (payload) index message
-                                                                                  // DONE: if the receiver of the message has the piece, then send the piece
+             	FileHandling f = pp.getFileObject();                                                                     // DONE: if the receiver of the message has the piece, then send the piece
         int index = GetRequestMessageIndex(IncomingMessage);                      // parse out the requestd item into an integer to look up in the map structure
-		if (pp.FileObject.CheckForPieceNumber(index)) {                           // if we actually have this piece in the stored location...
+		if (f.CheckForPieceNumber(index)) {                           // if we actually have this piece in the stored location...
 			ByteBuffer ThePiece;
 			int ThePieceLength;
-			ThePiece = pp.FileObject.MakeCopyPieceByteBuffer(index);              // get a copy of the piece
+
+			ThePiece = pp.FileObject.MakeCopyPieceByteBuffer(index);
+                                                                   // get a copy of the piece
 			ThePieceLength = pp.FileObject.GetPieceSize(index);                   // get the piece's length
-    		pp.client.sendMessageBB(createPieceMessage(ThePiece, index, ThePieceLength));                        // send the piece
+			
+    		pp.pieceMessages.add(createPieceMessage(ThePiece, index, ThePieceLength));                        // send the piece
 		} else {
            System.out.println("Some questionable character/actor identified as " + senderPeer + " asked for piece " + index + " but this peer known as " + pp.peerId + " does not have it...");
 		}
@@ -456,9 +470,13 @@ public class Messages {
         // TODO: What do they mean by "partial files" maintained in current directory?
         //       Are we supposed to support 100GB file transfers and cache to the drive?
         if (pp.FileObject.CheckForAllPieces()) {
-            StringBuilder filenameWrite = new StringBuilder();
-            filenameWrite.append(String.format("./peer_%04d/TreeCopy.jpg", pp.peerId));
+	   
+            StringBuilder filenameWrite = new StringBuilder();            
+filenameWrite.append(String.format("./peer_%04d/TreeCopy.jpg", pp.peerId));
+
+
 			pp.FileObject.WriteFileOut(filenameWrite.toString());
+
 		}
 
         pp.getRemotePeerInfo(senderPeer).incrementPiecesTransmitted();
@@ -541,6 +559,7 @@ public class Messages {
             handleRequestMessage(pp, senderPeer, IncomingMessage);
         }
         else if (type == MessageType.PIECE.ordinal()) { //type 7
+	    System.out.println("whatever");
             handlePieceMessage(pp, senderPeer, length, IncomingMessage);
         }
         else {

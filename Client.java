@@ -185,7 +185,19 @@ count++;
 				int chokeRes = Messages.decodeMessage(buff, pp, connectedToPeerId);
 				
 				
+
+				while(in.available() <= 0) {}	
+				
+				fromServer = new byte[in.available()];
+				in.read(fromServer);
+				buff = ByteBuffer.wrap(fromServer);
+				
+
+				
+				int pieceMsg= Messages.decodeMessage(buff, pp, connectedToPeerId);
+				
 				while(true){}
+				
 				
 
 
