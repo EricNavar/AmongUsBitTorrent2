@@ -18,50 +18,11 @@ import java.io.FileOutputStream;
 
 // This class is to hold the logic for creating and decoding messages.
 public class Messages {
-    // this function is to take a string of binary and pad it on the left with
-    // zeroes such that it is a certain length.
-    private static String padWithZeroes(String s, int length) {
-        StringBuilder sBuilder = new StringBuilder(s);
-        for (int i = sBuilder.length(); i < length; i++) {
-            sBuilder.insert(0, "0");
-        }
-        s = sBuilder.toString();
-        return s;
-    }
-
-    // ALL MESSAGES SHOULD BE SENT AS A BINARY STRING
-	// ToDo:
-	// This probably won't work for allm messages because pieces that are 32,768 bytes long will create strings that are
-	// 32,768*8 in length or 262,144 charactesrs (bytes) of transmitted data.  UDP/TCP/IP are limite to 65,536 byte packets.
-	// so the data needs to be encoded in binary format only and transmitted as a sequence of bytes.
-
-    // The following 2 methods use this logic: 
-    // https://stackoverflow.com/questions/4416954/how-to-convert-a-string-to-a-stream-of-bits-in-java/4417069
-    private static String stringToBinary(String s) {
-        return new BigInteger(s.getBytes()).toString(2);
-    }
-
-    private static String binaryToString(String b) {
-        return new String(new BigInteger(b, 2).toByteArray());
-    }
-
-    // takes a length (in bytes) and creates a 32-bit binary string 
-    private static String encodeLength(int length) {
-        return padWithZeroes(Integer.toBinaryString(length), 32);
-    }
-
 
     // takes an enum for the message type and creates a 32-bit binary string 
     private static byte encodeType(int type) {
         return  (byte) (type & (int) 0xff);
     }
-
-
-    // takes an integer and creates a binary string of the specified length in bytes
-    public static String integerToBinaryString(int i, int length) {
-        return padWithZeroes(Integer.toBinaryString(i), length * 8);
-    }
-
 
     // ==============================================================
     // ====================== MESSAGE CREATORS ======================
@@ -235,6 +196,19 @@ public class Messages {
 		return ParseString(IncomingBuffer, 0, 18);
 	} 
 	
+	public static int GetHavePieceNumber( ByteBuffer IncomingBuffer ) {
+		 return   (int) (ParseInteger(IncomingBuffer, 5));
+	}
+	
+	public static int GetPieceMessageNumber( ByteBuffer IncomingBuffer ) {
+		 return   (int) (ParseInteger(IncomingBuffer, 5));
+	}
+	
+	public static int GetRequestMessageIndex( ByteBuffer IncomingBuffer ) {
+		 return   (int) (ParseInteger(IncomingBuffer, 5));
+	}
+	
+	
     public static int handleHandshakeMessage(ByteBuffer IncomingBuffer) {
         // The peerID is 4 bytes, located at 
         int handshakeFrom = GetHandshakePeerID(IncomingBuffer);
@@ -340,14 +314,13 @@ public class Messages {
     }
 
     //type 4
-    private static void handleHaveMessage(peerProcess pp, int senderPeer, String payload) {
-        int index = Integer.parseInt(payload);
+    private static void handleHaveMessage(peerProcess pp, int senderPeer, ByteBuffer IncomingMessage) {
+        int index = GetHavePieceNumber(IncomingMessage);
         pp.getRemotePeerInfo(senderPeer).getBitfield().set(index, true);  // sets the index to true of the peer that they have this message
         pp.logger.onReceiveHaveMessage(senderPeer, index);                // log that we received this comment
-        /* If the receiver of this message does has the piece
-          that the sender has, then send a not_interested message.
-          Else, send an interested message.
-        */ 
+                                                                          // If the receiver of this message does has the piece
+                                                                          //    that the sender has, then send a not_interested message.
+                                                                          //  Else, send an interested message.
         if (pp.bitfield.get(index)) {                                     // if this message is already in possession, skip getting it again
             pp.client.sendMessageBB(createNotInterestedMessage());
         }
@@ -357,29 +330,32 @@ public class Messages {
     }
 
     //type 5
-    private static void handleBitfieldMessage(String binary, peerProcess pp, int senderPeer, int length, String payload) {
+    private static void handleBitfieldMessage(ByteBuffer IncomingMessage, peerProcess pp, int senderPeer, int length) {
         // if the payload is empty, then the sender has no pieces.
         boolean nowInterested = false;
-
         if (length == 0) {
                 return;
         }
         else {
-
             for (int i = 0; i < pp.getTotalPieces(); i++) {
-                if(pp.getCurrBitfield().get(i) == false && payload.charAt(i) == '1') {
+				int x = i / 8;
+				int y = i % 8;
+				int bitvalue = (int) IncomingMessage.array()[x+4]; // if 8 bits, i = 7 and x is 0, if 9th bit i=8 and x = 1
+				bitvalue = (bitvalue>>y) & 0x0FF;
+                if((pp.getCurrBitfield().get(i) == false) && (bitvalue == 1)) {
                     nowInterested = true;
-                    break;
+                    //  break;  // DO NOT Break, instead keep loading in and tracking the pieces this peer has in it's posession
                 }
+				pp.getRemotePeerInfo(senderPeer).getBitfield().set(i, true);  // sets the index i to true of the peer that they have this piece
             }
         }
-        System.out.println(nowInterested);
+        System.out.println("The interest of senderPeer " + senderPeer + " is set to " + nowInterested);
 
         // TODO: send interested message to sender process
         if(nowInterested)
         {
             pp.messagesToSend.add(Messages.createInterestedMessage());
-            // TODO: Question: what purpose do the next two lines serve?fs
+            // TODO: Question: what purpose do the next two lines serve?
             // Answer: they identify orig/dest peers of message
 			// Comment: The message specification is defined as shown, sending two more messages on the wire line won't solve the issue as it isn't 
 			// inline with the specification.  It seems like we know the sender from the ipV4 packet and need to decipher it in a different manner than
@@ -429,20 +405,34 @@ public class Messages {
     */
 
     //type 6
-    private static void handleRequestMessage(peerProcess pp, int senderPeer, ByteBuffer payload) {  // a peer (senderPeer) has requested (payload) index message
+    private static void handleRequestMessage(peerProcess pp, int senderPeer, ByteBuffer IncomingMessage) {  // a peer (senderPeer) has requested (payload) index message
                                                                                   // DONE: if the receiver of the message has the piece, then send the piece
-        //int index = Integer.parseInt(payload);                                    // parse out the requestd item into payload
-		//pp.client.sendMessageBB(createPieceMessage(payload));                        // send the piece
-		                                                                          // ToDo: Read the file piece and send it with the pay load encoded as a bitstream
-		                                                                          // doesn't set peer information of this payload to true until the peer says the message was received with a HAVE message
+        int index = GetRequestMessageIndex(IncomingMessage);                      // parse out the requestd item into an integer to look up in the map structure
+		if (pp.FileObject.CheckForPieceNumber(index)) {                           // if we actually have this piece in the stored location...
+			ByteBuffer ThePiece;
+			int ThePieceLength;
+			ThePiece = pp.FileObject.MakeCopyPieceByteBuffer(index);              // get a copy of the piece
+			ThePieceLength = pp.FileObject.GetPieceSize(index);                   // get the piece's length
+    		pp.client.sendMessageBB(createPieceMessage(ThePiece, index, ThePieceLength));                        // send the piece
+		} else {
+           System.out.println("Some questionable character/actor identified as " + senderPeer + " asked for piece " + index + " but this peer known as " + pp.peerId + " does not have it...");
+		}
     }
 
     //type 7
-    private static void handlePieceMessage(peerProcess pp, int senderPeer, int length, String payload) {
-        int index = Integer.parseInt(payload.substring(0,32),2);
-        String piece = binaryToString(payload.substring(32,length-32));
+    private static void handlePieceMessage(peerProcess pp, int senderPeer, int length, ByteBuffer IncomingMessage) {
+        int index = GetPieceMessageNumber(IncomingMessage);
                                                                                   // Done: write the piece to a file (wherever it should be written, idk)  See Below, handles logging of the received piece
-       
+		ByteBuffer GrabPieceData = ByteBuffer.allocate(65536);                    // Message is longer
+		GrabPieceData.put(Arrays.copyOfRange(IncomingMessage.array(), 9, length-9));  // Get the piece
+        pp.FileObject.ReceivedAPiece(index, GrabPieceData, length-9);             // insert into the File Handler
+
+        if (pp.FileObject.CheckForAllPieces()) {                                  // TODO: What do they mean by "partial files" maintained in current directory?
+            StringBuilder filenameWrite = new StringBuilder();                    //       Are we supposed to support 100GB file transfers and cache to the drive?
+            filenameWrite.append(String.format("./peer_%04d/TreeCopy.jpg", pp.peerId));
+			pp.FileObject.WriteFileOut(filenameWrite.toString());
+		}
+
         pp.getRemotePeerInfo(senderPeer).incrementPiecesTransmitted();
         // update the bitfield
         pp.bitfield.set(index,true);
@@ -464,9 +454,8 @@ public class Messages {
         // if the message starts with the handShake header, then it's a handshake message
 
         if (IncomingMessage.remaining() >= 32) {
-            if (GetHandshakeString(IncomingMessage).equals(handshakeHeader)) {
+			if (GetHandshakeString(IncomingMessage).equals(handshakeHeader)) {
 				return handleHandshakeMessage(IncomingMessage);
-
 			}
 		}
 		
@@ -477,16 +466,6 @@ public class Messages {
          */
         int length = GetMessageLength(IncomingMessage);
         int type   = GetMessageType(IncomingMessage);
-        String payload = null;
-		// TODO Delete after below handle messages has been completed
-        //try {
-        //    payload = binary.substring(40, length * 8);
-        //}
-        //catch(Exception e)
-        //{
-        //    
-        //}
-
 
         // The logic for handling the message types are here
         if (type == MessageType.CHOKE.ordinal()) { //type 0
@@ -506,17 +485,17 @@ public class Messages {
             handleNotInterestedMessage(pp, senderPeer);
         }
         else if (type == MessageType.HAVE.ordinal()) { //type 4
-            handleHaveMessage(pp, senderPeer, payload);
+            handleHaveMessage(pp, senderPeer, IncomingMessage);
         }
         else if (type == MessageType.BITFIELD.ordinal()) { //type 5
 
-            //handleBitfieldMessage(IncomingMessage, pp, senderPeer, length, payload);
+            handleBitfieldMessage(IncomingMessage, pp, senderPeer, length);
         }
         else if (type == MessageType.REQUEST.ordinal()) { //type 6
-            //handleRequestMessage(pp, senderPeer, payload);
+            handleRequestMessage(pp, senderPeer, IncomingMessage);
         }
         else if (type == MessageType.PIECE.ordinal()) { //type 7
-            handlePieceMessage(pp, senderPeer, length, payload);
+            handlePieceMessage(pp, senderPeer, length, IncomingMessage);
         }
         else {
             System.out.println("Invalid message type");

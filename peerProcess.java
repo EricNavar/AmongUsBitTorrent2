@@ -42,6 +42,7 @@ class peerProcess {
     Client client;
     Server server;
     Messages message;
+	FileHandling FileObject;
 
     public void incrementCollectedPieces() {
         collectedPieces++;
