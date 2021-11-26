@@ -15,11 +15,13 @@ import java.nio.*;
 import java.io.File;
 import java.util.*;
 
-import java.io.FileWriter;   // https://www.w3schools.com/java/java_files_create.asp examples utilized as basis for creating file i/o code
+import java.io.FileWriter;
+// https://www.w3schools.com/java/java_files_create.asp examples utilized as basis for creating file i/o code
 import java.io.FileOutputStream;
 import java.io.FileInputStream;
 import java.io.FileReader;
-                             // idean of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
+import java.awt.Desktop;
+// idean of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
 import java.io.IOException; 
 import java.nio.channels.FileChannel;
 import java.io.FileOutputStream;
@@ -36,24 +38,20 @@ public class FileHandling {
 	int    pieceSize;
 	// the peer ID to log into the correct writing file
 	int    peerID;
-	// a local buffer that can be loaded wtih a command and then operated against
+	// a local buffer that can be loaded with a command and then operated against
 	ByteBuffer localByteBuffer;
 	int localByteBufferPieceSize;
 	// hash table for the binary data
 	Map<Integer, ByteBuffer> EntireFile;
-	// hash table to keep track of the piece lenghts and only write out what is needed at the end
+	// hash table to keep track of the piece lengths and only write out what is needed at the end
 	Map<Integer, Integer> PieceLengths;
 
 
     // Constructor
-	// Note: This class will not copye objects and as such does not have a copy constructor
+	// Note: This class will not copy objects and as such does not have a copy constructor
 	
-	public FileHandling(int peerID, int totalPieces, int pieceSize) {  // 
-	    // ToDo Open File at the path for this peer under the correct directory.  If no directory exists, create the directory
-		// If this is a client, it needs to empty the contents of the file, if this is a sserver, it needs to read in all the 
-		// contents of the file and load a buffer.
-		
-	    this.totalPieces = totalPieces; // transfer the needed information from the peer process to write files
+	public FileHandling(int peerID, int totalPieces, int pieceSize) {
+		this.totalPieces = totalPieces; // transfer the needed information from the peer process to write files
 		// copy the piece size and keep track to allocate right buffer amount
 	    this.pieceSize = pieceSize;
 		// copy this peerID to use it to write the correct file output (or input)
@@ -62,15 +60,44 @@ public class FileHandling {
 		localByteBuffer 	= ByteBuffer.allocate(pieceSize);
 		PieceLengths = new HashMap<>();
 		EntireFile   = new HashMap<>();
+		openFile();
+	}
+
+	// Open File at the path for this peer under the correct directory.  If no directory exists, create the directory
+	// If this is a client, it needs to empty the contents of the file, if this is a server, it needs to read in all the
+	// contents of the file and load a buffer.
+	public void openFile() {
+		try {
+			File file = new File(fileNameWithPath);
+			Desktop desktop = Desktop.getDesktop();
+			if(file.exists()) { //checks file exists or not
+				desktop.open(file); //opens the specified file
+			}
+			else { //create file
+				file.createNewFile();
+			}
+
+			if (this.peerID == 1001) { // if peer is the server, write contents of file to buffer
+				ReadFileIn(fileNameWithPath);
+			}
+			// if peer is a client, empty the contents of the file
+			// TODO: question: why is it necessary to empty the contents of the file?
+			else {
+				new FileOutputStream(fileNameWithPath).close();
+			}
+		}
+		catch(Exception e)  {
+			e.printStackTrace();
+		}
 	}
 	
 	
 	public void Shutdown () {  // this can be called before shutting down if there are things that need to be done like closing files
-		System.out.println("Shutting down the FileHandler for peer ID " + peerID );  
+		System.out.println("Shutting down the FileHandler for peer ID " + peerID );
 	}
 
 	// writes out the entire file.
-	// assumes the file is presenent in the hash table.
+	// assumes the file is present in the hash table.
 	// suggest the application call the check for all pieces method first before writing the file to 
 	// avoid an error.
 	// this will iterate over the expected number of pieces
@@ -79,7 +106,7 @@ public class FileHandling {
 	// The file that is at an odd boundary can be written even if there are fewer than the buffersize of bytes
 	// in the piece.
 	public boolean WriteFileOut(String FileNameInput) { 
-	     // Might fail if for some reason it didn't have totalPieces as needed.
+	    // Might fail if for some reason it didn't have totalPieces as needed.
 		 
 		int x;
 		int pieceLength;
@@ -115,12 +142,12 @@ public class FileHandling {
 			
 		
 		
-		
+
 		return true;
 	}
 
 
-
+	// this always returns true i guess
 	public boolean ReadFileIn(String FileNameInput) { 
 			 // Might fail if for some reason it didn't have totalPieces as needed.
 			 
