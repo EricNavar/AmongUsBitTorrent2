@@ -174,8 +174,8 @@ public class Messages {
 	}
 	
 	public static int ParseInteger( ByteBuffer IncomingBuffer, int startLocation) {
-		 return   ( ((IncomingBuffer.array()[startLocation  ]&0x0FF)<<24) | ((IncomingBuffer.array()[startLocation+1]&0x0FF)<<16) | 
-                    ((IncomingBuffer.array()[startLocation+2]&0x0FF)<<8 ) | ((IncomingBuffer.array()[startLocation+3]&0x0FF)<<0 )    );
+		 return   ( ((IncomingBuffer.array()[startLocation  ]&0x0FF)<<0) | ((IncomingBuffer.array()[startLocation+1]&0x0FF)<<8) | 
+                    ((IncomingBuffer.array()[startLocation+2]&0x0FF)<<16 ) | ((IncomingBuffer.array()[startLocation+3]&0x0FF)<<24 )    );
 	}
 	
 	public static byte ParseByte( ByteBuffer IncomingBuffer, int location) {
@@ -334,6 +334,7 @@ public class Messages {
     //type 5
     private static void handleBitfieldMessage(ByteBuffer IncomingMessage, peerProcess pp, int senderPeer, int length) {
         // if the payload is empty, then the sender has no pieces.
+	System.out.println("qwdwqd"+length);
         boolean nowInterested = false;
         if (length == 0) {
                 return;
@@ -469,7 +470,6 @@ public class Messages {
 	
         int length = GetMessageLength(IncomingMessage);
         int type   = GetMessageType(IncomingMessage);
-	
 	
 
         // The logic for handling the message types are here
