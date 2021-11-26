@@ -39,6 +39,7 @@ public class Client {
 	}
 
 	void run() {
+
 		try {
 			// create a socket to connect to the server
 

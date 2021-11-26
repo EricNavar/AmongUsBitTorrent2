@@ -159,21 +159,31 @@ public class Server {
 					}
 
 				};*/
-				if(handlers.size() >= 2)
-				{
+						if(handlers.size() >= 2)
+						{
 
-					for(int i=0; i < handlers.size(); i++)
-					{
-						// start sending piece messages here
-						// request piece from client
-						// exclude server
-						// coordinate piece distributuion between clients
-						handlers.get(i).sendMessageBB(messageToSend);
+							for(int i=0; i < handlers.size(); i++)
+							{
+								// start sending piece messages here
+								// request piece from client
+								// exclude server
+								// coordinate piece distributuion between clients
+								if(handlers.get(i).connectedFrom == connectedFrom)
+									continue;
+								messageToSend = Messages.createHandshakeMessage(connectedFrom);
+								handlers.get(i).sendMessageBB(messageToSend);
+								messageToSend = Messages.createHandshakeMessage(handlers.get(i).connectedFrom);
+								sendMessageBB(messageToSend);
 
 
-					}
-					// choke and unchoke different processes
-				}
+
+
+							}
+							// choke and unchoke different processes
+						}
+
+
+
 				/*while(true)
 				{}*/
 
