@@ -121,7 +121,7 @@ public class Server {
 					sendMessageBB(pp.messagesToSend.get(i));
 				}
 				pp.messagesToSend.clear();
-				runTimer();
+				pp.runTimer();
 				while(in.available() <= 0) {}
 				message = new byte[in.available()];
 				
