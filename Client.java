@@ -50,13 +50,11 @@ public class Client {
                     for (RemotePeerInfo rpi : pp.peerInfoVector) {
                         if (!pp.preferredNeighbors.contains(rpi.getPeerId())) {
                             pp.messagesToSend.add(Messages.createChokeMessage());
-
                             if (connectedToPeerId == rpi.getPeerId()) {
                                 rpi.setChoked(true);
                                 sendMessageBB(pp.messagesToSend.get(count));
                             }
                             count++;
-
                         } else {
                             pp.messagesToSend.add(Messages.createUnchokeMessage());
                             if (connectedToPeerId == rpi.getPeerId()) {
@@ -68,17 +66,17 @@ public class Client {
                     }
 
                     /*
-                     * for (int i = 0; i < pp.messagesToSend.size(); i++) {
-                     * // send choke/unchoke messages
-                     * sendMessageBB(pp.messagesToSend.get(i));
-                     * }
-                     */
+                    * for (int i = 0; i < pp.messagesToSend.size(); i++) {
+                    * // send choke/unchoke messages
+                    * sendMessageBB(pp.messagesToSend.get(i));
+                    * }
+                    */
 
                 } catch (Exception e) {
                 }
             }
 
-        }, 0, 5 * 1000);
+        }, 0, pp.unchokingInterval * 1000);
     }
 
     void run() {
@@ -101,6 +99,7 @@ public class Client {
                 // busy wait for input
                 while (in.available() <= 0) {
                 }
+                runTimer();
 
                 fromServer = new byte[in.available()];
                 in.read(fromServer);
@@ -144,7 +143,6 @@ public class Client {
                     System.out.println(pp.interested.get(i));
                 }
                 pp.messagesToSend.clear();
-                runTimer();
 
                 // receive unchoke message from server
                 while (in.available() <= 0) {
