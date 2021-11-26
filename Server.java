@@ -87,6 +87,8 @@ public class Server {
 			// https://stackoverflow.com/ques1tions/2702980/java-loop-every-minute
 
 			while (true) {
+				while(in.available() <= 0)
+				{}
 				message = new byte[in.available()];
 
 				in.read(message);
@@ -166,6 +168,7 @@ public class Server {
 					}
 
 				};*/
+
 						if(handlers.size() >= 2)
 						{
 
