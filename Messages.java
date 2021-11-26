@@ -464,8 +464,9 @@ public class Messages {
         // if the message starts with the handShake header, then it's a handshake message
 
         if (IncomingMessage.remaining() >= 32) {
-			if (GetHandshakeString(IncomingMessage) == handshakeHeader) {
+            if (GetHandshakeString(IncomingMessage).equals(handshakeHeader)) {
 				return handleHandshakeMessage(IncomingMessage);
+
 			}
 		}
 		

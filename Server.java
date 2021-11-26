@@ -56,7 +56,7 @@ public class Server {
 	 * responsible for dealing with a single client's requests.
 	 */
 	private static class Handler extends Thread {
-		private String message; // message received from the client
+		private byte[] message = new byte[50]; // message received from the client
 		private String MESSAGE; // uppercase message send to the client
 		private Socket connection;
 		private ObjectInputStream in; // stream read from the socket
@@ -71,7 +71,7 @@ public class Server {
 		private void sampleClientLoop() throws ClassNotFoundException, IOException {
 			while (true) {
 				// receive the message sent from the client
-				message = (String) in.readObject();
+				in.read(message);
 				// show the message to the user
 				System.out.println("Receive message: " + message + " from client " + no);
 				// Capitalize all letters in the message
@@ -87,8 +87,13 @@ public class Server {
 			// https://stackoverflow.com/ques1tions/2702980/java-loop-every-minute
 
 			while (true) {
-				message = (String) (in.readObject());
-				connectedFrom = Messages.decodeMessage(message, pp, -1);
+				message = new byte[in.available()];
+
+				in.read(message);
+
+				ByteBuffer buff = ByteBuffer.wrap(message);
+
+				connectedFrom = Messages.decodeMessage(buff, pp, -1);
 				pp.logger.onConnectingFrom(connectedFrom);
 				ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.peerId);
 				sendMessageBB(messageToSend);
@@ -238,7 +243,8 @@ public class Server {
 		public void sendMessageBB(ByteBuffer msg) {
 			try {
 
-				out.write(msg.array());
+				out.writeObject(msg.array());
+				out.flush();
 				System.out.println("Send message to Client " + no); // debug message
 			} catch (IOException ioException) {
 				ioException.printStackTrace();

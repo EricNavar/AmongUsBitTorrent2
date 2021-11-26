@@ -11,8 +11,8 @@ import java.nio.charset.StandardCharsets;
 
 import java.nio.*;
 import java.util.*;
-                            // idean of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
-import java.io.IOException; 
+// idean of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
+import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.io.FileOutputStream;
 
@@ -21,7 +21,7 @@ public class Client {
 	ObjectOutputStream out; // stream write to the socket
 	ObjectInputStream in; // stream read from the socket
 	String message; // message send to the server
-	String fromServer; // capitalized message read from the server
+	byte[] fromServer; // capitalized message read from the server
 	int peerID;
 	int connectedToPeerId;
 	String bitfieldHandshake;
@@ -29,7 +29,7 @@ public class Client {
 
 	int socket;
 	peerProcess pp;
-	
+
 
 	void setPeerID(int t_peerID) {
 		peerID = t_peerID;
@@ -56,11 +56,12 @@ public class Client {
 
 
 			while (true) {
-				fromServer = (String) in.readObject();
+				fromServer = new byte[in.available()];
+				in.read(fromServer);
 				System.out.println("Receive message"); // debug message
-
+				ByteBuffer buff = ByteBuffer.wrap(fromServer);
 				// receive handshake message from server
-				connectedToPeerId = Messages.decodeMessage(fromServer, pp, -1);
+				connectedToPeerId = Messages.decodeMessage(buff, pp, -1);
 
 				pp.logger.onConnectingTo(connectedToPeerId);
 				System.out.println("I am peer " +pp.getPeerId()+ " and I am connected to " + connectedToPeerId);
@@ -88,7 +89,7 @@ public class Client {
 				{
 					int interestMessage = Messages.decodeMessage(fromServer4, pp, newID3);
 				}
-				
+
 				// send interested message to server, this messagesToSend is created in messsages.java
 				for(int i =0; i < pp.messagesToSend.size(); i++)
 				{
@@ -96,7 +97,7 @@ public class Client {
 				}
 				System.out.println("Peers interested in 1002: none");
 
-				
+
 				// print out any peers interested in 1002
 				for(int i =0; i<pp.interested.size(); i++)
 				{
@@ -143,11 +144,9 @@ public class Client {
 
 
 			}
-			
+
 		} catch (ConnectException e) {
 			System.err.println("Connection refused. You need to initiate a server first.");
-		} catch (ClassNotFoundException e) {
-			System.err.println("Class not found");
 		} catch (UnknownHostException unknownHost) {
 			System.err.println("You are trying to connect to an unknown host!");
 		} catch (IOException ioException) {
@@ -178,7 +177,6 @@ public class Client {
 	void sendMessageBB(ByteBuffer msg) {
 		try {
 			// stream write the message
-
 			out.write(msg.array());
 			out.flush();
 		} catch (IOException ioException) {
