@@ -38,27 +38,6 @@ public class Client {
 		this.pp = pp;
 	}
 
-	/*private void runTimer() {
-		// Every 5 seconds, recalculate the preferred neighbors
-		Timer timer = new Timer();
-		timer.schedule( new TimerTask() {
-			public void run() {
-				try {
-					pp.calculatePreferredNeighbors();
-
-					for (int i = 0; i < pp.messagesToSend.size(); i++) {
-						// send choke/unchoke messages
-						sendMessageBB(pp.messagesToSend.get(i));
-					}
-
-				}
-				catch(Exception e)
-				{}
-			}
-
-		}, 0, 5*1000);
-	}*/
-
 	void run() {
 
 		try {
@@ -79,7 +58,6 @@ public class Client {
 			while (true) {
 				// busy wait for input
 				while(in.available() <= 0) {}
-				//runTimer();
 				fromServer = new byte[in.available()];
 				in.read(fromServer);
 				ByteBuffer buff = ByteBuffer.wrap(fromServer);
@@ -92,18 +70,17 @@ public class Client {
 				System.out.println("I am peer " + pp.getPeerId() + " and I am connected to " + connectedToPeerId);
 
 				//send bitfield to server
-				messageToSend = Messages.createBitfieldMessage(pp.bitfield);
+				messageToSend = Messages.createBitfieldMessage(pp.getCurrBitfield());
 				sendMessageBB(messageToSend);
 				//expect a bitfield back
 				while(in.available() <= 0) {}
-
 				fromServer = new byte[in.available()];
+
 				in.read(fromServer);
 				buff = ByteBuffer.wrap(fromServer);
 				// if it's a bitfield, message, then
 
 				Messages.decodeMessage(pp, buff, connectedToPeerId);
-			
 
 				
 				// send interested message to server, this messagesToSend is created in messsages.java
@@ -112,6 +89,9 @@ public class Client {
 					sendMessageBB(pp.messagesToSend.get(i));
 				}
 
+				// receive bitfield message from server
+				/*String fromServer2 = (String) in.readObject();
+				String fromServer3 = (String) in.readObject();
 
 
 				while(in.available() <= 0) {}	

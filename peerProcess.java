@@ -196,6 +196,7 @@ class peerProcess {
     }
 
     public void calculatePreferredNeighbors() {
+        System.out.println("Calculating preferred neighbors");
         preferredNeighbors.clear();
         // Sort the vector of peers
         sortPeerInfoVector();
@@ -270,6 +271,26 @@ class peerProcess {
         return peerInfoVector.get(randomPeerIndex).getPeerId();
     }
 
+	private void runTimer() {
+		// Every 5 seconds, recalculate the preferred neighbors
+		Timer timer = new Timer();
+		timer.schedule( new TimerTask() {
+			public void run() {
+				try {
+					calculatePreferredNeighbors();
+
+					for (int i = 0; i < messagesToSend.size(); i++) {
+						// send choke/unchoke messages
+						client.sendMessageBB(messagesToSend.get(i));
+					}
+
+				}
+				catch(Exception e)
+				{}
+			}
+		}, 0, 1000); //TODO: it should be every 5000 ms, not 1000, but I made it every 1000 ms so that it's quicker to debug
+	}
+
     private void sortPeerInfoVector() {
         Collections.sort(peerInfoVector, (o1, o2) -> {
             // We want the Vector to be in decreasing order, so we're comparing it backwards
@@ -298,7 +319,16 @@ class peerProcess {
         }
     }
 
-
+    // Takes in the bitfield of another process and determines if it is interested.
+    // This method is used after accepting a piece.
+    public boolean checkInterested(Vector<Boolean> otherBitfield) {
+        for (int i = 0; i < otherBitfield.size(); i++) {
+            if (!bitfield.get(i) && otherBitfield.get(i)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public static void main(String[] args) {
         int peerId = GetProcessId(args);
@@ -306,6 +336,7 @@ class peerProcess {
             return;
         }
         peerProcess pp = new peerProcess(peerId);
+        pp.runTimer();
         StartRemotePeers srp = new StartRemotePeers(pp);
         //srp.Start(peerId);
         // if PeerInfo.cfg lists the current peerId as having the file

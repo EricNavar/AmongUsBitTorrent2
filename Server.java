@@ -100,7 +100,7 @@ public class Server {
 				ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.peerId);
 				sendMessageBB(messageToSend);
 				
-				System.out.println("I am peer " +pp.getPeerId()+ " and I am connected to " + connectedFrom);
+				System.out.println("I am peer " + pp.getPeerId() + "(server) and I am connected to " + connectedFrom);
 
 				// receive bitfield message
 				
@@ -208,8 +208,8 @@ public class Server {
 
 
 
-				/*while(true)
-				{}*/
+				while(true)
+				{}
 
 
 
