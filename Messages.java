@@ -559,7 +559,7 @@ filenameWrite.append(String.format("./peer_%04d/TreeCopy.jpg", pp.peerId));
             handleRequestMessage(pp, senderPeer, IncomingMessage);
         }
         else if (type == MessageType.PIECE.ordinal()) { //type 7
-	    System.out.println("whatever");
+	    
             handlePieceMessage(pp, senderPeer, length, IncomingMessage);
         }
         else {
