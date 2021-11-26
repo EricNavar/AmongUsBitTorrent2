@@ -73,11 +73,14 @@ public class Client
 
                 //send bitfield to server
                 messageToSend = Messages.createBitfieldMessage(pp.getCurrBitfield());
-                System.out.println("Sending bitfield message to " + connectedToPeerId); sendMessageBB(messageToSend);
+                System.out.println("Sending bitfield message to " + connectedToPeerId);
+                sendMessageBB(messageToSend);
                 //expect a bitfield back
-                while (in.available() <= 0) {} fromServer = new byte[in.available()];
+                while (in.available() <= 0) {}
+                fromServer = new byte[in.available()];
 
-                in.read(fromServer); buff = ByteBuffer.wrap(fromServer);
+                in.read(fromServer);
+                buff = ByteBuffer.wrap(fromServer);
                 // expect bitfield message back
                 System.out.println("Receieve bitfield message");
                 int bitfieldMsg = Messages.decodeMessage(pp, buff, connectedToPeerId);
@@ -89,15 +92,14 @@ public class Client
                     sendMessageBB(pp.messagesToSend.get(i));
                 }
 
-                // receive bitfield message from server
-
-                fromServer = new byte[in.available()]; in.read(fromServer); buff = ByteBuffer.wrap(fromServer);
-
-                connectedToPeerId = Messages.decodeMessage(buff, pp, -1);
-
+                while (in.available() <= 0) {}
+                fromServer = new byte[in.available()];
+                in.read(fromServer);
+                buff = ByteBuffer.wrap(fromServer);
+                Messages.decodeMessage(buff, pp, connectedToPeerId);
                 int interestMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
 
-                System.out.println("Peers interested in 1002: none");
+                System.out.println("Peers interested in " + pp.getPeerId() + ": none");
 
                 // print out any peers interested in 1002
                 for (int i = 0; i < pp.interested.size(); i++)
@@ -122,7 +124,8 @@ public class Client
 					}
 				};
 				*/
-                while (in.available() <= 0) {} byte[] message = new byte[in.available()];
+                while (in.available() <= 0) {}
+                byte[] message = new byte[in.available()];
 
                 in.read(message);
 

@@ -183,7 +183,11 @@ public class Messages {
 	}
 	
 	public static int GetMessageLength( ByteBuffer IncomingBuffer ) {
-		 return   ParseInteger(IncomingBuffer, 0);
+        if (IncomingBuffer.capacity() < 5) {
+            System.out.println("Invalid message. Every message has at least 5 bytes.");
+            return -1;
+        }
+        return   ParseInteger(IncomingBuffer, 0);
 	}
 	
 	public static int GetMessageType( ByteBuffer IncomingBuffer ) {
@@ -500,18 +504,18 @@ public class Messages {
 				return handleHandshakeMessage(IncomingMessage);
 			}
 		}
-		
+
+
         /* if it's not a handshake message then it's an actual message. This is the format:
          * 4-byte message length field (length is in bytes)
          * 1-bit message type
          * message payload
          */
-	
+
         int length = GetMessageLength(IncomingMessage);
         int type   = GetMessageType(IncomingMessage);
 
-	System.out.println("Message type received: " + type);
-
+	    System.out.println("Message type received: " + type);
 
         // The logic for handling the message types are here
         if (type == MessageType.CHOKE.ordinal()) { //type 0
