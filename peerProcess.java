@@ -238,7 +238,7 @@ class peerProcess {
         return peerInfoVector.get(randomPeerIndex).getPeerId();
     }
 
-	private void runTimer() {
+	public void runTimer() {
 		// Every 5 seconds, recalculate the preferred neighbors
 		Timer timer = new Timer();
 		timer.schedule( new TimerTask() {
@@ -246,10 +246,10 @@ class peerProcess {
 				try {
 					calculatePreferredNeighbors();
 
-					for (int i = 0; i < messagesToSend.size(); i++) {
-						// send choke/unchoke messages
-						client.sendMessageBB(messagesToSend.get(i));
-					}
+//					for (int i = 0; i < messagesToSend.size(); i++) {
+//						// send choke/unchoke messages
+//						client.sendMessageBB(messagesToSend.get(i));
+//					}
 
 				}
 				catch(Exception e)
@@ -303,7 +303,6 @@ class peerProcess {
             return;
         }
         peerProcess pp = new peerProcess(peerId);
-        pp.runTimer();
         StartRemotePeers srp = new StartRemotePeers(pp);
         //srp.Start(peerId);
         // if PeerInfo.cfg lists the current peerId as having the file

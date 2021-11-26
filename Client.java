@@ -16,169 +16,98 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.io.FileOutputStream;
 
-public class Client {
-	Socket requestSocket; // socket connect to the server
-	ObjectOutputStream out; // stream write to the socket
-	ObjectInputStream in; // stream read from the socket
-	// String message; // message send to the server
-	byte[] fromServer; // capitalized message read from the server
-	int peerID;
-	int connectedToPeerId;
-	// FileHandling handler;
+public class Client
+{
+    Socket requestSocket; // socket connect to the server
+    ObjectOutputStream out; // stream write to the socket
+    ObjectInputStream in; // stream read from the socket
+    // String message; // message send to the server
+    byte[] fromServer; // capitalized message read from the server
+    int peerID;
+    int connectedToPeerId;
+    // FileHandling handler;
 
-	// int socket;
-	peerProcess pp;
+    // int socket;
+    peerProcess pp;
 
 
-	void setPeerID(int t_peerID) {
-		peerID = t_peerID;
-	}
-	public Client(peerProcess pp) {
-		this.pp = pp;
-	}
+    void setPeerID(int t_peerID)
+    {
+        peerID = t_peerID;
+    }
 
-	private void runTimer() {
-		// Every 5 seconds, recalculate the preferred neighbors
-		Timer timer = new Timer();
-		timer.schedule( new TimerTask() {
-			public void run() {
-				try {
-					pp.calculatePreferredNeighbors();
+    public Client(peerProcess pp)
+    {
+        this.pp = pp;
+    }
 
-         //choke unchosen peers, unchoke chosen peers
-	int count =0;
-        for(RemotePeerInfo rpi : pp.peerInfoVector)
+    void run()
+    {
+        try
         {
-            if(!pp.preferredNeighbors.contains(rpi.getPeerId()))
+            pp.runTimer();
+            // create a socket to connect to the server
+
+            requestSocket = new Socket("localhost", 8000); System.out.println("Connected to localhost 8000");
+            // initialize inputStream and outputStream
+            out = new ObjectOutputStream(requestSocket.getOutputStream()); out.flush();
+            in = new ObjectInputStream(requestSocket.getInputStream());
+
+            // create handshake message and send to server
+            ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.getPeerId()); sendMessageBB(messageToSend);
+
+
+            while (true)
             {
+                // busy wait for input
+                while (in.available() <= 0) {}
 
-                pp.messagesToSend.add(Messages.createChokeMessage());
-		
-		if(connectedToPeerId == rpi.getPeerId()){
-                
-                rpi.setChoked(true);
-		sendMessageBB(pp.messagesToSend.get(count));
-		}
-count++;
-      
-            }
-            else
-            {   
+                fromServer = new byte[in.available()]; in.read(fromServer);
+                ByteBuffer buff = ByteBuffer.wrap(fromServer);
 
+                // receive handshake message from server
+                connectedToPeerId = Messages.decodeMessage(buff, pp, -1);
 
-                pp.messagesToSend.add(Messages.createUnchokeMessage());
+                pp.logger.onConnectingTo(connectedToPeerId);
+                System.out.println("I am peer " + pp.getPeerId() + " (client) and I am connected to " + connectedToPeerId);
 
-		if(connectedToPeerId == rpi.getPeerId()){
-		
-                rpi.setChoked(false);
-		sendMessageBB(pp.messagesToSend.get(count));
-	     }
-count++;
+                //send bitfield to server
+                messageToSend = Messages.createBitfieldMessage(pp.getCurrBitfield());
+                System.out.println("Sending bitfield message to " + connectedToPeerId); sendMessageBB(messageToSend);
+                //expect a bitfield back
+                while (in.available() <= 0) {} fromServer = new byte[in.available()];
 
-        
-
-         }
-}
-
-					/*for (int i = 0; i < pp.messagesToSend.size(); i++) {
-						// send choke/unchoke messages
-						sendMessageBB(pp.messagesToSend.get(i));
-					}*/
-
-				}
-				catch(Exception e)
-				{}
-			}
-
-		}, 0, 5*1000);
-	}
-
-	void run() {
-		try {
-			// create a socket to connect to the server
-
-			requestSocket = new Socket("localhost", 8000);
-			System.out.println("Connected to localhost 8000");
-			// initialize inputStream and outputStream
-			out = new ObjectOutputStream(requestSocket.getOutputStream());
-			out.flush();
-			in = new ObjectInputStream(requestSocket.getInputStream());
-
-			// create handshake message and send to server
-			ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.getPeerId());
-			sendMessageBB(messageToSend);
+                in.read(fromServer); buff = ByteBuffer.wrap(fromServer);
+                // expect bitfield message back
+                System.out.println("Receieve bitfield message");
+                int bitfieldMsg = Messages.decodeMessage(pp, buff, connectedToPeerId);
 
 
-			while (true) {
-				// busy wait for input
-				while(in.available() <= 0) {}
+                // send interested message to server, this messagesToSend is created in messsages.java
+                for (int i = 0; i < pp.messagesToSend.size(); i++)
+                {
+                    sendMessageBB(pp.messagesToSend.get(i));
+                }
 
-				fromServer = new byte[in.available()];
-				in.read(fromServer);
-				ByteBuffer buff = ByteBuffer.wrap(fromServer);
+                // receive bitfield message from server
 
-				// receive handshake message from server
-				connectedToPeerId = Messages.decodeMessage(buff, pp, -1);
+                fromServer = new byte[in.available()]; in.read(fromServer); buff = ByteBuffer.wrap(fromServer);
 
-				pp.logger.onConnectingTo(connectedToPeerId);
-				System.out.println("I am peer " + pp.getPeerId() + " (client) and I am connected to " + connectedToPeerId);
+                connectedToPeerId = Messages.decodeMessage(buff, pp, -1);
 
-				//send bitfield to server
-				messageToSend = Messages.createBitfieldMessage(pp.getCurrBitfield());
-				System.out.println("Sending bitfield message to " + connectedToPeerId);
-				sendMessageBB(messageToSend);
-				//expect a bitfield back
-				while(in.available() <= 0) {}
-				fromServer = new byte[in.available()];
+                int interestMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
 
-				in.read(fromServer);
-				buff = ByteBuffer.wrap(fromServer);
-				// expect bitfield message back
-				System.out.println("Receieve bitfield message");
-				int bitfieldMsg = Messages.decodeMessage(pp, buff, connectedToPeerId);
+                System.out.println("Peers interested in 1002: none");
 
-				
-				// send interested message to server, this messagesToSend is created in messsages.java
-				for(int i =0; i < pp.messagesToSend.size(); i++)
-				{
-					sendMessageBB(pp.messagesToSend.get(i));
-				}
-
-				// continue reading from server
-				// TODO: make a better loop to handle a connection with the server
-				while (true) {
-					while(in.available() <= 0) {}
-					fromServer = new byte[in.available()];
-					in.read(fromServer);
-				}
-
-				// receive bitfield message from server
-				
+                // print out any peers interested in 1002
+                for (int i = 0; i < pp.interested.size(); i++)
+                {
+                    System.out.println(pp.interested.get(i));
+                } pp.messagesToSend.clear();
 
 
-				while(in.available() <= 0) {}	
-				
-				fromServer = new byte[in.available()];
-				in.read(fromServer);
-				buff = ByteBuffer.wrap(fromServer);
-
-				connectedToPeerId = Messages.decodeMessage(buff, pp, -1);
-				
-				int interestMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
-
-				System.out.println("Peers interested in 1002: none");
-
-				// print out any peers interested in 1002
-				for(int i =0; i<pp.interested.size(); i++)
-				{
-					System.out.println(pp.interested.get(i));
-				}
-				pp.messagesToSend.clear();
-				runTimer();
-				
-					
-				// receive unchoke message from server
-        /*
+                // receive unchoke message from server
+        		/*
 				while(true) {
 					String fromServer7 = (String) in.readObject();
 					String fromServer8 = (String) in.readObject();
@@ -193,56 +122,70 @@ count++;
 					}
 				};
 				*/
-				while(in.available() <= 0) {}
-				byte [] message = new byte[in.available()];
+                while (in.available() <= 0) {} byte[] message = new byte[in.available()];
 
-				in.read(message);
+                in.read(message);
 
-				buff = ByteBuffer.wrap(message);
-				
-				int chokeRes = Messages.decodeMessage(buff, pp, connectedToPeerId);
-				
-				while(true){}
-			}
+                buff = ByteBuffer.wrap(message);
 
-		} catch (ConnectException e) {
-			System.err.println("Connection refused. You need to initiate a server first.");
-		} catch (UnknownHostException unknownHost) {
-			System.err.println("You are trying to connect to an unknown host!");
-		} catch (IOException ioException) {
-			ioException.printStackTrace();
-		}
-		finally {
-			// Close connections
-			try {
-				in.close();
-				out.close();
-				requestSocket.close();
-			} catch (IOException ioException) {
-				ioException.printStackTrace();
-			}
-		}
-	}
+                int chokeRes = Messages.decodeMessage(buff, pp, connectedToPeerId);
 
-	// send a message to the output stream
-	void sendMessage(String msg) {
-		try {
-			// stream write the message
-			out.writeObject(msg);
-			out.flush();
-		} catch (IOException ioException) {
-			ioException.printStackTrace();
-		}
-	}
-	// send a message to the output stream
-	void sendMessageBB(ByteBuffer msg) {
-		try {
-			// stream write the message
-			out.write(msg.array());
-			out.flush();
+                while (true) {}
+            }
 
-		} catch (IOException ioException) {
-			ioException.printStackTrace();
-		}
-	}
+        }
+        catch (ConnectException e)
+        {
+            System.err.println("Connection refused. You need to initiate a server first.");
+        }
+        catch (UnknownHostException unknownHost)
+        {
+            System.err.println("You are trying to connect to an unknown host!");
+        }
+        catch (IOException ioException)
+        {
+            ioException.printStackTrace();
+        }
+        finally
+        {
+            // Close connections
+            try
+            {
+                in.close(); out.close(); requestSocket.close();
+            }
+            catch (IOException ioException)
+            {
+                ioException.printStackTrace();
+            }
+        }
+    }
+
+    // send a message to the output stream
+    void sendMessage(String msg)
+    {
+        try
+        {
+            // stream write the message
+            out.writeObject(msg); out.flush();
+        }
+        catch (IOException ioException)
+        {
+            ioException.printStackTrace();
+        }
+    }
+
+    // send a message to the output stream
+    void sendMessageBB(ByteBuffer msg)
+    {
+        try
+        {
+            // stream write the message
+            out.write(msg.array()); out.flush();
+
+        }
+        catch (IOException ioException)
+        {
+            ioException.printStackTrace();
+        }
+    }
 }
