@@ -18,16 +18,15 @@ import java.util.*;
 //import java.io.FileWriter;
 import java.io.FileOutputStream;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
-import java.io.FileOutputStream;
 
 // idea of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
 // https://www.w3schools.com/java/java_files_create.asp examples utilized as basis for creating file i/o code
 
 public class FileHandling {
+	String fileName; //thefile
 	// the name of the file
 	String fileNameWithPath;
 	// the handle name of the peer if added later to the file name
@@ -51,7 +50,7 @@ public class FileHandling {
 	// Note: This class will not copy objects and as such does not have a copy
 	// constructor
 
-	public FileHandling(int peerID, int totalPieces, int pieceSize) {
+	public FileHandling(int peerID, int totalPieces, int pieceSize, String fileName) {
 		this.totalPieces = totalPieces; // transfer the needed information from the peer process to write files
 		// copy the piece size and keep track to allocate right buffer amount
 		this.pieceSize = pieceSize;
@@ -62,6 +61,7 @@ public class FileHandling {
 		localByteBuffer = ByteBuffer.allocate(pieceSize);
 		PieceLengths = new HashMap<>();
 		EntireFile = new HashMap<>();
+		this.fileName = fileName; 
 		openFile();
 	}
 
@@ -73,10 +73,10 @@ public class FileHandling {
 	public void openFile() {
 		try {
 			if (this.peerID == 1001)
-				fileNameWithPath = ".\\peer_1001\\thefile";
+				fileNameWithPath = ".\\peer_1001\\" + fileName;
 
 			if (this.peerID == 1002)
-				fileNameWithPath = ".\\peer_1002\\thefile";
+				fileNameWithPath = ".\\peer_1002\\" + fileName;
 			File file = new File(fileNameWithPath);
 
 			Desktop desktop = Desktop.getDesktop();
@@ -207,6 +207,9 @@ public class FileHandling {
 		// " comparing incomingPiece.remaining() " + incomingPiece.remaining() + " to
 		// newByteBuffer.remaining() " + newByteBuffer.remaining() + " versus
 		// PieceLength " + PieceLength);
+
+		//TODO: this next line fails when using Common.small.config instead of Common.config. Not sure if that's something we should consider.
+		// I made Common.small.config so we can have a smaller test case.
 		newByteBuffer.put(EntireFile.get(Integer.valueOf(pieceNumber)).array(), 0,
 				PieceLengths.get(Integer.valueOf(pieceNumber))); // put(byte[] src, int offset, int length) wjere byte[]
 																	// is incomingPiece.array(), start 0, length

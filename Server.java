@@ -15,7 +15,6 @@ import java.io.IOException;
 //import java.io.FileOutputStream;
 
 public class Server {
-    private static final int sPort = 8000; // The server will be listening on this port number
     static private Vector<Integer> haveFile;
     static private ArrayList<Handler> handlers = new ArrayList<Handler>();
 
@@ -23,10 +22,11 @@ public class Server {
 
     public Server(peerProcess pp_) {
         pp = pp_;
+        
     }
 
     public void startServer() throws Exception {
-        ServerSocket listener = new ServerSocket(sPort);
+        ServerSocket listener = new ServerSocket(pp.getPortNumber());
         System.out.println("The server is running.");
         int clientNum = 1;
 

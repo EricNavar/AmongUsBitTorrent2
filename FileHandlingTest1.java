@@ -1,22 +1,9 @@
-import java.net.*;
-import java.io.*;
 import java.nio.*;
-import java.io.File;
 import java.util.*;
-
-import java.io.FileWriter;   // https://www.w3schools.com/java/java_files_create.asp examples utilized as basis for creating file i/o code
-import java.io.FileOutputStream;
-import java.io.FileInputStream;
-import java.io.FileReader;
-                             // idean of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
-import java.io.IOException; 
-import java.nio.channels.FileChannel;
-import java.io.FileOutputStream;
-
-//import FileHandling.java;
 import java.math.BigInteger;
-import java.util.Vector;
 
+// https://www.w3schools.com/java/java_files_create.asp examples utilized as basis for creating file i/o code
+// idea of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
 
 public class FileHandlingTest1{
 	
@@ -62,8 +49,8 @@ public static void main(String args[]) {
 		int numPieces = 1484;
 		int thisPieceSize;
 		
-		FileHandling FirstObject  = new FileHandling(1001, numPieces, pieceSize);
-		FileHandling SecondObject = new FileHandling(1002, numPieces, pieceSize);
+		FileHandling FirstObject  = new FileHandling(1001, numPieces, pieceSize, "thefile");
+		FileHandling SecondObject = new FileHandling(1002, numPieces, pieceSize, "thefile");
 		
 		System.out.println(" ");		
 		System.out.println("This program will test File Handling for it's feature set.");		

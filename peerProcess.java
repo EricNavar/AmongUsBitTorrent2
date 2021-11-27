@@ -1,6 +1,3 @@
-import java.io.*;
-// import java.net.*;
-
 import java.nio.file.Files;
 import java.util.Vector;
 
@@ -13,7 +10,10 @@ import java.nio.file.Paths;
 import java.nio.file.Path;
 
 import java.nio.*;
-// import java.util.*;
+
+//TODO: handle case where peer_1002/thefile does not exist at the start
+//TODO: 1002 is receiving too much data. It goes on forever and peer_1002 gets bigger than peer_1001/thefile
+//TODO: optimistic unchoking interval is not being considered
 
 class peerProcess {
     protected int unchokingInterval;
@@ -30,14 +30,12 @@ class peerProcess {
     // if this process has the entire file
     protected boolean hasFile;
     // random port number we will use
-    final protected int port = 5478;
+    final protected int port = 12602;
     protected Vector<RemotePeerInfo> peerInfoVector;
     // denotes which pieces of the file this process has
     Vector<Boolean> bitfield = new Vector<Boolean>(0);
     Vector<Integer> preferredNeighbors;
     Vector<Integer> interested = new Vector<Integer>(0);
-    // No Longer Sending Strings... Vector<String> messagesToSend = new
-    // Vector<String>(0);
     Vector<ByteBuffer> messagesToSend = new Vector<ByteBuffer>(0);
     Vector<ByteBuffer> pieceMessages = new Vector<ByteBuffer>(0);
     Logger logger;
@@ -51,6 +49,10 @@ class peerProcess {
         if (collectedPieces == totalPieces) {
             hasFile = true;
         }
+    }
+
+    public int getPortNumber() {
+        return port;
     }
 
     public int getTotalPieces() {
@@ -88,26 +90,21 @@ class peerProcess {
 
         try {
             // https://www.educative.io/edpresso/reading-the-nth-line-from-a-file-in-java
-            Path tempFile = Paths.get("Common.cfg");
+            Path tempFile = Paths.get(RemotePeerInfo.configName);
             List<String> fileLines = Files.readAllLines(tempFile);
 
             numberOfPreferredNeighbors = Integer.valueOf(fileLines.get(0).split(" ")[1]);
             unchokingInterval = Integer.valueOf(fileLines.get(1).split(" ")[1]);
             optimisticUnchokingInterval = Integer.valueOf(fileLines.get(2).split(" ")[1]);
-            String fileSizeString = fileLines.get(4);
-            String pieceSizeString = fileLines.get(5);
-            String[] fileSizes = fileSizeString.split(" ");
-            String[] pieceSizes = pieceSizeString.split(" ");
-
-
-            fileSize = Integer.parseInt(fileSizes[1]);
-            pieceSize = Integer.parseInt(pieceSizes[1]);
+            fileName = fileLines.get(3).split(" ")[1];            
+            fileSize = Integer.valueOf(fileLines.get(4).split(" ")[1]);
+            pieceSize = Integer.valueOf(fileLines.get(5).split(" ")[1]);
         } catch (Exception e) {
 
         }
         totalPieces = (int) ceil((double) fileSize / pieceSize);
         bitfield.setSize(totalPieces);
-        FileObject = new FileHandling(this.peerId, totalPieces, pieceSize);
+        FileObject = new FileHandling(this.peerId, totalPieces, pieceSize, fileName);
         hasFile = false;
         preferredNeighbors = new Vector<Integer>(numberOfPreferredNeighbors);
     }
@@ -220,9 +217,9 @@ class peerProcess {
                 Random chooser = new Random();
                 if (chooser.nextInt(3) == 1) {
                     return -1;
-                } else
+                } else {
                     return 1;
-
+                }
             }
             return o2Value.compareTo(o1.getPiecesTransmitted());
 
