@@ -81,9 +81,9 @@ public class Server {
                     // choke unchosen peers, unchoke chosen peers
                     int count = 0;
                     // the last element in the vector is the optimistically unchoked neighbor, so don't change that
-                    for (int i = 0; i < pp.peerInfoVector.size() - 1; i++) {
+                    for (int i = 0; i < pp.peerInfoVector.size(); i++) {
                         RemotePeerInfo rpi = pp.peerInfoVector.get(i);
-                        if (!pp.preferredNeighbors.contains(rpi.getPeerId())) {
+                        if (!pp.isNeighbor(rpi.getPeerId())) {
                             pp.messagesToSend.add(Messages.createChokeMessage());
                             count++;
                             if (connectedFrom == rpi.getPeerId()) {
@@ -116,7 +116,7 @@ public class Server {
                 public void run() {
                     try {
                         pp.chooseOptimisticallyUnchokedPeer();
-                        RemotePeerInfo rpi = pp.getRemotePeerInfo(pp.preferredNeighbors.get(pp.preferredNeighbors.size() - 1));
+                        RemotePeerInfo rpi = pp.getRemotePeerInfo(pp.optimisticallyUnchokedPeer);
                         pp.messagesToSend.clear();
                         pp.messagesToSend.add(Messages.createUnchokeMessage());
                         if (connectedFrom == rpi.getPeerId()) {

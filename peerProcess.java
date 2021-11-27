@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.*;
 
 //TODO: 1002 is receiving too much data. It goes on forever and peer_1002 gets bigger than peer_1001/thefile
+//TODO: question: Do we have to consider the case where 1002 runs before 1001? The graders may expect it.
 
 class peerProcess {
     protected int unchokingInterval;
@@ -41,6 +42,7 @@ class peerProcess {
     Server server;
     Messages message;
     FileHandling FileObject;
+    int optimisticallyUnchokedPeer;
 
     public void incrementCollectedPieces() {
         collectedPieces++;
@@ -84,7 +86,7 @@ class peerProcess {
     public peerProcess(int peerId) {
         this.peerId = peerId;
         logger = new Logger(peerId);
-        int numberOfPreferredNeighbors = 5;
+        int numberOfPreferredNeighbors = 5; // set 5 as default
 
         try {
             // https://www.educative.io/edpresso/reading-the-nth-line-from-a-file-in-java
@@ -104,9 +106,7 @@ class peerProcess {
         bitfield.setSize(totalPieces);
         FileObject = new FileHandling(this.peerId, totalPieces, pieceSize, fileName);
         hasFile = false;
-        // This vector includes the preferred neighbors, AKA the neighbors sending the most data,
-        //     plus one for the optimistically unchoked neighbor
-        preferredNeighbors = new Vector<Integer>(numberOfPreferredNeighbors + 1);
+        preferredNeighbors = new Vector<Integer>(numberOfPreferredNeighbors);
     }
 
     public boolean hasFile() {
@@ -126,10 +126,6 @@ class peerProcess {
             }
         }
         return null;
-    }
-
-    public void setPrefferedNeighbors(Vector<Integer> preferredNeighbors) {
-        this.preferredNeighbors = preferredNeighbors;
     }
 
     private static int GetProcessId(String[] args) {
@@ -169,6 +165,7 @@ class peerProcess {
 
     // Calculate the peers sending the most data. The optimistically unchoked neighbor is calculated at a different interval in Common.cfg
     public void calculatePreferredNeighbors() {
+        preferredNeighbors.clear();
         // Sort the vector of peers
         sortPeerInfoVector();
         // The first 4 peers are the peers that have transmitted the most.
@@ -199,10 +196,22 @@ class peerProcess {
         int randomPeerIndex = (int) Math.floor(Math.random() * (max - min + 1) + min);
         if (randomPeerIndex > peerInfoVector.size() - 1)
             randomPeerIndex = peerInfoVector.size() - 1;
-        int optimisticUnchokedPeer = peerInfoVector.get(randomPeerIndex).getPeerId();
-        logger.onChangeOfOptimisticallyUnchokedNeighbor(optimisticUnchokedPeer);
-        preferredNeighbors.add(optimisticUnchokedPeer);
-        return optimisticUnchokedPeer;
+        optimisticallyUnchokedPeer = peerInfoVector.get(randomPeerIndex).getPeerId();
+        logger.onChangeOfOptimisticallyUnchokedNeighbor(optimisticallyUnchokedPeer);
+        return optimisticallyUnchokedPeer;
+    }
+
+    // returns true if the given id belongs to either a preffered peer or an optimistically unchoked peer
+    public boolean isNeighbor(int id) {
+        if (id == optimisticUnchokingInterval) {
+            return true;
+        }
+        for (Integer i : preferredNeighbors) {
+            if (id == i) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void sortPeerInfoVector() {

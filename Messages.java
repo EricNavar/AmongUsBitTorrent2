@@ -453,16 +453,16 @@ public class Messages {
         updateInterestedStatus(pp);
     }
 
-    // Whenever a peer receives
-    // a piece completely, it checks the bitfields of its neighbors and decides
-    // whether it should
-    // send ‘not interested’ messages to some neighbors.
+    // Whenever a peer receives a piece completely, it checks the bitfields of 
+    // its neighbors and decides whether it should send ‘not interested’ messages to some neighbors.
     public static void updateInterestedStatus(peerProcess pp) {
         for (int neighborId : pp.preferredNeighbors) {
             if (!pp.checkInterested(pp.getRemotePeerInfo(neighborId).getBitfield())) {
                 pp.messagesToSend.add(createNotInterestedMessage());
             }
-
+        }
+        if (!pp.checkInterested(pp.getRemotePeerInfo(pp.optimisticallyUnchokedPeer).getBitfield())) {
+            pp.messagesToSend.add(createNotInterestedMessage());
         }
     }
 
