@@ -36,8 +36,6 @@ class peerProcess {
     Vector<Boolean> bitfield = new Vector<Boolean>(0);
     Vector<Integer> preferredNeighbors;
     Vector<Integer> interested = new Vector<Integer>(0);
-    // No Longer Sending Strings... Vector<String> messagesToSend = new
-    // Vector<String>(0);
     Vector<ByteBuffer> messagesToSend = new Vector<ByteBuffer>(0);
     Vector<ByteBuffer> pieceMessages = new Vector<ByteBuffer>(0);
     Logger logger;
@@ -98,20 +96,15 @@ class peerProcess {
             numberOfPreferredNeighbors = Integer.valueOf(fileLines.get(0).split(" ")[1]);
             unchokingInterval = Integer.valueOf(fileLines.get(1).split(" ")[1]);
             optimisticUnchokingInterval = Integer.valueOf(fileLines.get(2).split(" ")[1]);
-            String fileSizeString = fileLines.get(4);
-            String pieceSizeString = fileLines.get(5);
-            String[] fileSizes = fileSizeString.split(" ");
-            String[] pieceSizes = pieceSizeString.split(" ");
-
-
-            fileSize = Integer.parseInt(fileSizes[1]);
-            pieceSize = Integer.parseInt(pieceSizes[1]);
+            fileName = fileLines.get(3).split(" ")[1];            
+            fileSize = Integer.valueOf(fileLines.get(4).split(" ")[1]);
+            pieceSize = Integer.valueOf(fileLines.get(5).split(" ")[1]);
         } catch (Exception e) {
 
         }
         totalPieces = (int) ceil((double) fileSize / pieceSize);
         bitfield.setSize(totalPieces);
-        FileObject = new FileHandling(this.peerId, totalPieces, pieceSize);
+        FileObject = new FileHandling(this.peerId, totalPieces, pieceSize, fileName);
         hasFile = false;
         preferredNeighbors = new Vector<Integer>(numberOfPreferredNeighbors);
     }
@@ -224,9 +217,9 @@ class peerProcess {
                 Random chooser = new Random();
                 if (chooser.nextInt(3) == 1) {
                     return -1;
-                } else
+                } else {
                     return 1;
-
+                }
             }
             return o2Value.compareTo(o1.getPiecesTransmitted());
 

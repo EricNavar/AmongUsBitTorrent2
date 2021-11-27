@@ -62,8 +62,8 @@ public static void main(String args[]) {
 		int numPieces = 1484;
 		int thisPieceSize;
 		
-		FileHandling FirstObject  = new FileHandling(1001, numPieces, pieceSize);
-		FileHandling SecondObject = new FileHandling(1002, numPieces, pieceSize);
+		FileHandling FirstObject  = new FileHandling(1001, numPieces, pieceSize, "thefile");
+		FileHandling SecondObject = new FileHandling(1002, numPieces, pieceSize, "thefile");
 		
 		System.out.println(" ");		
 		System.out.println("This program will test File Handling for it's feature set.");		
