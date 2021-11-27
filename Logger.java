@@ -9,6 +9,16 @@ class Logger {
 
     public Logger(int peerID) {
         this.peerID = peerID;
+        emptyFile();
+    }
+
+    private void emptyFile() {
+        String fileName = "log_peer_" + this.peerID + ".log";
+        try {
+            new FileOutputStream(fileName).close();
+        } catch (IOException e) {
+            System.out.println("IO Exception");
+        }
     }
 
     private static String getDate() {
@@ -38,7 +48,7 @@ class Logger {
     }
 
     public void onChangeOfOptimisticallyUnchokedNeighbor(int optimisticallyUnchockedNeighbor_ID) {
-        log(getDate() + ": Peer " + this.peerID + "has the optimistically unchoked neighbor "
+        log(getDate() + ": Peer " + this.peerID + " has the optimistically unchoked neighbor "
                 + optimisticallyUnchockedNeighbor_ID + ".\n");
     }
 
@@ -66,7 +76,7 @@ class Logger {
 
     public void onDownloadingAPiece(int peerID2, int piece_index, int number_of_pieces) {
         log(getDate() + ": Peer " + this.peerID + " has downloaded the piece " + String.valueOf(piece_index) + " from "
-                + peerID2 + ". Now the number of pieces it has is " + String.valueOf(number_of_pieces) + ".");
+                + peerID2 + ". Now the number of pieces it has is " + String.valueOf(number_of_pieces) + ".\n");
     }
 
     public void onCompletionOfDownload() {

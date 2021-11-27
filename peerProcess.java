@@ -1,6 +1,3 @@
-import java.io.*;
-// import java.net.*;
-
 import java.nio.file.Files;
 import java.util.Vector;
 
@@ -13,7 +10,9 @@ import java.nio.file.Paths;
 import java.nio.file.Path;
 
 import java.nio.*;
-// import java.util.*;
+
+//TODO: handle case where peer_1002/thefile does not exist at the start
+//TODO: 1002 is receiving too much data. It goes on forever and peer_1002 gets bigger than peer_1001/thefile
 
 class peerProcess {
     protected int unchokingInterval;
