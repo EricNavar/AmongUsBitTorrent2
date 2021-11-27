@@ -191,16 +191,9 @@ public class Server {
                 pp.messagesToSend.clear();
                 runUnchokingTimer();
                 runOptimisticallyUnchokedTimer();
-                while (in.available() <= 0) {
-                }
-                message = new byte[in.available()];
+               
 
-                in.read(message);
-
-                buff = ByteBuffer.wrap(message);
-                // receive request msg
-                int reqRes = Messages.decodeMessage(buff, pp, connectedFrom);
-
+            while (true) {
                 while (in.available() <= 0) {
                 }
                 message = new byte[in.available()];
@@ -210,31 +203,10 @@ public class Server {
                 buff = ByteBuffer.wrap(message);
 
                 int chokeRes = Messages.decodeMessage(buff, pp, connectedFrom);
-
-                while (pp.pieceMessages.size() == 0) {
-                }
-                for (int i = 0; i < pp.pieceMessages.size(); i++) {
+                for(int i =0; i < pp.pieceMessages.size(); i++)
                     sendMessageBB(pp.pieceMessages.get(i));
-                }
-
-            while (true) {
-
- while (in.available() <= 0) {
-                }
-
-                message = new byte[in.available()];
-
-                in.read(message);
-
-                buff = ByteBuffer.wrap(message);
-
-                chokeRes = Messages.decodeMessage(buff, pp, connectedFrom);
-
-
-for(int i =0; i < pp.pieceMessages.size(); i++)
-			sendMessageBB(pp.pieceMessages.get(i));
-		pp.pieceMessages.clear();
-                }
+                pp.pieceMessages.clear();
+            }
 
                 /*
                  * if(handlers.size() >= 2)

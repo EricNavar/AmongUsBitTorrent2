@@ -159,22 +159,6 @@ public class Client {
                 pp.messagesToSend.clear();
                 runUnchokingTimer();
                 runOptimisticallyUnchokedTimer();
-                // receive unchoke message from server
-                while (in.available() <= 0) {
-                }
-                byte[] message = new byte[in.available()];
-                in.read(message);
-                buff = ByteBuffer.wrap(message);
-                int chokeRes = Messages.decodeMessage(buff, pp, connectedToPeerId);
-                for (int i = 0; i < pp.pieceMessages.size(); i++)
-                    sendMessageBB(pp.pieceMessages.get(i));
-                pp.pieceMessages.clear();
-                while (in.available() <= 0) {
-                }
-                fromServer = new byte[in.available()];
-                in.read(fromServer);
-                buff = ByteBuffer.wrap(fromServer);
-                int pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
 
                 while (in.available() > 0)
                     in.read();
@@ -191,7 +175,7 @@ public class Client {
                             continue;
                         }
 
-                        pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
+                        int pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
 
                         for (int i = 0; i < pp.pieceMessages.size(); i++)
                             sendMessageBB(pp.pieceMessages.get(i));
