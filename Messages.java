@@ -412,7 +412,7 @@ int askForPiece =0;
     private static void handleRequestMessage(peerProcess pp, int senderPeer, ByteBuffer IncomingMessage) {  // a peer (senderPeer) has requested (payload) index message
              	FileHandling f = pp.getFileObject();                                                                     // DONE: if the receiver of the message has the piece, then send the piece
         int index = GetRequestMessageIndex(IncomingMessage);                      // parse out the requestd item into an integer to look up in the map structure
-		System.out.println("whoops"+index);
+		
 		if (f.CheckForPieceNumber(index)) {                           // if we actually have this piece in the stored location...
 			ByteBuffer ThePiece;
 			int ThePieceLength;

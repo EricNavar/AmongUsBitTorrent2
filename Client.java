@@ -170,7 +170,6 @@ count++;
                 }
 try{
 		pp.pieceMessages.clear();
-		System.out.println("whats happening");
 
                 fromServer = new byte[in.available()];
                 in.read(fromServer);
