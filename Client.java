@@ -1,25 +1,18 @@
 // This file uses a lot of logic from the sample file from Canvas
 
 import java.net.*;
-import java.math.*;
 import java.io.*;
-import java.math.BigInteger;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.nio.charset.StandardCharsets;
 
 import java.nio.*;
-import java.util.*;
-// idean of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
 import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.io.FileOutputStream;
+// idea of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
 
 public class Client {
     Socket requestSocket; // socket connect to the server
     ObjectOutputStream out; // stream write to the socket
     ObjectInputStream in; // stream read from the socket
-    // String message; // message send to the server
     byte[] fromServer; // capitalized message read from the server
     int peerID;
     int connectedToPeerId;
@@ -44,41 +37,41 @@ public class Client {
             public void run() {
                 try {
                     pp.calculatePreferredNeighbors();
-pp.messagesToSend.clear();
+                    pp.messagesToSend.clear();
                     // choke unchosen peers, unchoke chosen peers
                     int count = 0;
                     for (RemotePeerInfo rpi : pp.peerInfoVector) {
                         if (!pp.preferredNeighbors.contains(rpi.getPeerId())) {
                             pp.messagesToSend.add(Messages.createChokeMessage());
-count++;
+                            count++;
                             if (connectedToPeerId == rpi.getPeerId()) {
                                 rpi.setChoked(true);
-                                sendMessageBB(pp.messagesToSend.get(count-1));
+                                sendMessageBB(pp.messagesToSend.get(count - 1));
                             }
-                           
+
                         } else {
                             pp.messagesToSend.add(Messages.createUnchokeMessage());
- count++;
+                            count++;
                             if (connectedToPeerId == rpi.getPeerId()) {
                                 rpi.setChoked(false);
-                                sendMessageBB(pp.messagesToSend.get(count-1));
+                                sendMessageBB(pp.messagesToSend.get(count - 1));
                             }
-                            
+
                         }
                     }
 
                     /*
-                    * for (int i = 0; i < pp.messagesToSend.size(); i++) {
-                    * // send choke/unchoke messages
-                    * sendMessageBB(pp.messagesToSend.get(i));
-                    * }
-                    */
+                     * for (int i = 0; i < pp.messagesToSend.size(); i++) {
+                     * // send choke/unchoke messages
+                     * sendMessageBB(pp.messagesToSend.get(i));
+                     * }
+                     */
 
                 } catch (Exception e) {
                 }
             }
 
-        }, 0, pp.unchokingInterval* 1000);
+        }, 0, pp.unchokingInterval * 1000);
     }
 
     void run() {
@@ -86,8 +79,8 @@ count++;
         try {
             // create a socket to connect to the server
 
-            requestSocket = new Socket("localhost", 8000);
-            System.out.println("Connected to localhost 8000");
+            requestSocket = new Socket("localhost", pp.getPortNumber());
+            System.out.println("Connected to localhost " + pp.getPortNumber());
             // initialize inputStream and outputStream
             out = new ObjectOutputStream(requestSocket.getOutputStream());
             out.flush();
@@ -101,7 +94,6 @@ count++;
                 // busy wait for input
                 while (in.available() <= 0) {
                 }
-               
 
                 fromServer = new byte[in.available()];
                 in.read(fromServer);
@@ -145,7 +137,7 @@ count++;
                     System.out.println(pp.interested.get(i));
                 }
                 pp.messagesToSend.clear();
- 		runTimer();
+                runTimer();
                 // receive unchoke message from server
                 while (in.available() <= 0) {
                 }
@@ -153,46 +145,44 @@ count++;
                 in.read(message);
                 buff = ByteBuffer.wrap(message);
                 int chokeRes = Messages.decodeMessage(buff, pp, connectedToPeerId);
-		for(int i =0; i < pp.pieceMessages.size(); i++)
-			sendMessageBB(pp.pieceMessages.get(i));
-		pp.pieceMessages.clear();
+                for (int i = 0; i < pp.pieceMessages.size(); i++)
+                    sendMessageBB(pp.pieceMessages.get(i));
+                pp.pieceMessages.clear();
                 while (in.available() <= 0) {
                 }
                 fromServer = new byte[in.available()];
                 in.read(fromServer);
                 buff = ByteBuffer.wrap(fromServer);
                 int pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
-		
-              while(in.available() >0)
-			in.read();
+
+                while (in.available() > 0)
+                    in.read();
                 while (true) {
-		while (in.available() <= 0) {
+                    while (in.available() <= 0) {
+                    }
+                    try {
+
+                        fromServer = new byte[in.available()];
+                        in.read(fromServer);
+                        buff = ByteBuffer.wrap(fromServer);
+
+                        if (Messages.GetMessageType(buff) > 7) {
+                            continue;
+                        }
+
+                        pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
+
+                        for (int i = 0; i < pp.pieceMessages.size(); i++)
+                            sendMessageBB(pp.pieceMessages.get(i));
+
+                        pp.pieceMessages.clear();
+                        while (in.available() > 0)
+                            in.read();
+
+                    } catch (Exception e) {
+                    }
                 }
-try{
-		
 
-                fromServer = new byte[in.available()];
-                in.read(fromServer);
-                buff = ByteBuffer.wrap(fromServer);
-	
-				if (Messages.GetMessageType(buff) > 7) {
-					continue;
-				}
-
-                pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
-	
-		for(int i =0; i < pp.pieceMessages.size(); i++)
-		sendMessageBB(pp.pieceMessages.get(i));	
-		
-		pp.pieceMessages.clear();
-		while(in.available() >0)
-			in.read();
-
-			}
-		catch(Exception e)
-		{}
-               }
-		
             }
 
         } catch (ConnectException e) {
@@ -226,9 +216,10 @@ try{
 
     // send a message to the output stream
     void sendMessageBB(ByteBuffer msg) {
-        //TODO: fix reading from Common.cfg
-        //TODO: I think it's crashing because the port is being used by some other process, so Windows is killing our process. use another port.
-        try { 
+        // TODO: fix reading from Common.cfg
+        // TODO: I think it's crashing because the port is being used by some other
+        // process, so Windows is killing our process. use another port.
+        try {
             // stream write the message
             out.write(msg.array());
             out.flush();

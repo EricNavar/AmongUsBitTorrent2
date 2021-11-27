@@ -30,7 +30,7 @@ class peerProcess {
     // if this process has the entire file
     protected boolean hasFile;
     // random port number we will use
-    final protected int port = 5478;
+    final protected int port = 12602;
     protected Vector<RemotePeerInfo> peerInfoVector;
     // denotes which pieces of the file this process has
     Vector<Boolean> bitfield = new Vector<Boolean>(0);
@@ -51,6 +51,10 @@ class peerProcess {
         if (collectedPieces == totalPieces) {
             hasFile = true;
         }
+    }
+
+    public int getPortNumber() {
+        return port;
     }
 
     public int getTotalPieces() {
