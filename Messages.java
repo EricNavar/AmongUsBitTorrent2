@@ -278,14 +278,16 @@ public class Messages {
     private static void handleUnchokeMessage(peerProcess pp, int senderPeer) {
 
        System.out.println(senderPeer + " unchoked " +  pp.getPeerId());
- 
+ 	
         RemotePeerInfo sender = pp.getRemotePeerInfo(senderPeer);
         if (sender == null)
         {
             System.out.println("remote peer with id " + senderPeer + " info not found");
             return;
         }
+
         sender.setChoked(false);
+
 
 
         pp.logger.onUnchoking(senderPeer);
@@ -299,9 +301,12 @@ public class Messages {
 			} 
 		}
 
-        int missingPieceIndex = (int)Math.floor(Math.random()*(pp.bitfield.size()));  
-		                                                                                      
-	int askForPiece = missingPieces.get(missingPieceIndex);   
+        int missingPieceIndex = (int)Math.floor(Math.random()*(pp.bitfield.size()));
+int askForPiece =0;
+	if(missingPieceIndex < missingPieces.size()-1)                                        
+	askForPiece = missingPieces.get(missingPieceIndex);   
+	else
+	return;
   	
 	pp.pieceMessages.add(createRequestMessage(askForPiece));
         // ask for this piece
@@ -407,7 +412,7 @@ public class Messages {
     private static void handleRequestMessage(peerProcess pp, int senderPeer, ByteBuffer IncomingMessage) {  // a peer (senderPeer) has requested (payload) index message
              	FileHandling f = pp.getFileObject();                                                                     // DONE: if the receiver of the message has the piece, then send the piece
         int index = GetRequestMessageIndex(IncomingMessage);                      // parse out the requestd item into an integer to look up in the map structure
-		System.out.println(index);
+		System.out.println("whoops"+index);
 		if (f.CheckForPieceNumber(index)) {                           // if we actually have this piece in the stored location...
 			ByteBuffer ThePiece;
 			int ThePieceLength;
@@ -424,12 +429,13 @@ public class Messages {
 
     //type 7
     private static void handlePieceMessage(peerProcess pp, int senderPeer, int length, ByteBuffer IncomingMessage) {
+System.out.println("out of bounds");
         int index = GetPieceMessageNumber(IncomingMessage);
                                                                                  // Done: write the piece to a file (wherever it should be written, idk)  See Below, handles logging of the received piece
 		ByteBuffer GrabPieceData = ByteBuffer.allocate(65536);                    // Message is longer
 		GrabPieceData.put(Arrays.copyOfRange(IncomingMessage.array(), 9, length-9));  // Get the piece
         pp.FileObject.ReceivedAPiece(index, GrabPieceData, length-9);             // insert into the File Handler
-
+	
         // TODO: What do they mean by "partial files" maintained in current directory?
         //       Are we supposed to support 100GB file transfers and cache to the drive?
 	// TODO: Santosh - I negated this condition, not sure what its supposed to be doing

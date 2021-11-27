@@ -168,7 +168,10 @@ count++;
                 while (true) {
 		while (in.available() <= 0) {
                 }
-pp.pieceMessages.clear();
+try{
+		pp.pieceMessages.clear();
+		System.out.println("whats happening");
+
                 fromServer = new byte[in.available()];
                 in.read(fromServer);
                 buff = ByteBuffer.wrap(fromServer);
@@ -178,12 +181,18 @@ pp.pieceMessages.clear();
 				}
 
                 pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
+	
 		for(int i =0; i < pp.pieceMessages.size(); i++)
-			sendMessageBB(pp.pieceMessages.get(i));
+		sendMessageBB(pp.pieceMessages.get(i));	
+		
 		pp.pieceMessages.clear();
 		while(in.available() >0)
 			in.read();
-                }
+			}
+		catch(Exception e)
+		{}
+               }
+		
             }
 
         } catch (ConnectException e) {
