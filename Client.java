@@ -169,7 +169,7 @@ count++;
 		while (in.available() <= 0) {
                 }
 try{
-		pp.pieceMessages.clear();
+		
 
                 fromServer = new byte[in.available()];
                 in.read(fromServer);
@@ -187,6 +187,7 @@ try{
 		pp.pieceMessages.clear();
 		while(in.available() >0)
 			in.read();
+
 			}
 		catch(Exception e)
 		{}

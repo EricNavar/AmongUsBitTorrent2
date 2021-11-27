@@ -193,7 +193,7 @@ runTimer();
 
  while (in.available() <= 0) {
                 }
-pp.pieceMessages.clear();
+
                 message = new byte[in.available()];
 
                 in.read(message);
@@ -205,7 +205,7 @@ pp.pieceMessages.clear();
 
 for(int i =0; i < pp.pieceMessages.size(); i++)
 			sendMessageBB(pp.pieceMessages.get(i));
-		
+		pp.pieceMessages.clear();
                 }
 
                 /*

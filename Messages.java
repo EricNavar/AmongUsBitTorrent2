@@ -292,14 +292,20 @@ public class Messages {
 
         pp.logger.onUnchoking(senderPeer);
         // DONE: request a random piece that the sender has and the receiver doesn't
-        
+        boolean needsPiece = false;
 
 		Vector<Integer> missingPieces = new Vector<Integer>();     // Create a temporary vector to hold missing piece values
 		for (int i = 0; i < pp.bitfield.size(); i++) {                // walk the entire bitfield vector 
 			if (!pp.bitfield.get(i)) {                                // look for bitfields that are not true yet, so missing...
 				missingPieces.add(i);                              // add them to the missing piecese collection
+				needsPiece = true;
 			} 
 		}
+	if(!needsPiece)
+	{
+		pp.pieceMessages.add(createNotInterestedMessage());
+		return;
+	}
 
         int missingPieceIndex = (int)Math.floor(Math.random()*(pp.bitfield.size()));
 int askForPiece =0;
@@ -384,26 +390,12 @@ int askForPiece =0;
         if(nowInterested)
         {
             pp.messagesToSend.add(Messages.createInterestedMessage());
-            // TODO: Question: what purpose do the next two lines serve?
-            // Answer: they identify orig/dest peers of message
-			// Comment: The message specification is defined as shown, sending two more messages on the wire line won't solve the issue as it isn't 
-			// inline with the specification. It seems like we know the sender from the ipV4 packet and need to decipher it in a different manner than
-			// adding two more messages to the end of the current message or modifying the defined message.
-			// Each Handler is associated with a TCP connection (or should be) and should define the identify of the peer this is connected to.
-            //pp.messagesToSend.add(Messages.integerToBinaryString(senderPeer, 2));
-            //pp.messagesToSend.add(Messages.integerToBinaryString(pp.getPeerId(), 2));
+
         }
         else
         {
             pp.messagesToSend.add(Messages.createNotInterestedMessage());
-            // TODO: Question: what purpose do the next two lines serve?
-            // Answer: they identify orig/dest peers of message
-			// Comment: The message specification is defined as shown, sending two more messages on the wire line won't solve the issue as it isn't 
-			// inline with the specification.  It seems like we know the sender from the ipV4 packet and need to decipher it in a different manner than
-			// adding two more messages to the end of the current message or modifying the defined message.
-	        // Each Handler is associated with a TCP connection (or should be) and should define the identify of the peer this is connected to.
-            //pp.messagesToSend.add(Messages.integerToBinaryString(senderPeer, 2));
-            //pp.messagesToSend.add(Messages.integerToBinaryString(pp.getPeerId(), 2));
+           
         }
         return;
     }
@@ -429,7 +421,23 @@ int askForPiece =0;
 
     //type 7
     private static void handlePieceMessage(peerProcess pp, int senderPeer, int length, ByteBuffer IncomingMessage) {
-System.out.println("out of bounds");
+			Vector<Integer> missingPieces = new Vector<Integer>();     // Create a temporary vector to hold missing piece values
+		for (int i = 0; i < pp.bitfield.size(); i++) {                // walk the entire bitfield vector 
+			if (!pp.bitfield.get(i)) {                                // look for bitfields that are not true yet, so missing...
+				missingPieces.add(i);                              // add them to the missing piecese collection
+				
+			} 
+		}
+	
+
+        int missingPieceIndex = (int)Math.floor(Math.random()*(pp.bitfield.size()));
+int askForPiece =0;
+	if(missingPieceIndex < missingPieces.size()-1)                                        
+	askForPiece = missingPieces.get(missingPieceIndex);   
+	else
+	{}
+  	
+	pp.pieceMessages.add(createRequestMessage(askForPiece));
         int index = GetPieceMessageNumber(IncomingMessage);
                                                                                  // Done: write the piece to a file (wherever it should be written, idk)  See Below, handles logging of the received piece
 		ByteBuffer GrabPieceData = ByteBuffer.allocate(65536);                    // Message is longer
@@ -443,7 +451,6 @@ System.out.println("out of bounds");
 	   
             StringBuilder filenameWrite = new StringBuilder();            
 filenameWrite.append(String.format("./peer_%04d/thefile", pp.peerId));
-
 
 			pp.FileObject.WriteFileOut(filenameWrite.toString());
 
