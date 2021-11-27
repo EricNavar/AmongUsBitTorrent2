@@ -366,13 +366,10 @@ public class Messages {
         }
         System.out.println("The interest of " + pp.getPeerId() + " is set to " + nowInterested);
 
-        // TODO: send interested message to sender process
         if (nowInterested) {
             pp.messagesToSend.add(Messages.createInterestedMessage());
-
         } else {
             pp.messagesToSend.add(Messages.createNotInterestedMessage());
-
         }
         return;
     }
