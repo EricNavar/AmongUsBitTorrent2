@@ -13,6 +13,7 @@ import java.nio.*;
 
 //TODO: handle case where peer_1002/thefile does not exist at the start
 //TODO: 1002 is receiving too much data. It goes on forever and peer_1002 gets bigger than peer_1001/thefile
+//TODO: optimistic unchoking interval is not being considered
 
 class peerProcess {
     protected int unchokingInterval;
@@ -89,7 +90,7 @@ class peerProcess {
 
         try {
             // https://www.educative.io/edpresso/reading-the-nth-line-from-a-file-in-java
-            Path tempFile = Paths.get("Common.cfg");
+            Path tempFile = Paths.get(RemotePeerInfo.configName);
             List<String> fileLines = Files.readAllLines(tempFile);
 
             numberOfPreferredNeighbors = Integer.valueOf(fileLines.get(0).split(" ")[1]);

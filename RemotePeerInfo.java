@@ -24,6 +24,7 @@ public class RemotePeerInfo {
 	// process
 	private boolean interested;
 	private int piecesTransmitted;
+	public static final String configName = "Common.cfg";
 
 	public RemotePeerInfo(String pId, String pAddress, String pPort, String hasFile) {
 		this.peerId = Integer.parseInt(pId);
@@ -35,7 +36,7 @@ public class RemotePeerInfo {
 		int pieceSize = 0;
 		try {
 			// https://www.educative.io/edpresso/reading-the-nth-line-from-a-file-in-java
-			Path tempFile = Paths.get("Common.cfg");
+			Path tempFile = Paths.get(RemotePeerInfo.configName);
 			List<String> fileLines = Files.readAllLines(tempFile);
 			String fileSizeString = fileLines.get(4);
 			String pieceSizeString = fileLines.get(5);

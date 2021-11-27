@@ -207,6 +207,9 @@ public class FileHandling {
 		// " comparing incomingPiece.remaining() " + incomingPiece.remaining() + " to
 		// newByteBuffer.remaining() " + newByteBuffer.remaining() + " versus
 		// PieceLength " + PieceLength);
+
+		//TODO: this next line fails when using Common.small.config instead of Common.config. Not sure if that's something we should consider.
+		// I made Common.small.config so we can have a smaller test case.
 		newByteBuffer.put(EntireFile.get(Integer.valueOf(pieceNumber)).array(), 0,
 				PieceLengths.get(Integer.valueOf(pieceNumber))); // put(byte[] src, int offset, int length) wjere byte[]
 																	// is incomingPiece.array(), start 0, length
