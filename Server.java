@@ -89,13 +89,13 @@ public class Server {
                                 
                             } else {
                                 pp.messagesToSend.add(Messages.createUnchokeMessage());
-
+			
                                 count++;
                                 if (connectedFrom == rpi.getPeerId()) {
                                     rpi.setChoked(false);
                                     sendMessageBB(pp.messagesToSend.get(count-1));
                                 }
-                                count++;
+                                
                             }
                         }
 
@@ -188,7 +188,6 @@ runTimer();
                 for (int i = 0; i < pp.pieceMessages.size(); i++) {
                     sendMessageBB(pp.pieceMessages.get(i));
                 }
-
 
             while (true) {
 

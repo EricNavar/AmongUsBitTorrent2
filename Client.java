@@ -163,7 +163,7 @@ count++;
                 buff = ByteBuffer.wrap(fromServer);
                 int pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
 		
-               while(in.available() >0)
+              while(in.available() >0)
 			in.read();
                 while (true) {
 		while (in.available() <= 0) {
@@ -181,7 +181,8 @@ pp.pieceMessages.clear();
 		for(int i =0; i < pp.pieceMessages.size(); i++)
 			sendMessageBB(pp.pieceMessages.get(i));
 		pp.pieceMessages.clear();
-			
+		while(in.available() >0)
+			in.read();
                 }
             }
 
