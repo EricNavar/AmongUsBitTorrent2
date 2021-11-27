@@ -226,7 +226,9 @@ try{
 
     // send a message to the output stream
     void sendMessageBB(ByteBuffer msg) {
-        try {
+        //TODO: fix reading from Common.cfg
+        //TODO: I think it's crashing because the port is being used by some other process, so Windows is killing our process. use another port.
+        try { 
             // stream write the message
             out.write(msg.array());
             out.flush();
