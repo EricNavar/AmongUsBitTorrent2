@@ -72,11 +72,12 @@ public class FileHandling {
 	// contents of the file and load a buffer.
 	public void openFile() {
 		try {
-			if (this.peerID == 1001)
+			if (this.peerID == 1001) { // if server
 				fileNameWithPath = ".\\peer_1001\\" + fileName;
-
-			if (this.peerID == 1002)
-				fileNameWithPath = ".\\peer_1002\\" + fileName;
+			}
+			else {
+				fileNameWithPath = ".\\peer_" + peerID + "\\" + fileName;
+			}
 			File file = new File(fileNameWithPath);
 
 			Desktop desktop = Desktop.getDesktop();

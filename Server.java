@@ -68,42 +68,67 @@ public class Server {
             this.no = no;
         }
 
-        private void runTimer() {
+    // Timer for unchoking the neighbors who send the most data. Optimistically unchoked neighbors is unchoked 
+    //     in the runOptimisticallyUnchokedTimer()
+    private void runUnchokingTimer() {
+        // Every 5 seconds, recalculate the preferred neighbors
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            public void run() {
+                try {
+                    pp.calculatePreferredNeighbors();
+                    pp.messagesToSend.clear();
+                    // choke unchosen peers, unchoke chosen peers
+                    int count = 0;
+                    // the last element in the vector is the optimistically unchoked neighbor, so don't change that
+                    for (int i = 0; i < pp.peerInfoVector.size() - 1; i++) {
+                        RemotePeerInfo rpi = pp.peerInfoVector.get(i);
+                        if (!pp.preferredNeighbors.contains(rpi.getPeerId())) {
+                            pp.messagesToSend.add(Messages.createChokeMessage());
+                            count++;
+                            if (connectedFrom == rpi.getPeerId()) {
+                                rpi.setChoked(true);
+                                sendMessageBB(pp.messagesToSend.get(count - 1));
+                            }
+
+                        } else {
+                            pp.messagesToSend.add(Messages.createUnchokeMessage());
+                            count++;
+                            if (connectedFrom == rpi.getPeerId()) {
+                                rpi.setChoked(false);
+                                sendMessageBB(pp.messagesToSend.get(count - 1));
+                            }
+
+                        }
+                    }
+
+                } catch (Exception e) {
+                }
+            }
+
+        }, 0, pp.unchokingInterval * 1000);
+    }
+
+        private void runOptimisticallyUnchokedTimer() {
             // Every 5 seconds, recalculate the preferred neighbors
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
                 public void run() {
                     try {
-                        pp.calculatePreferredNeighbors();
-                       	pp.messagesToSend.clear();
-                        // choke unchosen peers, unchoke chosen peers
-                        int count = 0;
-                        for (RemotePeerInfo rpi : pp.peerInfoVector) {
-                            if (!pp.preferredNeighbors.contains(rpi.getPeerId())) {
-				count++;
-                                pp.messagesToSend.add(Messages.createChokeMessage());
-                                if (connectedFrom == rpi.getPeerId()) {
-                                    rpi.setChoked(true);
-                                    sendMessageBB(pp.messagesToSend.get(count-1));
-                                }
-                                
-                            } else {
-                                pp.messagesToSend.add(Messages.createUnchokeMessage());
-			
-                                count++;
-                                if (connectedFrom == rpi.getPeerId()) {
-                                    rpi.setChoked(false);
-                                    sendMessageBB(pp.messagesToSend.get(count-1));
-                                }
-                                
-                            }
+                        pp.chooseOptimisticallyUnchokedPeer();
+                        RemotePeerInfo rpi = pp.getRemotePeerInfo(pp.preferredNeighbors.get(pp.preferredNeighbors.size() - 1));
+                        pp.messagesToSend.clear();
+                        pp.messagesToSend.add(Messages.createUnchokeMessage());
+                        if (connectedFrom == rpi.getPeerId()) {
+                            rpi.setChoked(false);
+                            sendMessageBB(pp.messagesToSend.get(0));
                         }
-
+    
                     } catch (Exception e) {
                     }
                 }
-
-            }, 0, pp.unchokingInterval* 1000);
+    
+            }, 0, pp.optimisticUnchokingInterval* 1000);
         }
 
         private void serverLoop() throws ClassNotFoundException, IOException {
@@ -162,7 +187,8 @@ public class Server {
                     sendMessageBB(pp.messagesToSend.get(i));
                 }
                 pp.messagesToSend.clear();
-runTimer();
+                runUnchokingTimer();
+                runOptimisticallyUnchokedTimer();
                 while (in.available() <= 0) {
                 }
                 message = new byte[in.available()];

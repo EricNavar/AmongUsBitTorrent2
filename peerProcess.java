@@ -11,9 +11,7 @@ import java.nio.file.Path;
 
 import java.nio.*;
 
-//TODO: handle case where peer_1002/thefile does not exist at the start
 //TODO: 1002 is receiving too much data. It goes on forever and peer_1002 gets bigger than peer_1001/thefile
-//TODO: optimistic unchoking interval is not being considered
 
 class peerProcess {
     protected int unchokingInterval;
@@ -106,7 +104,9 @@ class peerProcess {
         bitfield.setSize(totalPieces);
         FileObject = new FileHandling(this.peerId, totalPieces, pieceSize, fileName);
         hasFile = false;
-        preferredNeighbors = new Vector<Integer>(numberOfPreferredNeighbors);
+        // This vector includes the preferred neighbors, AKA the neighbors sending the most data,
+        //     plus one for the optimistically unchoked neighbor
+        preferredNeighbors = new Vector<Integer>(numberOfPreferredNeighbors + 1);
     }
 
     public boolean hasFile() {
@@ -167,8 +167,8 @@ class peerProcess {
         }
     }
 
+    // Calculate the peers sending the most data. The optimistically unchoked neighbor is calculated at a different interval in Common.cfg
     public void calculatePreferredNeighbors() {
-        preferredNeighbors.clear();
         // Sort the vector of peers
         sortPeerInfoVector();
         // The first 4 peers are the peers that have transmitted the most.
@@ -183,11 +183,6 @@ class peerProcess {
             }
         }
 
-        // choose another random peer from the rest
-        int optimisicallyUnchokedNeighbor = chooseOptimisticallyUnchokedPeer();
-        preferredNeighbors.add(optimisicallyUnchokedNeighbor);
-
-        logger.onChangeOfOptimisticallyUnchokedNeighbor(optimisicallyUnchokedNeighbor);
         // after recalculating the preferred neighbors, reset the value of the
         // transmitted data of all remote peers
         resetPeerInfoPiecesTransmitted();
@@ -198,13 +193,16 @@ class peerProcess {
     // this chooses which peer to optimisically unchoke. The peerInfoVector is
     // sorted by pieces transmitted, so choose any peer other than the first 4
     // https://www.educative.io/edpresso/how-to-generate-random-numbers-in-java
-    private int chooseOptimisticallyUnchokedPeer() {
+    public int chooseOptimisticallyUnchokedPeer() {
         int min = 4;
         int max = peerInfoVector.size();
         int randomPeerIndex = (int) Math.floor(Math.random() * (max - min + 1) + min);
         if (randomPeerIndex > peerInfoVector.size() - 1)
             randomPeerIndex = peerInfoVector.size() - 1;
-        return peerInfoVector.get(randomPeerIndex).getPeerId();
+        int optimisticUnchokedPeer = peerInfoVector.get(randomPeerIndex).getPeerId();
+        logger.onChangeOfOptimisticallyUnchokedNeighbor(optimisticUnchokedPeer);
+        preferredNeighbors.add(optimisticUnchokedPeer);
+        return optimisticUnchokedPeer;
     }
 
     private void sortPeerInfoVector() {

@@ -30,7 +30,9 @@ public class Client {
         this.pp = pp;
     }
 
-    private void runTimer() {
+    // Timer for unchoking the neighbors who send the most data. Optimistically unchoked neighbors is unchoked 
+    //     in the runOptimisticallyUnchokedTimer()
+    private void runUnchokingTimer() {
         // Every 5 seconds, recalculate the preferred neighbors
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -40,7 +42,9 @@ public class Client {
                     pp.messagesToSend.clear();
                     // choke unchosen peers, unchoke chosen peers
                     int count = 0;
-                    for (RemotePeerInfo rpi : pp.peerInfoVector) {
+                    // the last element in the vector is the optimistically unchoked neighbor, so don't change that
+                    for (int i = 0; i < pp.peerInfoVector.size() - 1; i++) {
+                        RemotePeerInfo rpi = pp.peerInfoVector.get(i);
                         if (!pp.preferredNeighbors.contains(rpi.getPeerId())) {
                             pp.messagesToSend.add(Messages.createChokeMessage());
                             count++;
@@ -60,18 +64,33 @@ public class Client {
                         }
                     }
 
-                    /*
-                     * for (int i = 0; i < pp.messagesToSend.size(); i++) {
-                     * // send choke/unchoke messages
-                     * sendMessageBB(pp.messagesToSend.get(i));
-                     * }
-                     */
-
                 } catch (Exception e) {
                 }
             }
 
         }, 0, pp.unchokingInterval * 1000);
+    }
+
+    private void runOptimisticallyUnchokedTimer() {
+        // Every 5 seconds, recalculate the preferred neighbors
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            public void run() {
+                try {
+                    pp.chooseOptimisticallyUnchokedPeer();
+                    RemotePeerInfo rpi = pp.getRemotePeerInfo(pp.preferredNeighbors.get(pp.preferredNeighbors.size() - 1));
+                    pp.messagesToSend.clear();
+                    pp.messagesToSend.add(Messages.createUnchokeMessage());
+                    if (connectedToPeerId == rpi.getPeerId()) {
+                        rpi.setChoked(false);
+                        sendMessageBB(pp.messagesToSend.get(0));
+                    }
+
+                } catch (Exception e) {
+                }
+            }
+
+        }, 0, pp.optimisticUnchokingInterval * 1000);
     }
 
     void run() {
@@ -137,7 +156,8 @@ public class Client {
                     System.out.println(pp.interested.get(i));
                 }
                 pp.messagesToSend.clear();
-                runTimer();
+                runUnchokingTimer();
+                runOptimisticallyUnchokedTimer();
                 // receive unchoke message from server
                 while (in.available() <= 0) {
                 }
@@ -216,7 +236,6 @@ public class Client {
 
     // send a message to the output stream
     void sendMessageBB(ByteBuffer msg) {
-        // TODO: fix reading from Common.cfg
         try {
             // stream write the message
             out.write(msg.array());
