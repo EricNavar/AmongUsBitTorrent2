@@ -44,24 +44,26 @@ public class Client {
             public void run() {
                 try {
                     pp.calculatePreferredNeighbors();
-
+pp.messagesToSend.clear();
                     // choke unchosen peers, unchoke chosen peers
                     int count = 0;
                     for (RemotePeerInfo rpi : pp.peerInfoVector) {
                         if (!pp.preferredNeighbors.contains(rpi.getPeerId())) {
                             pp.messagesToSend.add(Messages.createChokeMessage());
+count++;
                             if (connectedToPeerId == rpi.getPeerId()) {
                                 rpi.setChoked(true);
-                                sendMessageBB(pp.messagesToSend.get(count));
+                                sendMessageBB(pp.messagesToSend.get(count-1));
                             }
-                            count++;
+                           
                         } else {
                             pp.messagesToSend.add(Messages.createUnchokeMessage());
+ count++;
                             if (connectedToPeerId == rpi.getPeerId()) {
                                 rpi.setChoked(false);
-                                sendMessageBB(pp.messagesToSend.get(count));
+                                sendMessageBB(pp.messagesToSend.get(count-1));
                             }
-                            count++;
+                            
                         }
                     }
 
@@ -151,15 +153,35 @@ public class Client {
                 in.read(message);
                 buff = ByteBuffer.wrap(message);
                 int chokeRes = Messages.decodeMessage(buff, pp, connectedToPeerId);
-
+		for(int i =0; i < pp.pieceMessages.size(); i++)
+			sendMessageBB(pp.pieceMessages.get(i));
+		pp.pieceMessages.clear();
                 while (in.available() <= 0) {
                 }
                 fromServer = new byte[in.available()];
                 in.read(fromServer);
                 buff = ByteBuffer.wrap(fromServer);
                 int pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
-
+		
+               while(in.available() >0)
+			in.read();
                 while (true) {
+		while (in.available() <= 0) {
+                }
+pp.pieceMessages.clear();
+                fromServer = new byte[in.available()];
+                in.read(fromServer);
+                buff = ByteBuffer.wrap(fromServer);
+	
+				if (Messages.GetMessageType(buff) > 7) {
+					continue;
+				}
+
+                pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
+		for(int i =0; i < pp.pieceMessages.size(); i++)
+			sendMessageBB(pp.pieceMessages.get(i));
+		pp.pieceMessages.clear();
+			
                 }
             }
 

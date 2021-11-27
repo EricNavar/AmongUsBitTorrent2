@@ -75,27 +75,25 @@ public class Server {
                 public void run() {
                     try {
                         pp.calculatePreferredNeighbors();
-                        /*
-                         * for (int i = 0; i < pp.messagesToSend.size(); i++) {
-                         * // send choke/unchoke messages
-                         * sendMessageBB(pp.messagesToSend.get(i));
-                         * }
-                         */
+                       	pp.messagesToSend.clear();
                         // choke unchosen peers, unchoke chosen peers
                         int count = 0;
                         for (RemotePeerInfo rpi : pp.peerInfoVector) {
                             if (!pp.preferredNeighbors.contains(rpi.getPeerId())) {
+				count++;
                                 pp.messagesToSend.add(Messages.createChokeMessage());
                                 if (connectedFrom == rpi.getPeerId()) {
                                     rpi.setChoked(true);
-                                    sendMessageBB(pp.messagesToSend.get(count));
+                                    sendMessageBB(pp.messagesToSend.get(count-1));
                                 }
-                                count++;
+                                
                             } else {
                                 pp.messagesToSend.add(Messages.createUnchokeMessage());
+
+                                count++;
                                 if (connectedFrom == rpi.getPeerId()) {
                                     rpi.setChoked(false);
-                                    sendMessageBB(pp.messagesToSend.get(count));
+                                    sendMessageBB(pp.messagesToSend.get(count-1));
                                 }
                                 count++;
                             }
@@ -190,7 +188,25 @@ runTimer();
                 for (int i = 0; i < pp.pieceMessages.size(); i++) {
                     sendMessageBB(pp.pieceMessages.get(i));
                 }
-                while (true) {
+
+
+            while (true) {
+
+ while (in.available() <= 0) {
+                }
+pp.pieceMessages.clear();
+                message = new byte[in.available()];
+
+                in.read(message);
+
+                buff = ByteBuffer.wrap(message);
+
+                chokeRes = Messages.decodeMessage(buff, pp, connectedFrom);
+
+
+for(int i =0; i < pp.pieceMessages.size(); i++)
+			sendMessageBB(pp.pieceMessages.get(i));
+		
                 }
 
                 /*

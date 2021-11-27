@@ -131,7 +131,7 @@ public class FileHandling {
 		File writingFile = new File(fileNameWithPath);
 
 		// writingFile.write(EntireFile.get(Integer.valueOf(x)));fs
-		try (FileChannel writingFileStream = new FileOutputStream(writingFile, false).getChannel()) {
+		try (FileChannel writingFileStream = new FileOutputStream(writingFile, true).getChannel()) {
 			for (x = 0; x < totalPieces; ++x) {
 
 				// this only writes the number of bytes neededs
