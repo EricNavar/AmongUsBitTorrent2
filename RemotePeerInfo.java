@@ -31,7 +31,7 @@ public class RemotePeerInfo {
 		this.peerAddress = pAddress;
 		this.peerPort = Integer.parseInt(pPort);
 		this.hasFile = "1".equals(hasFile);
-		choked = false;
+		choked = true;
 		int fileSize = 0;
 		int pieceSize = 0;
 		try {
