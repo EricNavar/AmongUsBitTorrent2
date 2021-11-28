@@ -1,13 +1,9 @@
 
-//import java.math.BigInteger;
 import java.util.Vector;
-
-//import java.net.*;
-//import java.io.*;
 import java.nio.*;
 import java.rmi.Remote;
-//import java.io.File;
 import java.util.*;
+import java.nio.charset.StandardCharsets;
 
 // import java.io.FileWriter;   // https://www.w3schools.com/java/java_files_create.asp examples utilized as basis for creating file i/o code
 // import java.io.FileOutputStream;
@@ -153,8 +149,8 @@ public class Messages {
     public static ByteBuffer createPieceMessage(ByteBuffer payload, int PieceNumber, int PieceLength) {
 
         ByteBuffer MessageAssembly = ByteBuffer.allocate(65536); // Message is 9 bytes
-        MessageAssembly.putInt(PieceLength + 5); // length is equal to 1 (message type) + 4 (piece index size) + piece
-                                                 // size (bytes)
+        // length is equal to 1 (message type) + 4 (piece index size) + piece size (bytes)
+        MessageAssembly.putInt(PieceLength + 5);
         MessageAssembly.put(encodeType(MessageType.PIECE.ordinal()));
         MessageAssembly.putInt(PieceNumber); // piece number is index
         MessageAssembly.put(Arrays.copyOfRange(payload.array(), 0, PieceLength)); // piece number is index
@@ -393,8 +389,8 @@ public class Messages {
             ThePiece = pp.FileObject.MakeCopyPieceByteBuffer(index);
             // get a copy of the piece
             ThePieceLength = pp.FileObject.GetPieceSize(index); // get the piece's length
-
-            pp.pieceMessages.add(createPieceMessage(ThePiece, index, ThePieceLength)); // send the piece
+            ByteBuffer toSend = createPieceMessage(ThePiece, index, ThePieceLength);
+            pp.pieceMessages.add(toSend); // send the piece
         } else {
             System.out.println("Some questionable character/actor identified as " + senderPeer + " asked for piece "
                     + index + " but this peer known as " + pp.peerId + " does not have it...");
@@ -503,42 +499,44 @@ public class Messages {
          * 1-bit message type
          * message payload
          */
-
         int length = GetMessageLength(IncomingMessage);
         int type = GetMessageType(IncomingMessage);
 
         // The logic for handling the message types are here
-        if (type == MessageType.CHOKE.ordinal()) { // type 0
+        if (type == MessageType.CHOKE.ordinal()) {
+            // type 0
             handleChokeMessage(pp, senderPeer);
-        } else if (type == MessageType.UNCHOKE.ordinal()) { // type 1
-
+        } else if (type == MessageType.UNCHOKE.ordinal()) {
+            // type 1
             handleUnchokeMessage(pp, senderPeer);
-        } else if (type == MessageType.INTERESTED.ordinal()) { // type 2
-
+        } else if (type == MessageType.INTERESTED.ordinal()) {
+            // type 2
             handleInterestedMessage(pp, senderPeer);
-
-        } else if (type == MessageType.NOT_INTERESTED.ordinal()) { // type 3
-
+        } else if (type == MessageType.NOT_INTERESTED.ordinal()) {
+            // type 3
             handleNotInterestedMessage(pp, senderPeer);
-        } else if (type == MessageType.HAVE.ordinal()) { // type 4
+        } else if (type == MessageType.HAVE.ordinal()) {
+            // type 4
             handleHaveMessage(pp, senderPeer, IncomingMessage);
-        } else if (type == MessageType.BITFIELD.ordinal()) { // type 5
-
+        } else if (type == MessageType.BITFIELD.ordinal()) {
+            // type 5
             handleBitfieldMessage(IncomingMessage, pp, senderPeer, length);
-        } else if (type == MessageType.REQUEST.ordinal()) { // type 6
+        } else if (type == MessageType.REQUEST.ordinal()) {
+            // type 6
             handleRequestMessage(pp, senderPeer, IncomingMessage);
-        } else if (type == MessageType.PIECE.ordinal()) { // type 7
+        } else if (type == MessageType.PIECE.ordinal()) {
+            // type 7
             handlePieceMessage(pp, senderPeer, length, IncomingMessage);
         } else {
-            System.out.println("Invalid message type");
+            System.out.println("Invalid message of type " + ParseByte(IncomingMessage, 4));
+            //System.out.println(StandardCharsets.UTF_8.decode(IncomingMessage).toString());
         }
 
         return -1;
     }
 
-    public static String HexPrint(ByteBuffer bytes) { // modifed from idea at
-                                                      // https://mkyong.com/java/java-how-to-convert-bytes-to-hex/ By
-                                                      // mkyong
+    public static String HexPrint(ByteBuffer bytes) {
+        // modifed from idea at https://mkyong.com/java/java-how-to-convert-bytes-to-hex/ By mkyong
         StringBuilder result = new StringBuilder();
         for (int x = 0; x < bytes.remaining(); ++x) {
             result.append(String.format("%02x ", bytes.array()[x]));
