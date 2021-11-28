@@ -106,6 +106,7 @@ public class Client {
             out.flush();
             in = new ObjectInputStream(requestSocket.getInputStream());
 
+
             // create handshake message and send to server
             ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.getPeerId());
             sendMessageBB(messageToSend);
@@ -171,19 +172,27 @@ public class Client {
                         in.read(fromServer);
                         buff = ByteBuffer.wrap(fromServer);
 
-                        if (Messages.GetMessageType(buff) > 7) {
-                            continue;
-                        }
-
                         int pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
 
                         for (int i = 0; i < pp.pieceMessages.size(); i++)
                             sendMessageBB(pp.pieceMessages.get(i));
 
                         pp.pieceMessages.clear();
-                        while (in.available() > 0)
-                            in.read();
 
+                            fromServer = new byte[in.available()];
+                            in.read(fromServer);
+                            buff = ByteBuffer.wrap(fromServer);
+
+                            if (Messages.GetMessageType(buff) > 7) {
+                                continue;
+                            }
+
+                            pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
+
+
+                        while (in.available() > 0) {
+                            in.read();
+                        }
                     } catch (Exception e) {
                     }
                 }

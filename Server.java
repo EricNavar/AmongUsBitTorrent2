@@ -194,6 +194,20 @@ public class Server {
                
 
             while (true) {
+                if(handlers.size() >= 2) {
+                    for (int i = 0; i < handlers.size(); i++) {
+                        // start sending piece messages here
+                        // request piece from client
+                        // exclude server
+                        // coordinate piece distributuion between clients
+                        if (handlers.get(i).connectedFrom == connectedFrom)
+                            continue;
+                        messageToSend = Messages.createHandshakeMessage(connectedFrom);
+                        handlers.get(i).sendMessageBB(messageToSend);
+                        messageToSend = Messages.createHandshakeMessage(handlers.get(i).connectedFrom);
+                        sendMessageBB(messageToSend);
+                    }
+                }
                 while (in.available() <= 0) {
                 }
                 message = new byte[in.available()];
@@ -203,36 +217,19 @@ public class Server {
                 buff = ByteBuffer.wrap(message);
 
                 int chokeRes = Messages.decodeMessage(buff, pp, connectedFrom);
+
                 for(int i =0; i < pp.pieceMessages.size(); i++)
+                {
                     sendMessageBB(pp.pieceMessages.get(i));
+                }
                 pp.pieceMessages.clear();
+
+
             }
 
-                /*
-                 * if(handlers.size() >= 2)
-                 * {
-                 * 
-                 * for(int i=0; i < handlers.size(); i++)
-                 * {
-                 * // start sending piece messages here
-                 * // request piece from client
-                 * // exclude server
-                 * // coordinate piece distributuion between clients
-                 * if(handlers.get(i).connectedFrom == connectedFrom)
-                 * continue;
-                 * messageToSend = Messages.createHandshakeMessage(connectedFrom);
-                 * handlers.get(i).sendMessageBB(messageToSend);
-                 * messageToSend =
-                 * Messages.createHandshakeMessage(handlers.get(i).connectedFrom);
-                 * sendMessageBB(messageToSend);
-                 * 
-                 * 
-                 * 
-                 * 
-                 * }
-                 * // choke and unchoke different processes
-                 * }
-                 */
+
+
+
 
             }
         }

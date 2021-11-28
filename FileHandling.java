@@ -182,7 +182,7 @@ public class FileHandling {
 				// this only reads the number of bytes needed
 				// two hash tables are kept
 				ByteBuffer tempByteBuffer = ByteBuffer.allocate(pieceSize);
-				;
+
 				numberOfBytesRead = readingFileStream.read(tempByteBuffer); // , 0, pieceSize);
 				// System.out.println(" Round Number " + x + " Read " + numberOfBytesRead + "
 				// bytes " + " First Byte " + tempByteBuffer.get(1370));
