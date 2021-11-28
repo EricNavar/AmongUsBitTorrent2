@@ -5,6 +5,7 @@ import java.util.Vector;
 //import java.net.*;
 //import java.io.*;
 import java.nio.*;
+import java.rmi.Remote;
 //import java.io.File;
 import java.util.*;
 
@@ -243,32 +244,27 @@ public class Messages {
 
     // type 0
     private static void handleChokeMessage(peerProcess pp, int senderPeer) {
-
-        System.out.println(senderPeer + " choked " + pp.getPeerId());
+        System.out.println("Choked by " + pp.getPeerId());
 
         RemotePeerInfo sender = pp.getRemotePeerInfo(senderPeer);
         if (sender == null) {
             System.out.println("remote peer with id " + senderPeer + " info not found");
             return;
         }
-        sender.setChoked(true);
 
         pp.logger.onChoking(senderPeer);
     }
 
     // type 1
-
     private static void handleUnchokeMessage(peerProcess pp, int senderPeer) {
 
-        System.out.println(senderPeer + " unchoked " + pp.getPeerId());
+        System.out.println("Unchoked by " + senderPeer);
 
         RemotePeerInfo sender = pp.getRemotePeerInfo(senderPeer);
         if (sender == null) {
             System.out.println("remote peer with id " + senderPeer + " info not found");
             return;
         }
-
-        sender.setChoked(false);
 
         pp.logger.onUnchoking(senderPeer);
         // DONE: request a random piece that the sender has and the receiver doesn't
@@ -360,11 +356,16 @@ public class Messages {
                     // break; // DO NOT Break, instead keep loading in and tracking the pieces this
                     // peer has in it's posession
                 }
-                pp.getRemotePeerInfo(senderPeer).getBitfield().set(i, true); // sets the index i to true of the peer
-                                                                             // that they have this piece
+                RemotePeerInfo rpi = pp.getRemotePeerInfo(senderPeer);
+                if (rpi == null) {
+                    System.out.println("ERROR: could not find peer info with id " + senderPeer);
+                    return;
+                }
+                // sets the index i to true of the peer that they have this piece
+                rpi.getBitfield().set(i, true);
             }
         }
-        System.out.println("The interest of " + pp.getPeerId() + " is set to " + nowInterested);
+        System.out.println("The interest of " + pp.getPeerId() + " in " + senderPeer + " is set to " + nowInterested);
 
         if (nowInterested) {
             pp.messagesToSend.add(Messages.createInterestedMessage());
@@ -440,7 +441,12 @@ public class Messages {
 
         }
 
-        pp.getRemotePeerInfo(senderPeer).incrementPiecesTransmitted();
+        RemotePeerInfo rpi = pp.getRemotePeerInfo(senderPeer);
+        if (rpi == null) {
+            System.out.println("ERROR: could not find peer info with id " + senderPeer);
+            return;
+        }
+        rpi.incrementPiecesTransmitted();
         // update the bitfield
         pp.getCurrBitfield().set(index, true);
         pp.incrementCollectedPieces();
@@ -451,18 +457,26 @@ public class Messages {
         }
 
         updateInterestedStatus(pp);
+        pp.printBitfield();
     }
 
     // Whenever a peer receives a piece completely, it checks the bitfields of 
     // its neighbors and decides whether it should send ‘not interested’ messages to some neighbors.
     public static void updateInterestedStatus(peerProcess pp) {
         for (int neighborId : pp.preferredNeighbors) {
-            if (!pp.checkInterested(pp.getRemotePeerInfo(neighborId).getBitfield())) {
+            RemotePeerInfo preferredNeighbor = pp.getRemotePeerInfo(neighborId);
+            if (preferredNeighbor != null && !pp.checkInterested(preferredNeighbor.getBitfield())) {
                 pp.messagesToSend.add(createNotInterestedMessage());
             }
+            else if (preferredNeighbor == null) {
+                System.out.println("ERROR: could not find remote peer");
+            }
         }
-        if (!pp.checkInterested(pp.getRemotePeerInfo(pp.optimisticallyUnchokedPeer).getBitfield())) {
-            pp.messagesToSend.add(createNotInterestedMessage());
+        if (pp.optimisticallyUnchokedPeer != -1) {
+            RemotePeerInfo optimisticallyUnchoked = pp.getRemotePeerInfo(pp.optimisticallyUnchokedPeer);
+            if (optimisticallyUnchoked != null && !pp.checkInterested(optimisticallyUnchoked.getBitfield())) {
+                pp.messagesToSend.add(createNotInterestedMessage());
+            }
         }
     }
 

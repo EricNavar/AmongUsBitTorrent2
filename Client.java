@@ -44,23 +44,21 @@ public class Client {
                     int count = 0;
                     for (int i = 0; i < pp.peerInfoVector.size(); i++) {
                         RemotePeerInfo rpi = pp.peerInfoVector.get(i);
-                        if (!pp.isNeighbor(rpi.getPeerId())) {
-                            if (!rpi.isChoked()) { // do not send choke message if it's already choked
-                                pp.messagesToSend.add(Messages.createChokeMessage());
-                                count++;
-                                if (connectedToPeerId == rpi.getPeerId()) {
-                                    rpi.setChoked(true);
-                                    sendMessageBB(pp.messagesToSend.get(count - 1));
-                                }
+                        if (!pp.isNeighbor(rpi.getPeerId()) && !rpi.isChoked()) { // do not send choke message if it's already choked
+                            pp.messagesToSend.add(Messages.createChokeMessage());
+                            count++;
+                            if (connectedToPeerId == rpi.getPeerId()) {
+                                System.out.println("Choking peer " + rpi.getPeerId());
+                                rpi.setChoked(true);
+                                sendMessageBB(pp.messagesToSend.get(count - 1));
                             }
-                        } else {
-                            if (rpi.isChoked()) { // do not send unchoke message if it's already unchoked
-                                pp.messagesToSend.add(Messages.createUnchokeMessage());
-                                count++;
-                                if (connectedToPeerId == rpi.getPeerId()) {
-                                    rpi.setChoked(false);
-                                    sendMessageBB(pp.messagesToSend.get(count - 1));
-                                }
+                        } else if (pp.isNeighbor(rpi.getPeerId()) && rpi.isChoked()){
+                            pp.messagesToSend.add(Messages.createUnchokeMessage());
+                            count++;
+                            if (connectedToPeerId == rpi.getPeerId()) {
+                                System.out.println("Setting peer " + rpi.getPeerId() + " to be a preferred neighbor");
+                                rpi.setChoked(false);
+                                sendMessageBB(pp.messagesToSend.get(count - 1));
                             }
                         }
                     }
@@ -79,14 +77,17 @@ public class Client {
             public void run() {
                 try {
                     pp.chooseOptimisticallyUnchokedPeer();
+                    if (pp.optimisticallyUnchokedPeer == -1) {
+                        return;
+                    }
                     RemotePeerInfo rpi = pp.getRemotePeerInfo(pp.optimisticallyUnchokedPeer);
                     pp.messagesToSend.clear();
                     pp.messagesToSend.add(Messages.createUnchokeMessage());
                     if (connectedToPeerId == rpi.getPeerId()) {
+                        System.out.println("Optimistically unchoking " + rpi.getPeerId());
                         rpi.setChoked(false);
                         sendMessageBB(pp.messagesToSend.get(0));
                     }
-
                 } catch (Exception e) {
                 }
             }
@@ -151,11 +152,11 @@ public class Client {
                 buff = ByteBuffer.wrap(fromServer);
                 int interestMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
 
-                System.out.println("Peers interested in 1002: none");
+                System.out.println("Peers interested in 1002:");
 
                 // print out any peers interested in 1002
                 for (int i = 0; i < pp.interested.size(); i++) {
-                    System.out.println(pp.interested.get(i));
+                    System.out.print(pp.interested.get(i) + ", ");
                 }
                 pp.messagesToSend.clear();
                 runUnchokingTimer();

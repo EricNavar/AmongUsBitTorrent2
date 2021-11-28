@@ -107,6 +107,7 @@ class peerProcess {
         FileObject = new FileHandling(this.peerId, totalPieces, pieceSize, fileName);
         hasFile = false;
         preferredNeighbors = new Vector<Integer>(numberOfPreferredNeighbors);
+        optimisticallyUnchokedPeer = -1;
     }
 
     public boolean hasFile() {
@@ -190,15 +191,24 @@ class peerProcess {
     // this chooses which peer to optimisically unchoke. The peerInfoVector is
     // sorted by pieces transmitted, so choose any peer other than the first 4
     // https://www.educative.io/edpresso/how-to-generate-random-numbers-in-java
-    public int chooseOptimisticallyUnchokedPeer() {
-        int min = 4;
-        int max = peerInfoVector.size();
-        int randomPeerIndex = (int) Math.floor(Math.random() * (max - min + 1) + min);
-        if (randomPeerIndex > peerInfoVector.size() - 1)
-            randomPeerIndex = peerInfoVector.size() - 1;
-        optimisticallyUnchokedPeer = peerInfoVector.get(randomPeerIndex).getPeerId();
+    public void chooseOptimisticallyUnchokedPeer() {
+        // this is the vector of peers to consider. It's the peers that are in interested but not already in preferredNeighbors
+        Vector<Integer> toConsider = new Vector<Integer>();
+        for (Integer i : interested) {
+            if (!preferredNeighbors.contains(i)) {
+                toConsider.add(i);
+            }
+        }
+        if (toConsider.size() == 0) {
+            optimisticallyUnchokedPeer = -1;
+            return;
+        }
+        int max = interested.size();
+        int randomPeerIndex = (int) Math.floor(Math.random() * (max - 1));
+        if (randomPeerIndex > interested.size() - 1)
+            randomPeerIndex = interested.size() - 1;
+        optimisticallyUnchokedPeer = interested.get(randomPeerIndex);
         logger.onChangeOfOptimisticallyUnchokedNeighbor(optimisticallyUnchokedPeer);
-        return optimisticallyUnchokedPeer;
     }
 
     // returns true if the given id belongs to either a preffered peer or an optimistically unchoked peer
@@ -207,7 +217,7 @@ class peerProcess {
             return true;
         }
         for (Integer i : preferredNeighbors) {
-            if (id == i) {
+            if (i.equals(id)) {
                 return true;
             }
         }
@@ -248,6 +258,14 @@ class peerProcess {
             }
         }
         return false;
+    }
+
+    // this is only used for debugging. It prints the bitfield.
+    void printBitfield() {
+        for (Boolean b: bitfield) {
+            System.out.print(b ? "\u001B[31m" + "1" + "\u001B[0m" : "0");
+        }
+        System.out.println();
     }
 
     public static void main(String[] args) {
