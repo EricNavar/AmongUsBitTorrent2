@@ -451,6 +451,7 @@ public class Messages {
         }
 
         updateInterestedStatus(pp);
+        pp.printBitfield();
     }
 
     // Whenever a peer receives a piece completely, it checks the bitfields of 

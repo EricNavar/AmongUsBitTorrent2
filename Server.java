@@ -83,23 +83,19 @@ public class Server {
                     // the last element in the vector is the optimistically unchoked neighbor, so don't change that
                     for (int i = 0; i < pp.peerInfoVector.size(); i++) {
                         RemotePeerInfo rpi = pp.peerInfoVector.get(i);
-                        if (!pp.isNeighbor(rpi.getPeerId())) {
-                            if (!rpi.isChoked()) { // do not send choke message if it's already choked
-                                pp.messagesToSend.add(Messages.createChokeMessage());
-                                count++;
-                                if (connectedFrom == rpi.getPeerId()) {
-                                    rpi.setChoked(true);
-                                    sendMessageBB(pp.messagesToSend.get(count - 1));
-                                }
+                        if (!pp.isNeighbor(rpi.getPeerId()) && !rpi.isChoked()) { // don't send choke messages to processes that are already choked
+                            pp.messagesToSend.add(Messages.createChokeMessage());
+                            count++;
+                            if (connectedFrom == rpi.getPeerId()) {
+                                rpi.setChoked(true);
+                                sendMessageBB(pp.messagesToSend.get(count - 1));
                             }
-                        } else {
-                            if (rpi.isChoked()) { // do not send unchoke message if it's already unchoked
-                                pp.messagesToSend.add(Messages.createUnchokeMessage());
-                                count++;
-                                if (connectedFrom == rpi.getPeerId()) {
-                                    rpi.setChoked(false);
-                                    sendMessageBB(pp.messagesToSend.get(count - 1));
-                                }
+                        } else if (pp.isNeighbor(rpi.getPeerId()) && rpi.isChoked()) {// don't send unchoke messages to processes that are already unchoked
+                            pp.messagesToSend.add(Messages.createUnchokeMessage());
+                            count++;
+                            if (connectedFrom == rpi.getPeerId()) {
+                                rpi.setChoked(false);
+                                sendMessageBB(pp.messagesToSend.get(count - 1));
                             }
                         }
                     }

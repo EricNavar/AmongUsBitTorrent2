@@ -207,7 +207,7 @@ class peerProcess {
             return true;
         }
         for (Integer i : preferredNeighbors) {
-            if (id == i) {
+            if (i.equals(id)) {
                 return true;
             }
         }
@@ -248,6 +248,14 @@ class peerProcess {
             }
         }
         return false;
+    }
+
+    // this is only used for debugging. It prints the bitfield.
+    void printBitfield() {
+        for (Boolean b: bitfield) {
+            System.out.print(b ? "\u001B[31m" + "1" + "\u001B[0m" : "0");
+        }
+        System.out.println();
     }
 
     public static void main(String[] args) {
