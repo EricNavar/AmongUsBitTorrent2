@@ -260,7 +260,7 @@ public class Messages {
 
     private static void handleUnchokeMessage(peerProcess pp, int senderPeer) {
 
-        System.out.println(senderPeer + " unchoked " + pp.getPeerId());
+        System.out.println("Unchoked by " + pp.getPeerId());
 
         RemotePeerInfo sender = pp.getRemotePeerInfo(senderPeer);
         if (sender == null) {
@@ -360,8 +360,13 @@ public class Messages {
                     // break; // DO NOT Break, instead keep loading in and tracking the pieces this
                     // peer has in it's posession
                 }
-                pp.getRemotePeerInfo(senderPeer).getBitfield().set(i, true); // sets the index i to true of the peer
-                                                                             // that they have this piece
+                RemotePeerInfo rpi = pp.getRemotePeerInfo(senderPeer);
+                if (rpi == null) {
+                    System.out.println("ERROR: could not find peer info with id " + senderPeer);
+                    return;
+                }
+                // sets the index i to true of the peer that they have this piece
+                rpi.getBitfield().set(i, true);
             }
         }
         System.out.println("The interest of " + pp.getPeerId() + " is set to " + nowInterested);
@@ -440,7 +445,12 @@ public class Messages {
 
         }
 
-        pp.getRemotePeerInfo(senderPeer).incrementPiecesTransmitted();
+        RemotePeerInfo rpi = pp.getRemotePeerInfo(senderPeer);
+        if (rpi == null) {
+            System.out.println("ERROR: could not find peer info with id " + senderPeer);
+            return;
+        }
+        rpi.incrementPiecesTransmitted();
         // update the bitfield
         pp.getCurrBitfield().set(index, true);
         pp.incrementCollectedPieces();
@@ -458,11 +468,16 @@ public class Messages {
     // its neighbors and decides whether it should send ‘not interested’ messages to some neighbors.
     public static void updateInterestedStatus(peerProcess pp) {
         for (int neighborId : pp.preferredNeighbors) {
-            if (!pp.checkInterested(pp.getRemotePeerInfo(neighborId).getBitfield())) {
+            RemotePeerInfo preferredNeighbor = pp.getRemotePeerInfo(neighborId);
+            if (preferredNeighbor != null && !pp.checkInterested(preferredNeighbor.getBitfield())) {
                 pp.messagesToSend.add(createNotInterestedMessage());
             }
+            else if (preferredNeighbor == null) {
+                System.out.println("ERROR: could not find remote peer");
+            }
         }
-        if (!pp.checkInterested(pp.getRemotePeerInfo(pp.optimisticallyUnchokedPeer).getBitfield())) {
+        RemotePeerInfo optimisticallyUnchoked = pp.getRemotePeerInfo(pp.optimisticallyUnchokedPeer);
+        if (optimisticallyUnchoked != null && !pp.checkInterested(optimisticallyUnchoked.getBitfield())) {
             pp.messagesToSend.add(createNotInterestedMessage());
         }
     }

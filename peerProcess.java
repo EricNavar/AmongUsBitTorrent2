@@ -192,11 +192,11 @@ class peerProcess {
     // https://www.educative.io/edpresso/how-to-generate-random-numbers-in-java
     public int chooseOptimisticallyUnchokedPeer() {
         int min = 4;
-        int max = peerInfoVector.size();
+        int max = interested.size();
         int randomPeerIndex = (int) Math.floor(Math.random() * (max - min + 1) + min);
-        if (randomPeerIndex > peerInfoVector.size() - 1)
-            randomPeerIndex = peerInfoVector.size() - 1;
-        optimisticallyUnchokedPeer = peerInfoVector.get(randomPeerIndex).getPeerId();
+        if (randomPeerIndex > interested.size() - 1)
+            randomPeerIndex = interested.size() - 1;
+        optimisticallyUnchokedPeer = interested.get(randomPeerIndex);
         logger.onChangeOfOptimisticallyUnchokedNeighbor(optimisticallyUnchokedPeer);
         return optimisticallyUnchokedPeer;
     }
