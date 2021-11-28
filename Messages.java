@@ -244,7 +244,7 @@ public class Messages {
 
     // type 0
     private static void handleChokeMessage(peerProcess pp, int senderPeer) {
-        System.out.println("Choked by " + pp.getPeerId());
+        System.out.println("Choked by " + senderPeer);
 
         RemotePeerInfo sender = pp.getRemotePeerInfo(senderPeer);
         if (sender == null) {
@@ -295,6 +295,7 @@ public class Messages {
 
     // type 2
     private static void handleInterestedMessage(peerProcess pp, int senderPeer) {
+        System.out.println("Peer " + senderPeer + " is interested");
         Vector<Integer> interest = pp.getInterested();
         interest.add(senderPeer);
         pp.setInterested(interest);
@@ -304,7 +305,7 @@ public class Messages {
 
     // type 3
     private static void handleNotInterestedMessage(peerProcess pp, int senderPeer) {
-
+        System.out.println("Peer " + senderPeer + " is NOT interested");
         Vector<Integer> interest = pp.getInterested();
         for (int i = 0; i < interest.size(); i++) {
             if (interest.get(i) == senderPeer)
@@ -337,7 +338,7 @@ public class Messages {
     // type 5
     private static void handleBitfieldMessage(ByteBuffer IncomingMessage, peerProcess pp, int senderPeer, int length) {
         // if the payload is empty, then the sender has no pieces.
-
+        System.out.println("Received bitfield from " + senderPeer);
         boolean nowInterested = false;
         if (length == 0) {
             return;
@@ -376,16 +377,14 @@ public class Messages {
     }
 
     // type 6
-    private static void handleRequestMessage(peerProcess pp, int senderPeer, ByteBuffer IncomingMessage) { // a peer
-                                                                                                           // (senderPeer)
-                                                                                                           // has
-                                                                                                           // requested
-                                                                                                           // (payload)
-                                                                                                           // index
-                                                                                                           // message
+    private static void handleRequestMessage(peerProcess pp, int senderPeer, ByteBuffer IncomingMessage) {
+        // a peer (senderPeer) has requested (payload) index message
         FileHandling f = pp.getFileObject(); // DONE: if the receiver of the message has the piece, then send the piece
-        int index = GetRequestMessageIndex(IncomingMessage); // parse out the requestd item into an integer to look up
-                                                             // in the map structure
+
+        // parse out the requested item into an integer to look up in the map structure
+        int index = GetRequestMessageIndex(IncomingMessage);
+
+        System.out.println("Peer " + senderPeer + " has requested piece " + index);
 
         if (f.CheckForPieceNumber(index)) { // if we actually have this piece in the stored location...
             ByteBuffer ThePiece;

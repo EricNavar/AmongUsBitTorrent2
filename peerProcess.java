@@ -144,8 +144,6 @@ class peerProcess {
             System.out.println("The process ID must be a positive integer");
         }
 
-        System.out.println("Process " + args[0]);
-
         return peerId;
     }
 
