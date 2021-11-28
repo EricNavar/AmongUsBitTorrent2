@@ -399,7 +399,6 @@ public class Messages {
 
     // type 7
     private static void handlePieceMessage(peerProcess pp, int senderPeer, int length, ByteBuffer IncomingMessage) {
-        System.out.println("Receive piece message");
         Vector<Integer> missingPieces = new Vector<Integer>(); // Create a temporary vector to hold missing piece values
         for (int i = 0; i < pp.bitfield.size(); i++) { // walk the entire bitfield vector
             if (!pp.bitfield.get(i)) { // look for bitfields that are not true yet, so missing...
@@ -452,7 +451,7 @@ public class Messages {
         }
 
         updateInterestedStatus(pp);
-        pp.printBitfield();
+        //pp.printBitfield();
     }
 
     // Whenever a peer receives a piece completely, it checks the bitfields of

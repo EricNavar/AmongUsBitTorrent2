@@ -163,33 +163,51 @@ public class Client {
                 runUnchokingTimer();
                 runOptimisticallyUnchokedTimer();
 
+                // read in objects. The objects may be big and may not be totally transferred if
+                // we do in.read() as soon as something is available, so we need to check for this shit
                 while (in.available() > 0)
                     in.read();
+                int dataTransferred = 0;
+                ByteBuffer totalPiece = ByteBuffer.allocate(0);
+                boolean isReadingNewPiece = true;
+                int dataExpected = 0;
                 while (true) {
                     while (in.available() <= 0) {
                     }
                     try {
-
                         fromServer = new byte[in.available()];
                         in.read(fromServer);
                         buff = ByteBuffer.wrap(fromServer);
 
                         int pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
-
-                        for (int i = 0; i < pp.pieceMessages.size(); i++)
-                            sendMessageBB(pp.pieceMessages.get(i));
-
-                        pp.pieceMessages.clear();
-
-                        fromServer = new byte[in.available()];
-                        in.read(fromServer);
-                        buff = ByteBuffer.wrap(fromServer);
-
-                        if (Messages.GetMessageType(buff) > 7) {
-                            continue;
+                        // concat totalPiece and buff
+                        totalPiece = ByteBuffer.allocate(totalPiece.array().length + buff.array().length).put(totalPiece).put(buff);
+                        dataTransferred += fromServer.length;
+                        if (isReadingNewPiece) {
+                            dataExpected = Messages.GetMessageLength(buff);
                         }
 
-                        pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
+                        if (dataTransferred < dataExpected) {
+                            //System.out.println("Received partial piece. Data transferred: " + dataTransferred + ". data expected: " + dataExpected);
+                            isReadingNewPiece = false;
+                            continue;
+                        }
+                        isReadingNewPiece = true;
+                        //System.out.println("Received complete piece");
+                        for (int i = 0; i < pp.pieceMessages.size(); i++) {
+                            sendMessageBB(pp.pieceMessages.get(i));
+                        }
+                        pp.pieceMessages.clear();
+
+                        // fromServer = new byte[in.available()];
+                        // in.read(fromServer);
+                        // buff = ByteBuffer.wrap(fromServer);
+
+                        // if (Messages.GetMessageType(buff) > 7) {
+                        //     continue;
+                        // }
+
+                        pieceMsg = Messages.decodeMessage(totalPiece, pp, connectedToPeerId);
 
                         while (in.available() > 0) {
                             in.read();
