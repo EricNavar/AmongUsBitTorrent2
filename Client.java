@@ -56,7 +56,7 @@ public class Client {
                             pp.messagesToSend.add(Messages.createUnchokeMessage());
                             count++;
                             if (connectedToPeerId == rpi.getPeerId()) {
-                                //System.out.println("Setting peer " + rpi.getPeerId() + " to be a preferred neighbor");
+                                System.out.println("Setting peer " + rpi.getPeerId() + " to be a preferred neighbor");
                                 rpi.setChoked(false);
                                 sendMessageBB(pp.messagesToSend.get(count - 1));
                             }
@@ -77,11 +77,14 @@ public class Client {
             public void run() {
                 try {
                     pp.chooseOptimisticallyUnchokedPeer();
+                    if (pp.optimisticallyUnchokedPeer == -1) {
+                        return;
+                    }
                     RemotePeerInfo rpi = pp.getRemotePeerInfo(pp.optimisticallyUnchokedPeer);
                     pp.messagesToSend.clear();
                     pp.messagesToSend.add(Messages.createUnchokeMessage());
                     if (connectedToPeerId == rpi.getPeerId()) {
-                        //System.out.println("Optimistically unchoking " + rpi.getPeerId());
+                        System.out.println("Optimistically unchoking " + rpi.getPeerId());
                         rpi.setChoked(false);
                         sendMessageBB(pp.messagesToSend.get(0));
                     }

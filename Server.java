@@ -87,6 +87,7 @@ public class Server {
                             if (connectedFrom == rpi.getPeerId()) {
                                 pp.messagesToSend.add(Messages.createChokeMessage());
                                 count++;
+                                System.out.println("Choking peer " + rpi.getPeerId());
                                 rpi.setChoked(true);
                                 sendMessageBB(pp.messagesToSend.get(count - 1));
                             }
@@ -94,6 +95,7 @@ public class Server {
                                 pp.messagesToSend.add(Messages.createUnchokeMessage());
                                 count++;
                                 if (connectedFrom == rpi.getPeerId()) {
+                                System.out.println("Unchoking peer " + rpi.getPeerId());
                                 rpi.setChoked(false);
                                 sendMessageBB(pp.messagesToSend.get(count - 1));
                             }
@@ -114,14 +116,17 @@ public class Server {
                 public void run() {
                     try {
                         pp.chooseOptimisticallyUnchokedPeer();
+                        if (pp.optimisticallyUnchokedPeer == -1) {
+                            return;
+                        }
                         RemotePeerInfo rpi = pp.getRemotePeerInfo(pp.optimisticallyUnchokedPeer);
                         pp.messagesToSend.clear();
                         pp.messagesToSend.add(Messages.createUnchokeMessage());
                         if (connectedFrom == rpi.getPeerId()) {
+                            System.out.println("Optimistically unchoking peer " + rpi.getPeerId());
                             rpi.setChoked(false);
                             sendMessageBB(pp.messagesToSend.get(0));
                         }
-    
                     } catch (Exception e) {
                     }
                 }
@@ -148,7 +153,7 @@ public class Server {
                 ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.peerId);
                 sendMessageBB(messageToSend);
 
-                System.out.println("I am peer " + pp.getPeerId() + "(server) and I am connected to " + connectedFrom);
+                System.out.println("I am peer " + pp.getPeerId() + " (server) and I am connected to " + connectedFrom);
 
                 // receive bitfield message
 
@@ -175,9 +180,9 @@ public class Server {
 
                 int interestedRes = Messages.decodeMessage(buff, pp, connectedFrom);
 
-                System.out.println("Peers interested in 1001: ");
+                System.out.print("Peers interested in 1001: ");
                 for (int i = 0; i < pp.interested.size(); i++) {
-                    System.out.println(pp.interested.get(i));
+                    System.out.println(pp.interested.get(i) + ", ");
                 }
 
                 // send interested/not interested

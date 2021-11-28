@@ -5,6 +5,7 @@ import java.util.Vector;
 //import java.net.*;
 //import java.io.*;
 import java.nio.*;
+import java.rmi.Remote;
 //import java.io.File;
 import java.util.*;
 
@@ -243,32 +244,27 @@ public class Messages {
 
     // type 0
     private static void handleChokeMessage(peerProcess pp, int senderPeer) {
-
-        System.out.println(senderPeer + " choked " + pp.getPeerId());
+        System.out.println("Choked by " + pp.getPeerId());
 
         RemotePeerInfo sender = pp.getRemotePeerInfo(senderPeer);
         if (sender == null) {
             System.out.println("remote peer with id " + senderPeer + " info not found");
             return;
         }
-        sender.setChoked(true);
 
         pp.logger.onChoking(senderPeer);
     }
 
     // type 1
-
     private static void handleUnchokeMessage(peerProcess pp, int senderPeer) {
 
-        System.out.println("Unchoked by " + pp.getPeerId());
+        System.out.println("Unchoked by " + senderPeer);
 
         RemotePeerInfo sender = pp.getRemotePeerInfo(senderPeer);
         if (sender == null) {
             System.out.println("remote peer with id " + senderPeer + " info not found");
             return;
         }
-
-        sender.setChoked(false);
 
         pp.logger.onUnchoking(senderPeer);
         // DONE: request a random piece that the sender has and the receiver doesn't
@@ -369,7 +365,7 @@ public class Messages {
                 rpi.getBitfield().set(i, true);
             }
         }
-        System.out.println("The interest of " + pp.getPeerId() + " is set to " + nowInterested);
+        System.out.println("The interest of " + pp.getPeerId() + " in " + senderPeer + " is set to " + nowInterested);
 
         if (nowInterested) {
             pp.messagesToSend.add(Messages.createInterestedMessage());
@@ -476,9 +472,11 @@ public class Messages {
                 System.out.println("ERROR: could not find remote peer");
             }
         }
-        RemotePeerInfo optimisticallyUnchoked = pp.getRemotePeerInfo(pp.optimisticallyUnchokedPeer);
-        if (optimisticallyUnchoked != null && !pp.checkInterested(optimisticallyUnchoked.getBitfield())) {
-            pp.messagesToSend.add(createNotInterestedMessage());
+        if (pp.optimisticallyUnchokedPeer != -1) {
+            RemotePeerInfo optimisticallyUnchoked = pp.getRemotePeerInfo(pp.optimisticallyUnchokedPeer);
+            if (optimisticallyUnchoked != null && !pp.checkInterested(optimisticallyUnchoked.getBitfield())) {
+                pp.messagesToSend.add(createNotInterestedMessage());
+            }
         }
     }
 
