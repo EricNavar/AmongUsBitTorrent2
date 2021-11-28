@@ -30,8 +30,9 @@ public class Client {
         this.pp = pp;
     }
 
-    // Timer for unchoking the neighbors who send the most data. Optimistically unchoked neighbors is unchoked 
-    //     in the runOptimisticallyUnchokedTimer()
+    // Timer for unchoking the neighbors who send the most data. Optimistically
+    // unchoked neighbors is unchoked
+    // in the runOptimisticallyUnchokedTimer()
     private void runUnchokingTimer() {
         // Every 5 seconds, recalculate the preferred neighbors
         Timer timer = new Timer();
@@ -44,7 +45,8 @@ public class Client {
                     int count = 0;
                     for (int i = 0; i < pp.peerInfoVector.size(); i++) {
                         RemotePeerInfo rpi = pp.peerInfoVector.get(i);
-                        if (!pp.isNeighbor(rpi.getPeerId()) && !rpi.isChoked()) { // do not send choke message if it's already choked
+                        if (!pp.isNeighbor(rpi.getPeerId()) && !rpi.isChoked()) { // do not send choke message if it's
+                                                                                  // already choked
                             pp.messagesToSend.add(Messages.createChokeMessage());
                             count++;
                             if (connectedToPeerId == rpi.getPeerId()) {
@@ -52,7 +54,7 @@ public class Client {
                                 rpi.setChoked(true);
                                 sendMessageBB(pp.messagesToSend.get(count - 1));
                             }
-                        } else if (pp.isNeighbor(rpi.getPeerId()) && rpi.isChoked()){
+                        } else if (pp.isNeighbor(rpi.getPeerId()) && rpi.isChoked()) {
                             pp.messagesToSend.add(Messages.createUnchokeMessage());
                             count++;
                             if (connectedToPeerId == rpi.getPeerId()) {
@@ -106,7 +108,6 @@ public class Client {
             out = new ObjectOutputStream(requestSocket.getOutputStream());
             out.flush();
             in = new ObjectInputStream(requestSocket.getInputStream());
-
 
             // create handshake message and send to server
             ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.getPeerId());
@@ -180,16 +181,15 @@ public class Client {
 
                         pp.pieceMessages.clear();
 
-                            fromServer = new byte[in.available()];
-                            in.read(fromServer);
-                            buff = ByteBuffer.wrap(fromServer);
+                        fromServer = new byte[in.available()];
+                        in.read(fromServer);
+                        buff = ByteBuffer.wrap(fromServer);
 
-                            if (Messages.GetMessageType(buff) > 7) {
-                                continue;
-                            }
+                        if (Messages.GetMessageType(buff) > 7) {
+                            continue;
+                        }
 
-                            pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
-
+                        pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
 
                         while (in.available() > 0) {
                             in.read();

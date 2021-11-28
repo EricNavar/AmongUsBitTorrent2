@@ -1,8 +1,8 @@
 import java.util.Vector;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;  
-import java.time.LocalDateTime;    
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 
 class Logger {
     int peerID;
@@ -22,8 +22,8 @@ class Logger {
     }
 
     private static String getDate() {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
-        LocalDateTime now = LocalDateTime.now();  
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
         return dtf.format(now);
     }
 
@@ -36,7 +36,8 @@ class Logger {
     }
 
     public void onChangeOfPreferredNeighbors(Vector<Integer> preferredNeighbors) {
-        StringBuilder toPrint = new StringBuilder(getDate() + ": Peer " + this.peerID + " has the preferred neighbors ");
+        StringBuilder toPrint = new StringBuilder(
+                getDate() + ": Peer " + this.peerID + " has the preferred neighbors ");
         for (int i = 0; i < preferredNeighbors.size(); i++) {
             if (i != 0) {
                 toPrint.append(", ");
@@ -56,7 +57,8 @@ class Logger {
         log(getDate() + ": Peer " + this.peerID + " is unchoked by " + peerID2 + ".\n");
     }
 
-    // choke me plz, well... at least we didn't throw four interceptions this week...
+    // choke me plz, well... at least we didn't throw four interceptions this
+    // week...
     public void onChoking(int peerID2) {
         log(getDate() + ": Peer " + this.peerID + " is choked by " + peerID2 + ".\n");
     }
@@ -97,6 +99,7 @@ class Logger {
             System.out.println("IO Exception");
         }
     }
+
     public void logPiece(String toPrint) {
         // file directory would change based on windows or linux
         // need to specify full directory path

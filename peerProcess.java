@@ -96,7 +96,7 @@ class peerProcess {
             numberOfPreferredNeighbors = Integer.valueOf(fileLines.get(0).split(" ")[1]);
             unchokingInterval = Integer.valueOf(fileLines.get(1).split(" ")[1]);
             optimisticUnchokingInterval = Integer.valueOf(fileLines.get(2).split(" ")[1]);
-            fileName = fileLines.get(3).split(" ")[1];            
+            fileName = fileLines.get(3).split(" ")[1];
             fileSize = Integer.valueOf(fileLines.get(4).split(" ")[1]);
             pieceSize = Integer.valueOf(fileLines.get(5).split(" ")[1]);
         } catch (Exception e) {
@@ -164,7 +164,8 @@ class peerProcess {
         }
     }
 
-    // Calculate the peers sending the most data. The optimistically unchoked neighbor is calculated at a different interval in Common.cfg
+    // Calculate the peers sending the most data. The optimistically unchoked
+    // neighbor is calculated at a different interval in Common.cfg
     public void calculatePreferredNeighbors() {
         preferredNeighbors.clear();
         // Sort the vector of peers
@@ -192,7 +193,8 @@ class peerProcess {
     // sorted by pieces transmitted, so choose any peer other than the first 4
     // https://www.educative.io/edpresso/how-to-generate-random-numbers-in-java
     public void chooseOptimisticallyUnchokedPeer() {
-        // this is the vector of peers to consider. It's the peers that are in interested but not already in preferredNeighbors
+        // this is the vector of peers to consider. It's the peers that are in
+        // interested but not already in preferredNeighbors
         Vector<Integer> toConsider = new Vector<Integer>();
         for (Integer i : interested) {
             if (!preferredNeighbors.contains(i)) {
@@ -211,7 +213,8 @@ class peerProcess {
         logger.onChangeOfOptimisticallyUnchokedNeighbor(optimisticallyUnchokedPeer);
     }
 
-    // returns true if the given id belongs to either a preffered peer or an optimistically unchoked peer
+    // returns true if the given id belongs to either a preffered peer or an
+    // optimistically unchoked peer
     public boolean isNeighbor(int id) {
         if (id == optimisticUnchokingInterval) {
             return true;
@@ -262,7 +265,7 @@ class peerProcess {
 
     // this is only used for debugging. It prints the bitfield.
     void printBitfield() {
-        for (Boolean b: bitfield) {
+        for (Boolean b : bitfield) {
             System.out.print(b ? "\u001B[31m" + "1" + "\u001B[0m" : "0");
         }
         System.out.println();

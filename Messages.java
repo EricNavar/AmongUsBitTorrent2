@@ -460,15 +460,15 @@ public class Messages {
         pp.printBitfield();
     }
 
-    // Whenever a peer receives a piece completely, it checks the bitfields of 
-    // its neighbors and decides whether it should send ‘not interested’ messages to some neighbors.
+    // Whenever a peer receives a piece completely, it checks the bitfields of
+    // its neighbors and decides whether it should send ‘not interested’ messages to
+    // some neighbors.
     public static void updateInterestedStatus(peerProcess pp) {
         for (int neighborId : pp.preferredNeighbors) {
             RemotePeerInfo preferredNeighbor = pp.getRemotePeerInfo(neighborId);
             if (preferredNeighbor != null && !pp.checkInterested(preferredNeighbor.getBitfield())) {
                 pp.messagesToSend.add(createNotInterestedMessage());
-            }
-            else if (preferredNeighbor == null) {
+            } else if (preferredNeighbor == null) {
                 System.out.println("ERROR: could not find remote peer");
             }
         }
