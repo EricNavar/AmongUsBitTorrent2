@@ -11,11 +11,27 @@ import java.io.IOException;
 
 public class Client {
     Socket requestSocket; // socket connect to the server
+    Socket nextSock; // socket connect to the server
+    Socket nextSock2; // socket connect to the server
+    Socket nextSock3; // socket connect to the server
+
     ObjectOutputStream out; // stream write to the socket
     ObjectInputStream in; // stream read from the socket
+    ObjectOutputStream out1; // stream write to the socket
+    ObjectInputStream in1; // stream read from the socket
+    ObjectOutputStream out2; // stream write to the socket
+    ObjectInputStream in2; // stream read from the socket
+    ObjectOutputStream out3; // stream write to the socket
+    ObjectInputStream in3; // stream read from the socket
+
     byte[] fromServer; // capitalized message read from the server
     int peerID;
     int connectedToPeerId;
+    int originalId;
+    int newId1;
+    int newId2;
+    int newId3;
+
     // String bitfieldHandshake;
     // FileHandling handler;
 
@@ -104,10 +120,31 @@ public class Client {
 
             requestSocket = new Socket("localhost", pp.getPortNumber());
             System.out.println("Connected to localhost " + pp.getPortNumber());
+            nextSock = new Socket("localhost", 1002);
+            System.out.println("Connected to localhost " + 1002);
+            nextSock2 = new Socket("localhost", 1003);
+            System.out.println("Connected to localhost " + 1003);
+            nextSock3 = new Socket("localhost", 1004);
+            System.out.println("Connected to localhost " + 1004);
+
+
             // initialize inputStream and outputStream
             out = new ObjectOutputStream(requestSocket.getOutputStream());
             out.flush();
             in = new ObjectInputStream(requestSocket.getInputStream());
+
+            out1 = new ObjectOutputStream(nextSock.getOutputStream());
+            out1.flush();
+            in1 = new ObjectInputStream(nextSock.getInputStream());
+
+            out2 = new ObjectOutputStream(nextSock2.getOutputStream());
+            out2.flush();
+            in2 = new ObjectInputStream(nextSock2.getInputStream());
+
+            out3 = new ObjectOutputStream(nextSock3.getOutputStream());
+            out3.flush();
+            in3 = new ObjectInputStream(nextSock3.getInputStream());
+
 
             // create handshake message and send to server
             ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.getPeerId());
@@ -127,6 +164,7 @@ public class Client {
                 connectedToPeerId = Messages.decodeMessage(buff, pp, -1);
                 pp.logger.onConnectingTo(connectedToPeerId);
                 System.out.println("I am peer " + pp.getPeerId() + " and I am connected to " + connectedToPeerId);
+                originalId = connectedToPeerId;
 
                 // send bitfield to server
                 messageToSend = Messages.createBitfieldMessage(pp.getCurrBitfield());
@@ -153,12 +191,7 @@ public class Client {
                 buff = ByteBuffer.wrap(fromServer);
                 int interestMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
 
-                System.out.println("Peers interested in 1002:");
-
-                // print out any peers interested in 1002
-                for (int i = 0; i < pp.interested.size(); i++) {
-                    System.out.print(pp.interested.get(i) + ", ");
-                }
+              
                 pp.messagesToSend.clear();
                 runUnchokingTimer();
                 runOptimisticallyUnchokedTimer();
@@ -171,13 +204,53 @@ public class Client {
                 ByteBuffer totalPiece = ByteBuffer.allocate(0);
                 boolean isReadingNewPiece = true;
                 int dataExpected = 0;
+                int pieceMsg=0;
+
+
                 while (true) {
+                    while(in1.available() > 0)
+                    {
+                        fromServer = new byte[in1.available()];
+                        in1.read(fromServer);
+                        buff = ByteBuffer.wrap(fromServer);
+                        if (buff.remaining() >= 32) {
+                            newId1 =Messages.decodeMessage(buff, pp, -1);
+                        }
+                        pieceMsg = Messages.decodeMessage(buff, pp, newId1);
+
+                    }
+                    while(in2.available() > 0)
+                    {
+                        fromServer = new byte[in2.available()];
+                        in2.read(fromServer);
+                        buff = ByteBuffer.wrap(fromServer);
+                        if (buff.remaining() >= 32) {
+                            newId2 =Messages.decodeMessage(buff, pp, -1);
+                        }
+                        pieceMsg = Messages.decodeMessage(buff, pp, newId2);
+
+                    }
+                    while(in3.available() > 0)
+                    {
+                        fromServer = new byte[in3.available()];
+                        in3.read(fromServer);
+                        buff = ByteBuffer.wrap(fromServer);
+                        if (buff.remaining() >= 32) {
+                            newId3 =Messages.decodeMessage(buff, pp, -1);
+                        }
+                        pieceMsg = Messages.decodeMessage(buff, pp, newId3);
+
+                    }
                     while (in.available() <= 0) {
                     }
                     try {
+
+                        connectedToPeerId = originalId;
+
                         fromServer = new byte[in.available()];
                         in.read(fromServer);
                         buff = ByteBuffer.wrap(fromServer);
+
 
                         int pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
                         // concat totalPiece and buff
@@ -186,6 +259,7 @@ public class Client {
                         if (isReadingNewPiece) {
                             dataExpected = Messages.GetMessageLength(buff);
                         }
+
 
                         if (dataTransferred < dataExpected) {
                             //System.out.println("Received partial piece. Data transferred: " + dataTransferred + ". data expected: " + dataExpected);
@@ -198,7 +272,6 @@ public class Client {
                             sendMessageBB(pp.pieceMessages.get(i));
                         }
                         pp.pieceMessages.clear();
-
                         // fromServer = new byte[in.available()];
                         // in.read(fromServer);
                         // buff = ByteBuffer.wrap(fromServer);
@@ -209,9 +282,16 @@ public class Client {
 
                         pieceMsg = Messages.decodeMessage(totalPiece, pp, connectedToPeerId);
 
-                        while (in.available() > 0) {
-                            in.read();
+
+                        for (int i = 0; i < pp.messagesToSend.size(); i++) {
+                            sendMessageBB(pp.messagesToSend.get(i));
                         }
+                        pp.messagesToSend.clear();
+                        
+
+
+
+
                     } catch (Exception e) {
                     }
                 }
@@ -229,7 +309,17 @@ public class Client {
             try {
                 in.close();
                 out.close();
+                in1.close();
+                out1.close();
+                in2.close();
+                out2.close();
+                in3.close();
+                out3.close();
                 requestSocket.close();
+                nextSock.close();
+                nextSock2.close();
+                nextSock3.close();
+
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
@@ -258,4 +348,15 @@ public class Client {
             ioException.printStackTrace();
         }
     }
+    void sendMessageOther(ByteBuffer msg) {
+        try {
+            // stream write the message
+            out1.write(msg.array());
+            out1.flush();
+
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+    }
+
 }

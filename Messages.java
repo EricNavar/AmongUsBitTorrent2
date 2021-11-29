@@ -368,6 +368,7 @@ public class Messages {
             pp.messagesToSend.add(Messages.createInterestedMessage());
         } else {
             pp.messagesToSend.add(Messages.createNotInterestedMessage());
+
         }
         return;
     }
