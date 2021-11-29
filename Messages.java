@@ -438,13 +438,18 @@ public class Messages {
             return;
         }
         rpi.incrementPiecesTransmitted();
+        // it may be the case that the peer already has the piece, so it's not new.
+        boolean isNewPiece = pp.getCurrBitfield().get(index);
         // update the bitfield
         pp.getCurrBitfield().set(index, true);
-        pp.incrementCollectedPieces();
+        if (isNewPiece) {
+            pp.incrementCollectedPieces();
+        }
         pp.logger.onDownloadingAPiece(senderPeer, index, pp.getCollectedPieces());
         // log if this process now has the entire file
         if (pp.hasFile()) {
             pp.logger.onCompletionOfDownload();
+            System.out.println("No longer interested");
             pp.messagesToSend.add(createNotInterestedMessage());
             pp.pieceMessages.clear();
         }

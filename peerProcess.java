@@ -46,9 +46,14 @@ class peerProcess {
 
     public void incrementCollectedPieces() {
         collectedPieces++;
-        if (collectedPieces == totalPieces) {
-            hasFile = true;
+        boolean hasFileFlag = true;
+        for (Boolean b: bitfield) {
+            if (!b) {
+                hasFileFlag = false;
+                break;
+            }
         }
+        hasFile = hasFileFlag;
     }
 
     public int getPortNumber() {
