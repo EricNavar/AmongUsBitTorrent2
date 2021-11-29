@@ -13,6 +13,8 @@ import java.nio.*;
 
 //TODO: 1002 is receiving too much data. It goes on forever and peer_1002 gets bigger than peer_1001/thefile
 //TODO: question: Do we have to consider the case where 1002 runs before 1001? The graders may expect it.
+//TODO: the last 5 pieces are not being downloaded. 1002 is requesting them and 1001 is sending them, but 1001 receives them and thinks they are piece 0.
+//TODO: Check if the client is sending the bitfield to the server
 
 class peerProcess {
     protected int unchokingInterval;
@@ -272,11 +274,13 @@ class peerProcess {
     }
 
     // this is only used for debugging. It prints the bitfield.
-    void printBitfield() {
-        for (Boolean b : bitfield) {
-            System.out.print(b ? "\u001B[31m" + "1" + "\u001B[0m" : "\u001B[34m" + "0" + "\u001B[0m");
+    String printBitfield(Vector<Boolean> bf) {
+        StringBuilder s = new StringBuilder("");
+        for (Boolean b : bf) {
+            //s.append(b ? "\u001B[31m" + "1" + "\u001B[0m" : "\u001B[34m" + "0" + "\u001B[0m");
+            s.append(b ? 1 : 0);
         }
-        System.out.println();
+        return s.toString();
     }
 
     public int randomMissingPiece() {

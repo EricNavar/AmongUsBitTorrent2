@@ -54,6 +54,7 @@ public class Client {
         timer.schedule(new TimerTask() {
             public void run() {
                 sendMessageBB(Messages.createRequestMessage(pp.randomMissingPiece()));
+                pp.logger.log("Pieces: " + pp.getCollectedPieces()  + "/" + pp.totalPieces + "\n");
             }
 
         }, 0, pp.unchokingInterval * 1000);
@@ -312,17 +313,6 @@ public class Client {
     }
 
     // send a message to the output stream
-    void sendMessage(String msg) {
-        try {
-            // stream write the message
-            out.writeObject(msg);
-            out.flush();
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
-    }
-
-    // send a message to the output stream
     void sendMessageBB(ByteBuffer msg) {
         try {
             // stream write the message
@@ -333,6 +323,7 @@ public class Client {
             ioException.printStackTrace();
         }
     }
+    
     void sendMessageOther(ByteBuffer msg) {
         try {
             // stream write the message

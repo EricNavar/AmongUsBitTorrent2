@@ -148,7 +148,6 @@ public class Messages {
     }
 
     public static ByteBuffer createPieceMessage(ByteBuffer payload, int PieceNumber, int PieceLength) {
-
         ByteBuffer MessageAssembly = ByteBuffer.allocate(65536); // Message is 9 bytes
         // length is equal to 1 (message type) + 4 (piece index size) + piece size (bytes)
         MessageAssembly.putInt(PieceLength + 5);
@@ -315,7 +314,7 @@ public class Messages {
     // type 5
     private static void handleBitfieldMessage(ByteBuffer IncomingMessage, peerProcess pp, int senderPeer, int length) {
         // if the payload is empty, then the sender has no pieces.
-        //System.out.println("Received bitfield from " + senderPeer);
+        pp.logger.log( "Received bitfield from " + senderPeer + ": " + pp.printBitfield(pp.getRemotePeerInfo(senderPeer).getBitfield()) );
         boolean nowInterested = false;
         if (length == 0) {
             return;
@@ -371,6 +370,7 @@ public class Messages {
             ThePiece = pp.FileObject.MakeCopyPieceByteBuffer(index);
             // get a copy of the piece
             ThePieceLength = pp.FileObject.GetPieceSize(index); // get the piece's length
+		    pp.logger.log("Send piece " + index + "\n"); //debug log. Remove this later.
             ByteBuffer toSend = createPieceMessage(ThePiece, index, ThePieceLength);
             pp.pieceMessages.add(toSend); // send the piece
         } else {
@@ -406,12 +406,12 @@ public class Messages {
 
         RemotePeerInfo rpi = pp.getRemotePeerInfo(senderPeer);
         if (rpi == null) {
-            //System.out.println("ERROR: could not find peer info with id " + senderPeer);
+            pp.logger.log("ERROR: could not find peer info with id " + senderPeer);
             return;
         }
         rpi.incrementPiecesTransmitted();
         // it may be the case that the peer already has the piece, so it's not new.
-        boolean isNewPiece = pp.getCurrBitfield().get(index);
+        boolean isNewPiece = !pp.getCurrBitfield().get(index);
         // update the bitfield
         pp.getCurrBitfield().set(index, true);
         if (isNewPiece) {
@@ -427,7 +427,7 @@ public class Messages {
         }
 
         updateInterestedStatus(pp);
-        pp.printBitfield();
+        pp.logger.log(pp.printBitfield(pp.bitfield) + "\n");
     }
 
     // Whenever a peer receives a piece completely, it checks the bitfields of

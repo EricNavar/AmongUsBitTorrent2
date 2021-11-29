@@ -179,7 +179,6 @@ public class Server {
         }
 
         private void serverLoop() throws ClassNotFoundException, IOException {
-
             // https://stackoverflow.com/ques1tions/2702980/java-loop-every-minute
 
             while (true) {
@@ -365,13 +364,8 @@ public class Server {
             }
         }
 
-        // try to handshake with processes that have the file
-        // for (Integer i : haveFile) {
-        // String messageToSend = createHandshakeMessage(peerId);
-        // // new Handler(listener.accept(), peerId).sendMessage(messageToSend);
-        // }
-
         public void run() {
+            System.out.println("bitfield size: " + pp.bitfield.size());
             try {
                 // initialize Input and Output streams
                 out = new ObjectOutputStream(connection.getOutputStream());
