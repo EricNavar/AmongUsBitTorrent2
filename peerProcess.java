@@ -37,7 +37,7 @@ class peerProcess {
     Vector<Integer> interested = new Vector<Integer>(0);
     Vector<ByteBuffer> messagesToSend = new Vector<ByteBuffer>(0);
     Vector<ByteBuffer> pieceMessages = new Vector<ByteBuffer>(0);
-    Logger logger;
+    public Logger logger;
     Client client;
     Server server;
     Messages message;
@@ -272,6 +272,21 @@ class peerProcess {
             System.out.print(b ? "\u001B[31m" + "1" + "\u001B[0m" : "\u001B[34m" + "0" + "\u001B[0m");
         }
         System.out.println();
+    }
+
+    public int randomMissingPiece() {
+        Vector<Integer> missingPieces = new Vector<Integer>(); // Create a temporary vector to hold missing piece values
+        for (int i = 0; i < bitfield.size(); i++) { // walk the entire bitfield vector
+            if (!bitfield.get(i)) { // look for bitfields that are not true yet, so missing...
+                missingPieces.add(i); // add them to the missing piecese collection
+            }
+        }
+
+        int missingPieceIndex = (int) Math.floor(Math.random() * (missingPieces.size()));
+        int askForPiece = 0;
+        if (missingPieceIndex < missingPieces.size() - 1)
+            askForPiece = missingPieces.get(missingPieceIndex);
+        return askForPiece;
     }
 
     public static void main(String[] args) {

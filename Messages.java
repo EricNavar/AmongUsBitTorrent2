@@ -78,6 +78,7 @@ public class Messages {
     // not include length" but guessing it does
     // include the message type as part of the message.
     public static ByteBuffer createNotInterestedMessage() {
+        System.out.println("Sending not interested message");
         ByteBuffer MessageAssembly = ByteBuffer.allocate(5); // Message is 5 bytes
         MessageAssembly.putInt(1); // length is equal to 1
         MessageAssembly.put(encodeType(MessageType.NOT_INTERESTED.ordinal()));
@@ -265,22 +266,7 @@ public class Messages {
         pp.logger.onUnchoking(senderPeer);
         // DONE: request a random piece that the sender has and the receiver doesn't
 
-        Vector<Integer> missingPieces = new Vector<Integer>(); // Create a temporary vector to hold missing piece values
-        for (int i = 0; i < pp.bitfield.size(); i++) { // walk the entire bitfield vector
-            if (!pp.bitfield.get(i)) { // look for bitfields that are not true yet, so missing...
-                missingPieces.add(i); // add them to the missing piecese collection
-            }
-        }
-
-
-        int missingPieceIndex = (int) Math.floor(Math.random() * (pp.bitfield.size()));
-        int askForPiece = 0;
-        if (missingPieceIndex < missingPieces.size() - 1)
-            askForPiece = missingPieces.get(missingPieceIndex);
-        else
-            return;
-
-        pp.pieceMessages.add(createRequestMessage(askForPiece));
+        pp.pieceMessages.add(createRequestMessage(pp.randomMissingPiece()));
         // ask for this piece
     }
 
@@ -376,7 +362,7 @@ public class Messages {
         // parse out the requested item into an integer to look up in the map structure
         int index = GetRequestMessageIndex(IncomingMessage);
 
-        //System.out.println("Peer " + senderPeer + " has requested piece " + index);
+        pp.logger.log("Peer " + senderPeer + " has requested piece " + index + "\n"); // debug statement. remove this later.
 
         if (f.CheckForPieceNumber(index)) { // if we actually have this piece in the stored location...
             ByteBuffer ThePiece;
@@ -396,22 +382,8 @@ public class Messages {
     // type 7
     private static void handlePieceMessage(peerProcess pp, int senderPeer, int length, ByteBuffer IncomingMessage) {
         //System.out.println("Receive piece message");
-        Vector<Integer> missingPieces = new Vector<Integer>(); // Create a temporary vector to hold missing piece values
-        for (int i = 0; i < pp.bitfield.size(); i++) { // walk the entire bitfield vector
-            if (!pp.bitfield.get(i)) { // look for bitfields that are not true yet, so missing...
-                missingPieces.add(i); // add them to the missing piecese collection
 
-            }
-        }
-
-        int missingPieceIndex = (int) Math.floor(Math.random() * (pp.bitfield.size()));
-        int askForPiece = 0;
-        if (missingPieceIndex < missingPieces.size() - 1)
-            askForPiece = missingPieces.get(missingPieceIndex);
-        else {
-        }
-
-        pp.pieceMessages.add(createRequestMessage(askForPiece));
+        pp.pieceMessages.add(createRequestMessage(pp.randomMissingPiece()));
         int index = GetPieceMessageNumber(IncomingMessage);
         // Done: write the piece to a file (wherever it should be written, idk) See
         // Below, handles logging of the received piece
@@ -465,6 +437,7 @@ public class Messages {
         for (int neighborId : pp.preferredNeighbors) {
             RemotePeerInfo preferredNeighbor = pp.getRemotePeerInfo(neighborId);
             if (preferredNeighbor != null && !pp.checkInterested(preferredNeighbor.getBitfield())) {
+                System.out.println("Not interested anymore");
                 pp.messagesToSend.add(createNotInterestedMessage());
             } else if (preferredNeighbor == null) {
                 //System.out.println("ERROR: could not find remote peer");
