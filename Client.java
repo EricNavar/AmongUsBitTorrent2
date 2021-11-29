@@ -46,6 +46,19 @@ public class Client {
         this.pp = pp;
     }
 
+    // Sometimes the program just stops, so I'm making this timer to see if 
+    // requesting another piece every second will keep things running
+    private void runRequestTimer() {
+        // Every 5 seconds, recalculate the preferred neighbors
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            public void run() {
+                sendMessageBB(Messages.createRequestMessage(pp.randomMissingPiece()));
+            }
+
+        }, 0, pp.unchokingInterval * 1000);
+    }
+
     // Timer for unchoking the neighbors who send the most data. Optimistically
     // unchoked neighbors is unchoked
     // in the runOptimisticallyUnchokedTimer()
@@ -89,7 +102,7 @@ public class Client {
     }
 
     private void runOptimisticallyUnchokedTimer() {
-        // Every 5 seconds, recalculate the preferred neighbors
+        // Every 10 seconds, recalculate the preferred neighbors
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             public void run() {
@@ -195,6 +208,7 @@ public class Client {
                 pp.messagesToSend.clear();
                 runUnchokingTimer();
                 runOptimisticallyUnchokedTimer();
+                runRequestTimer();
                 int pieceMsg=0;
               
                 while (true) {

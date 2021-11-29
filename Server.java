@@ -127,7 +127,8 @@ public class Server {
                             RemotePeerInfo rpi = pp.peerInfoVector.get(i);
                             if (!pp.isNeighbor(rpi.getPeerId())) {
                                 // do not send choke messages to processes that are already choked
-                                if (connectedFrom == rpi.getPeerId() && !rpi.isChoked()) {
+                                //pp.logger.log(rpi.getPeerId() + " is not a neighbor\n");
+                                if (connectedFrom == rpi.getPeerId() /*&& !rpi.isChoked()*/) {
                                     pp.messagesToSend.add(Messages.createChokeMessage());
                                     count++;
                                     //System.out.println("Choking peer " + rpi.getPeerId());
@@ -136,6 +137,7 @@ public class Server {
                                 }
                             } else{
                                 // do not send unchoke messages to processes that are already unchoked
+                                //pp.logger.log(rpi.getPeerId() + " is a neighbor\n");
                                 pp.messagesToSend.add(Messages.createUnchokeMessage());
                                 count++;
                                 if (connectedFrom == rpi.getPeerId() && rpi.isChoked()) {
