@@ -230,7 +230,7 @@ public class Messages {
     public static int handleHandshakeMessage(ByteBuffer IncomingBuffer) {
         // The peerID is 4 bytes, located at
         int handshakeFrom = GetHandshakePeerID(IncomingBuffer);
-        System.out.println("Received a Handshake Message from peer " + handshakeFrom);
+        //System.out.println("Received a Handshake Message from peer " + handshakeFrom);
         // System.out.println(" Message String was [" +
         // GetHandshakeString(IncomingBuffer) + "]");
         // System.out.println(" The first byte value is " + ParseByte(IncomingBuffer,
@@ -240,11 +240,11 @@ public class Messages {
 
     // type 0
     private static void handleChokeMessage(peerProcess pp, int senderPeer) {
-        System.out.println("Choked by " + senderPeer);
+        //System.out.println("Choked by " + senderPeer);
 
         RemotePeerInfo sender = pp.getRemotePeerInfo(senderPeer);
         if (sender == null) {
-            System.out.println("remote peer with id " + senderPeer + " info not found");
+            //System.out.println("remote peer with id " + senderPeer + " info not found");
             return;
         }
 
@@ -254,11 +254,11 @@ public class Messages {
     // type 1
     private static void handleUnchokeMessage(peerProcess pp, int senderPeer) {
 
-        System.out.println("Unchoked by " + senderPeer);
+        //System.out.println("Unchoked by " + senderPeer);
 
         RemotePeerInfo sender = pp.getRemotePeerInfo(senderPeer);
         if (sender == null) {
-            System.out.println("remote peer with id " + senderPeer + " info not found");
+            //System.out.println("remote peer with id " + senderPeer + " info not found");
             return;
         }
 
@@ -286,7 +286,7 @@ public class Messages {
 
     // type 2
     private static void handleInterestedMessage(peerProcess pp, int senderPeer) {
-        System.out.println("Peer " + senderPeer + " is interested");
+        //System.out.println("Peer " + senderPeer + " is interested");
         Vector<Integer> interest = pp.getInterested();
         interest.add(senderPeer);
         pp.setInterested(interest);
@@ -296,7 +296,7 @@ public class Messages {
 
     // type 3
     private static void handleNotInterestedMessage(peerProcess pp, int senderPeer) {
-        System.out.println("Peer " + senderPeer + " is NOT interested");
+        //System.out.println("Peer " + senderPeer + " is NOT interested");
         Vector<Integer> interest = pp.getInterested();
         for (int i = 0; i < interest.size(); i++) {
             if (interest.get(i) == senderPeer)
@@ -311,7 +311,7 @@ public class Messages {
         int index = GetHavePieceNumber(IncomingMessage);
         RemotePeerInfo sender = pp.getRemotePeerInfo(senderPeer);
         if (sender == null) {
-            System.out.println("getRemotePeer is null");
+            //System.out.println("getRemotePeer is null");
             return;
         }
         sender.getBitfield().set(index, true); // sets the index to true of the peer that they have this message
@@ -329,7 +329,7 @@ public class Messages {
     // type 5
     private static void handleBitfieldMessage(ByteBuffer IncomingMessage, peerProcess pp, int senderPeer, int length) {
         // if the payload is empty, then the sender has no pieces.
-        System.out.println("Received bitfield from " + senderPeer);
+        //System.out.println("Received bitfield from " + senderPeer);
         boolean nowInterested = false;
         if (length == 0) {
             return;
@@ -350,14 +350,14 @@ public class Messages {
                 }
                 RemotePeerInfo rpi = pp.getRemotePeerInfo(senderPeer);
                 if (rpi == null) {
-                    System.out.println("ERROR: could not find peer info with id " + senderPeer);
+                   // System.out.println("ERROR: could not find peer info with id " + senderPeer);
                     return;
                 }
                 // sets the index i to true of the peer that they have this piece
                 rpi.getBitfield().set(i, true);
             }
         }
-        System.out.println("The interest of " + pp.getPeerId() + " in " + senderPeer + " is set to " + nowInterested);
+        //System.out.println("The interest of " + pp.getPeerId() + " in " + senderPeer + " is set to " + nowInterested);
 
         if (nowInterested) {
             pp.messagesToSend.add(Messages.createInterestedMessage());
@@ -376,7 +376,7 @@ public class Messages {
         // parse out the requested item into an integer to look up in the map structure
         int index = GetRequestMessageIndex(IncomingMessage);
 
-        System.out.println("Peer " + senderPeer + " has requested piece " + index);
+        //System.out.println("Peer " + senderPeer + " has requested piece " + index);
 
         if (f.CheckForPieceNumber(index)) { // if we actually have this piece in the stored location...
             ByteBuffer ThePiece;
@@ -388,14 +388,14 @@ public class Messages {
             ByteBuffer toSend = createPieceMessage(ThePiece, index, ThePieceLength);
             pp.pieceMessages.add(toSend); // send the piece
         } else {
-            System.out.println("Some questionable character/actor identified as " + senderPeer + " asked for piece "
-                    + index + " but this peer known as " + pp.peerId + " does not have it...");
+            //System.out.println("Some questionable character/actor identified as " + senderPeer + " asked for piece "
+                    //+ index + " but this peer known as " + pp.peerId + " does not have it...");
         }
     }
 
     // type 7
     private static void handlePieceMessage(peerProcess pp, int senderPeer, int length, ByteBuffer IncomingMessage) {
-        System.out.println("Receive piece message");
+        //System.out.println("Receive piece message");
         Vector<Integer> missingPieces = new Vector<Integer>(); // Create a temporary vector to hold missing piece values
         for (int i = 0; i < pp.bitfield.size(); i++) { // walk the entire bitfield vector
             if (!pp.bitfield.get(i)) { // look for bitfields that are not true yet, so missing...
@@ -434,7 +434,7 @@ public class Messages {
 
         RemotePeerInfo rpi = pp.getRemotePeerInfo(senderPeer);
         if (rpi == null) {
-            System.out.println("ERROR: could not find peer info with id " + senderPeer);
+            //System.out.println("ERROR: could not find peer info with id " + senderPeer);
             return;
         }
         rpi.incrementPiecesTransmitted();
@@ -462,7 +462,7 @@ public class Messages {
             if (preferredNeighbor != null && !pp.checkInterested(preferredNeighbor.getBitfield())) {
                 pp.messagesToSend.add(createNotInterestedMessage());
             } else if (preferredNeighbor == null) {
-                System.out.println("ERROR: could not find remote peer");
+                //System.out.println("ERROR: could not find remote peer");
             }
         }
         if (pp.optimisticallyUnchokedPeer != -1) {
@@ -528,7 +528,7 @@ public class Messages {
             // type 7
             handlePieceMessage(pp, senderPeer, length, IncomingMessage);
         } else {
-            System.out.println("Invalid message of type " + ParseByte(IncomingMessage, 4));
+            //System.out.println("Invalid message of type " + ParseByte(IncomingMessage, 4));
             //System.out.println(StandardCharsets.UTF_8.decode(IncomingMessage).toString());
         }
 

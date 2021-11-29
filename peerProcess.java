@@ -264,7 +264,7 @@ class peerProcess {
     // this is only used for debugging. It prints the bitfield.
     void printBitfield() {
         for (Boolean b : bitfield) {
-            System.out.print(b ? "\u001B[31m" + "1" + "\u001B[0m" : "0");
+            System.out.print(b ? "\u001B[31m" + "1" + "\u001B[0m" : "\u001B[34m" + "0" + "\u001B[0m");
         }
         System.out.println();
     }
