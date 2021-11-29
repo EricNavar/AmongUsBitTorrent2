@@ -324,7 +324,7 @@ public class Server {
 
 
 
-                              // firstTime = false;
+                              firstTime = false;
 
                             }
                            
