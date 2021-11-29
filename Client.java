@@ -198,6 +198,7 @@ public class Client {
                 int pieceMsg=0;
               
                 while (true) {
+                    //used for connections between clients
                     while(in1.available() > 0)
                     {
                         fromServer = new byte[in1.available()];
@@ -255,7 +256,10 @@ public class Client {
 
                         }
 
-
+                /*while(in1.available() > 0)
+                    {
+                        in.read();
+                    }*/
 
 
                     } catch (Exception e) {
