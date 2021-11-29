@@ -125,7 +125,7 @@ public class Server {
                         // don't change that
                         for (int i = 0; i < pp.peerInfoVector.size(); i++) {
                             RemotePeerInfo rpi = pp.peerInfoVector.get(i);
-                            if (!pp.isNeighbor(rpi.getPeerId()) && !rpi.isChoked()) {
+                            if (!pp.isNeighbor(rpi.getPeerId())) {
                                 // don't send choke messages to processes that are already choked
                                 if (connectedFrom == rpi.getPeerId()) {
                                     pp.messagesToSend.add(Messages.createChokeMessage());
@@ -134,7 +134,7 @@ public class Server {
                                     rpi.setChoked(true);
                                     sendMessageBB(pp.messagesToSend.get(count - 1));
                                 }
-                            } else if (pp.isNeighbor(rpi.getPeerId()) && rpi.isChoked()) {
+                            } else{
                                 // don't send unchoke messages to processes that are already unchoked
                                 pp.messagesToSend.add(Messages.createUnchokeMessage());
                                 count++;
@@ -324,7 +324,7 @@ public class Server {
 
 
 
-                              // firstTime = false;
+                               firstTime = false;
 
                             }
                            
@@ -334,25 +334,27 @@ public class Server {
                     while (in.available() <= 0) {
                     }
                     
+                        while(in.available() > 0) {
+                            message = new byte[in.available()];
 
-                        message = new byte[in.available()];
+                            in.read(message);
 
-                        in.read(message);
+                            buff = ByteBuffer.wrap(message);
 
-                        buff = ByteBuffer.wrap(message);
-
-                        int chokeRes = Messages.decodeMessage(buff, pp, connectedFrom);
+                            int chokeRes = Messages.decodeMessage(buff, pp, connectedFrom);
 
 
-                    for (int i = 0; i < pp.pieceMessages.size(); i++) {
-                        sendMessageBB(pp.pieceMessages.get(i));
-                    }
-                    pp.pieceMessages.clear();
+                            for (int i = 0; i < pp.messagesToSend.size(); i++) {
+                                sendMessageBB(pp.messagesToSend.get(i));
+                            }
+                            pp.messagesToSend.clear();
+                            
+                            for (int i = 0; i < pp.pieceMessages.size(); i++) {
+                                sendMessageBB(pp.pieceMessages.get(i));
+                            }
+                            pp.pieceMessages.clear();
 
-                    for (int i = 0; i < pp.messagesToSend.size(); i++) {
-                        sendMessageBB(pp.messagesToSend.get(i));
-                    }
-                    pp.messagesToSend.clear();
+                        }
 
 
 

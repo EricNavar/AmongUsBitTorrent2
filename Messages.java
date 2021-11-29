@@ -264,19 +264,14 @@ public class Messages {
 
         pp.logger.onUnchoking(senderPeer);
         // DONE: request a random piece that the sender has and the receiver doesn't
-        boolean needsPiece = false;
 
         Vector<Integer> missingPieces = new Vector<Integer>(); // Create a temporary vector to hold missing piece values
         for (int i = 0; i < pp.bitfield.size(); i++) { // walk the entire bitfield vector
             if (!pp.bitfield.get(i)) { // look for bitfields that are not true yet, so missing...
                 missingPieces.add(i); // add them to the missing piecese collection
-                needsPiece = true;
             }
         }
-        if (!needsPiece) {
-            pp.pieceMessages.add(createNotInterestedMessage());
-            return;
-        }
+
 
         int missingPieceIndex = (int) Math.floor(Math.random() * (pp.bitfield.size()));
         int askForPiece = 0;
@@ -450,6 +445,8 @@ public class Messages {
         // log if this process now has the entire file
         if (pp.hasFile()) {
             pp.logger.onCompletionOfDownload();
+            pp.messagesToSend.add(createNotInterestedMessage());
+            pp.pieceMessages.clear();
         }
 
         updateInterestedStatus(pp);

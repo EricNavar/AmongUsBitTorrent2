@@ -234,24 +234,26 @@ public class Client {
                     while (in.available() <= 0) {
                     }
                     try {
-                        connectedToPeerId = originalId;
-                        fromServer = new byte[in.available()];
-                        in.read(fromServer);
-                        buff = ByteBuffer.wrap(fromServer);
+                        while (in.available() > 0) {
 
-                        pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
+                            connectedToPeerId = originalId;
+                            fromServer = new byte[in.available()];
+                            in.read(fromServer);
+                            buff = ByteBuffer.wrap(fromServer);
 
-                        for (int i = 0; i < pp.pieceMessages.size(); i++)
-                            sendMessageBB(pp.pieceMessages.get(i));
+                            pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
 
-                        pp.pieceMessages.clear();
+                            for (int i = 0; i < pp.messagesToSend.size(); i++) {
+                                sendMessageBB(pp.messagesToSend.get(i));
+                            }
+                            pp.messagesToSend.clear();
+                            for (int i = 0; i < pp.pieceMessages.size(); i++)
+                                sendMessageBB(pp.pieceMessages.get(i));
+
+                            pp.pieceMessages.clear();
 
 
-                        for (int i = 0; i < pp.messagesToSend.size(); i++) {
-                            sendMessageBB(pp.messagesToSend.get(i));
                         }
-                        pp.messagesToSend.clear();
-                        
 
 
 
