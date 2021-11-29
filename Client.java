@@ -134,12 +134,12 @@ public class Client {
 
             requestSocket = new Socket("localhost", pp.getPortNumber());
             System.out.println("Connected to localhost " + pp.getPortNumber());
-            nextSock = new Socket("localhost", 1002);
-            System.out.println("Connected to localhost " + 1002);
-            nextSock2 = new Socket("localhost", 1003);
-            System.out.println("Connected to localhost " + 1003);
-            nextSock3 = new Socket("localhost", 1004);
-            System.out.println("Connected to localhost " + 1004);
+            nextSock = new Socket("localhost", pp.allPeers.get(1).getPeerId());
+            System.out.println("Connected to localhost " + pp.allPeers.get(1).getPeerId());
+            nextSock2 = new Socket("localhost", pp.allPeers.get(2).getPeerId());
+            System.out.println("Connected to localhost " + pp.allPeers.get(2).getPeerId());
+            nextSock3 = new Socket("localhost", pp.allPeers.get(3).getPeerId());
+            System.out.println("Connected to localhost " + pp.allPeers.get(3).getPeerId());
 
 
             // initialize inputStream and outputStream

@@ -38,6 +38,8 @@ public class StartRemotePeers {
 				String[] tokens = st.split("\\s+");
 				// don't include this process in the vector of remote peers so that it can't
 				// be selected as a preferred neighbor
+				pp.allPeers.addElement(new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3]));
+
 				if (Integer.parseInt(tokens[0]) == pp.peerId) {
 					if (tokens[3].equals("1")) {
 						pp.setHasFile(true);
@@ -45,10 +47,6 @@ public class StartRemotePeers {
 				}
 				else {	
 					pp.peerInfoVector.addElement(new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3]));
-					
-        				
-				
-
 
 				}
 			}
