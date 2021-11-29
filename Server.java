@@ -349,6 +349,13 @@ public class Server {
                     }
                     pp.pieceMessages.clear();
 
+                    for (int i = 0; i < pp.messagesToSend.size(); i++) {
+                        sendMessageBB(pp.messagesToSend.get(i));
+                    }
+                    pp.messagesToSend.clear();
+
+
+
                 }
 
             }

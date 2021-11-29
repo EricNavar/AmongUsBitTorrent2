@@ -246,14 +246,16 @@ public class Client {
 
                         pp.pieceMessages.clear();
 
-                        fromServer = new byte[in.available()];
-                        in.read(fromServer);
-                        buff = ByteBuffer.wrap(fromServer);
-                      
 
-                        pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
-                        while(in.available() > 0)
-                            in.read();
+                        for (int i = 0; i < pp.messagesToSend.size(); i++) {
+                            sendMessageBB(pp.messagesToSend.get(i));
+                        }
+                        pp.messagesToSend.clear();
+                        
+
+
+
+
                     } catch (Exception e) {
                     }
                 }
