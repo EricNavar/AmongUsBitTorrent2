@@ -252,7 +252,8 @@ public class Client {
                       
 
                         pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
-
+                        while(in.available() > 0)
+                            in.read();
                     } catch (Exception e) {
                     }
                 }
