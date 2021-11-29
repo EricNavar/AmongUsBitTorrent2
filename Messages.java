@@ -486,6 +486,8 @@ public class Messages {
 
         if (IncomingMessage.remaining() >= 32) {
             if (GetHandshakeString(IncomingMessage).equals(handshakeHeader)) {
+                pp.logger.onConnectingTo(senderPeer);
+
                 return handleHandshakeMessage(IncomingMessage);
             }
         }
