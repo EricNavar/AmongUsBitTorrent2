@@ -314,34 +314,33 @@ public class Messages {
     // type 5
     private static void handleBitfieldMessage(ByteBuffer IncomingMessage, peerProcess pp, int senderPeer, int length) {
         // if the payload is empty, then the sender has no pieces.
-        pp.logger.log( "Received bitfield from " + senderPeer + ": " + pp.printBitfield(pp.getRemotePeerInfo(senderPeer).getBitfield()) );
         boolean nowInterested = false;
+        RemotePeerInfo rpi = pp.getRemotePeerInfo(senderPeer);
         if (length == 0) {
             return;
         } else {
             for (int i = 0; i < pp.getTotalPieces(); i++) {
                 int x = i / 8;
                 int y = i % 8;
-                int bitvalue = (int) IncomingMessage.array()[x + 4]; // if 8 bits, i = 7 and x is 0, if 9th bit i=8 and
-                                                                     // x = 1
-                bitvalue = (bitvalue >> y) & 0x0FF;
-                // if the sender has a piece that this process does not, then this process will
-                // send an interested message.
-                // otherwise, send an uninterested message.
+                // if 8 bits, i = 7 and x is 0, if 9th bit i=8 and x = 1
+                int bitvalue = ((int) IncomingMessage.array()[x + 5] );
+                bitvalue = (bitvalue >> (y-1)) & 1;
+                // If the sender has a piece that this process does not, then this process will
+                // send an interested message. Otherwise, send an uninterested message.
                 if ((pp.getCurrBitfield().get(i) == false) && (bitvalue == 1)) {
                     nowInterested = true;
                     // break; // DO NOT Break, instead keep loading in and tracking the pieces this
                     // peer has in it's posession
                 }
-                RemotePeerInfo rpi = pp.getRemotePeerInfo(senderPeer);
                 if (rpi == null) {
                    // System.out.println("ERROR: could not find peer info with id " + senderPeer);
                     return;
                 }
                 // sets the index i to true of the peer that they have this piece
-                rpi.getBitfield().set(i, true);
+                rpi.getBitfield().set(i, bitvalue == 1);
             }
         }
+        pp.logger.log( "Received bitfield from " + senderPeer + ": " + pp.printBitfield(rpi.getBitfield()) + "\n");
         //System.out.println("The interest of " + pp.getPeerId() + " in " + senderPeer + " is set to " + nowInterested);
 
         if (nowInterested) {

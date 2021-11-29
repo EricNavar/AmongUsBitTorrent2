@@ -54,6 +54,7 @@ public class Client {
         timer.schedule(new TimerTask() {
             public void run() {
                 sendMessageBB(Messages.createRequestMessage(pp.randomMissingPiece()));
+                sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
                 pp.logger.log("Pieces: " + pp.getCollectedPieces()  + "/" + pp.totalPieces + "\n");
             }
 
@@ -224,6 +225,7 @@ public class Client {
                         }
                         pieceMsg = Messages.decodeMessage(buff, pp, newId1);
                         // send the bitfield message after receiving a message
+                        pp.logger.log("Sending bitfield\n");
                         sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
                     }
                     while(in2.available() > 0)
