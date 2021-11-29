@@ -91,6 +91,7 @@ public class Client {
                                 rpi.setChoked(false);
                                 sendMessageBB(pp.messagesToSend.get(count - 1));
                             }
+                            
                         }
                     }
 
@@ -222,6 +223,10 @@ public class Client {
                             newId1 =Messages.decodeMessage(buff, pp, -1);
                         }
                         pieceMsg = Messages.decodeMessage(buff, pp, newId1);
+                        for (int i = 0; i < pp.messagesToSend.size(); i++) {
+                            sendMessageOther(pp.messagesToSend.get(i));
+                        }
+
                         // send the bitfield message after receiving a message
                         sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
                     }
