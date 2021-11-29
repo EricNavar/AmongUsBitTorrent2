@@ -27,6 +27,13 @@ public class Server {
 
     public void startServer() throws Exception {
         ServerSocket listener = new ServerSocket(pp.getPortNumber());
+        ServerSocket second = new ServerSocket(1002);
+        ServerSocket third = new ServerSocket(1003);
+        ServerSocket fourth = new ServerSocket(1004);
+        ServerSocket fifth = new ServerSocket(1005);
+        ServerSocket sixth = new ServerSocket(1006);
+
+
         System.out.println("The server is running.");
         int clientNum = 1;
 
@@ -40,7 +47,9 @@ public class Server {
 
         try {
             while (true) {
-                Handler h = new Handler(listener.accept(), clientNum);
+
+                Handler h = new Handler(listener.accept(), second.accept(), third.accept(), fourth.accept(), clientNum);
+                /*third.accept(), fourth.accept(), fifth.accept(), sixth.accept(),*/
                 h.start();
                 handlers.add(h);
                 System.out.println("Client " + clientNum + " is connected!");
@@ -48,6 +57,12 @@ public class Server {
             }
         } finally {
             listener.close();
+            second.close();
+            third.close();
+            fourth.close();
+            /*fifth.close();
+            sixth.close();*/
+
         }
     }
 
@@ -58,14 +73,39 @@ public class Server {
     private static class Handler extends Thread {
         private byte[] message = new byte[50]; // message received from the client
         private Socket connection;
+        private Socket connection1;
+        private Socket connection2;
+        private Socket connection3;
+        private Socket connection4;
+        private Socket connection5;
+
+
         private ObjectInputStream in; // stream read from the socket
         private ObjectOutputStream out; // stream write to the socket
+        private ObjectInputStream in1; // stream read from the socket
+        private ObjectOutputStream out1; // stream write to the socket
+        private ObjectInputStream in2; // stream read from the socket
+        private ObjectOutputStream out2; // stream write to the socket
+        private ObjectInputStream in3; // stream read from the socket
+        private ObjectOutputStream out3; // stream write to the socket
+        private ObjectInputStream in4; // stream read from the socket
+        private ObjectOutputStream out4; // stream write to the socket
+        private ObjectInputStream in5; // stream read from the socket
+        private ObjectOutputStream out5; // stream write to the socket
+
         private int no; // The index number of the client
         int connectedFrom;
+        boolean firstTime = true;
 
-        public Handler(Socket connection, int no) {
+        public Handler(Socket connection, Socket connection1, Socket connection2, Socket connection3, /*Socket connection4, Socket connection5,*/ int no) {
             this.connection = connection;
+            this.connection1 = connection1;
+            this.connection2 = connection2;
+            this.connection3 = connection3;
+            /*this.connection4 = connection4;
+            this.connection5 = connection5;*/
             this.no = no;
+            
         }
 
         // Timer for unchoking the neighbors who send the most data. Optimistically
@@ -197,28 +237,112 @@ public class Server {
 
                 while (true) {
                     if (handlers.size() >= 2) {
-                        for (int i = 0; i < handlers.size(); i++) {
-                            // start sending piece messages here
-                            // request piece from client
-                            // exclude server
-                            // coordinate piece distributuion between clients
-                            if (handlers.get(i).connectedFrom == connectedFrom)
-                                continue;
-                            messageToSend = Messages.createHandshakeMessage(connectedFrom);
-                            handlers.get(i).sendMessageBB(messageToSend);
-                            messageToSend = Messages.createHandshakeMessage(handlers.get(i).connectedFrom);
-                            sendMessageBB(messageToSend);
-                        }
+
+
+                            for (int i = 0; i < handlers.size(); i++) {
+                                // start sending piece messages here
+                                // request piece from client
+                                // exclude server
+                                // coordinate piece distributuion between clients
+                                if(firstTime) {
+
+                                    if (handlers.get(i).connectedFrom == connectedFrom)
+                                        continue;
+
+                                    if(handlers.get(i).connectedFrom == 1002)
+                                    {
+                                        messageToSend = Messages.createHandshakeMessage(connectedFrom);
+                                        handlers.get(i).sendMessage1(messageToSend);
+                                        messageToSend = Messages.createHandshakeMessage(handlers.get(i).connectedFrom);
+                                        sendMessage1(messageToSend);
+
+                                        messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(connectedFrom).getBitfield());
+                                        handlers.get(i).sendMessage1(messageToSend);
+                                        messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(handlers.get(i).connectedFrom).getBitfield());
+                                        sendMessage1(messageToSend);
+                                    }
+                                   if(handlers.get(i).connectedFrom == 1003)
+                                    {
+                                        messageToSend = Messages.createHandshakeMessage(connectedFrom);
+                                        handlers.get(i).sendMessage2(messageToSend);
+                                        messageToSend = Messages.createHandshakeMessage(handlers.get(i).connectedFrom);
+                                        sendMessage2(messageToSend);
+
+                                        messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(connectedFrom).getBitfield());
+                                        handlers.get(i).sendMessage2(messageToSend);
+                                        messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(handlers.get(i).connectedFrom).getBitfield());
+                                        sendMessage2(messageToSend);
+                                    }
+                                    if(handlers.get(i).connectedFrom == 1004)
+                                    {
+                                        messageToSend = Messages.createHandshakeMessage(connectedFrom);
+                                        handlers.get(i).sendMessage3(messageToSend);
+                                        messageToSend = Messages.createHandshakeMessage(handlers.get(i).connectedFrom);
+                                        sendMessage3(messageToSend);
+
+                                        messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(connectedFrom).getBitfield());
+                                        handlers.get(i).sendMessage3(messageToSend);
+                                        messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(handlers.get(i).connectedFrom).getBitfield());
+                                        sendMessage3(messageToSend);
+                                    }
+                                   /* if(handlers.get(i).connectedFrom == 1005)
+                                    {
+                                        messageToSend = Messages.createHandshakeMessage(connectedFrom);
+                                        handlers.get(i).sendMessage4(messageToSend);
+                                        messageToSend = Messages.createHandshakeMessage(handlers.get(i).connectedFrom);
+                                        sendMessage4(messageToSend);
+
+                                        messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(connectedFrom).getBitfield());
+                                        handlers.get(i).sendMessage4(messageToSend);
+                                        messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(handlers.get(i).connectedFrom).getBitfield());
+                                        sendMessage4(messageToSend);
+                                    }
+                                    if(handlers.get(i).connectedFrom == 1006)
+                                    {
+                                        messageToSend = Messages.createHandshakeMessage(connectedFrom);
+                                        handlers.get(i).sendMessage5(messageToSend);
+                                        messageToSend = Messages.createHandshakeMessage(handlers.get(i).connectedFrom);
+                                        sendMessage5(messageToSend);
+
+                                        messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(connectedFrom).getBitfield());
+                                        handlers.get(i).sendMessage5(messageToSend);
+                                        messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(handlers.get(i).connectedFrom).getBitfield());
+                                        sendMessage5(messageToSend);
+                                    }*/
+
+                                   /* for()
+                                    {
+                                        sendMessageOther();
+                                    }
+                                    for()
+                                    {
+                                        handlers.get(i).sendMessageOther();
+                                    }*/
+
+
+                                }
+
+
+
+                              // firstTime = false;
+
+                            }
+                           
+
+
                     }
                     while (in.available() <= 0) {
                     }
-                    message = new byte[in.available()];
+                    
 
-                    in.read(message);
+                        message = new byte[in.available()];
 
-                    buff = ByteBuffer.wrap(message);
+                        in.read(message);
 
-                    int chokeRes = Messages.decodeMessage(buff, pp, connectedFrom);
+                        buff = ByteBuffer.wrap(message);
+
+                        int chokeRes = Messages.decodeMessage(buff, pp, connectedFrom);
+
 
                     for (int i = 0; i < pp.pieceMessages.size(); i++) {
                         sendMessageBB(pp.pieceMessages.get(i));
@@ -242,6 +366,27 @@ public class Server {
                 out = new ObjectOutputStream(connection.getOutputStream());
                 out.flush();
                 in = new ObjectInputStream(connection.getInputStream());
+
+                out1 = new ObjectOutputStream(connection1.getOutputStream());
+                out1.flush();
+                in1 = new ObjectInputStream(connection1.getInputStream());
+
+               out2 = new ObjectOutputStream(connection2.getOutputStream());
+                out2.flush();
+                in2= new ObjectInputStream(connection2.getInputStream());
+
+                out3 = new ObjectOutputStream(connection3.getOutputStream());
+                out3.flush();
+                in3 = new ObjectInputStream(connection3.getInputStream());
+
+                /*out4 = new ObjectOutputStream(connection4.getOutputStream());
+                out4.flush();
+                in4 = new ObjectInputStream(connection4.getInputStream());
+
+                out5 = new ObjectOutputStream(connection5.getOutputStream());
+                out5.flush();
+                in5 = new ObjectInputStream(connection5.getInputStream());*/
+
                 try {
                     serverLoop();
                 } catch (ClassNotFoundException classnot) {
@@ -255,22 +400,34 @@ public class Server {
                     in.close();
                     out.close();
                     connection.close();
+
+                    in1.close();
+                    out1.close();
+                    connection1.close();
+
+                   in2.close();
+                    out2.close();
+                    connection2.close();
+
+                    in3.close();
+                    out3.close();
+                    connection3.close();
+
+                    /*in4.close();
+                    out4.close();
+                    connection4.close();
+
+                    in5.close();
+                    out5.close();
+                    connection5.close();*/
+
                 } catch (IOException ioException) {
                     System.out.println("Disconnect with Client " + no);
                 }
             }
         }
 
-        // send a message to the output stream
-        // public void sendMessage(String msg) {
-        // try {
-        // out.writeObject(msg);
-        // out.flush();
-        // System.out.println("Send message to Client " + no); // debug message
-        // } catch (IOException ioException) {
-        // ioException.printStackTrace();
-        // }
-        // }
+
         // send a message to the output stream
         public void sendMessageBB(ByteBuffer msg) {
             try {
@@ -280,5 +437,48 @@ public class Server {
                 ioException.printStackTrace();
             }
         }
+        public void sendMessage1(ByteBuffer msg) {
+            try {
+                out1.write(msg.array());
+                out1.flush();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
+       public void sendMessage2(ByteBuffer msg) {
+            try {
+                out2.write(msg.array());
+                out2.flush();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
+
+       public void sendMessage3(ByteBuffer msg) {
+            try {
+                out3.write(msg.array());
+                out3.flush();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
+        /*
+        public void sendMessage4(ByteBuffer msg) {
+            try {
+                out4.write(msg.array());
+                out4.flush();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
+        public void sendMessage5(ByteBuffer msg) {
+            try {
+                out5.write(msg.array());
+                out5.flush();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }*/
+
     }
 }

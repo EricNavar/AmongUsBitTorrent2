@@ -275,6 +275,7 @@ class peerProcess {
             return;
         }
         peerProcess pp = new peerProcess(peerId);
+
         StartRemotePeers srp = new StartRemotePeers(pp);
         // srp.Start(peerId);
         // if PeerInfo.cfg lists the current peerId as having the file

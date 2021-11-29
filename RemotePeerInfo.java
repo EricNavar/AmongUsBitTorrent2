@@ -4,6 +4,7 @@ import static java.lang.Math.ceil;
 import java.util.List;
 import java.nio.file.Paths;
 import java.nio.file.Path;
+import java.nio.*;
 
 /*
  * This is the program starting remote processes.
@@ -25,6 +26,7 @@ public class RemotePeerInfo {
 	private boolean interested;
 	private int piecesTransmitted;
 	public static final String configName = "Common.cfg";
+	Vector<ByteBuffer> messagesToSend = new Vector<ByteBuffer>(0);
 
 	public RemotePeerInfo(String pId, String pAddress, String pPort, String hasFile) {
 		this.peerId = Integer.parseInt(pId);
@@ -86,6 +88,15 @@ public class RemotePeerInfo {
 	public void setChoked(boolean choked) {
 		this.choked = choked;
 	}
+	
+	public void setMessagesToSend(Vector<ByteBuffer> messagesToSend) {
+		this.messagesToSend = messagesToSend;
+	}
+	
+	public Vector<ByteBuffer> getMessagesToSend() {
+		return this.messagesToSend;
+	}
+
 
 	public boolean isInterested() {
 		return interested;
