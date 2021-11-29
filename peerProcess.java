@@ -170,7 +170,7 @@ class peerProcess {
     // Calculate the peers sending the most data. The optimistically unchoked
     // neighbor is calculated at a different interval in Common.cfg
     public void calculatePreferredNeighbors() {
-        preferredNeighbors.clear();
+        Vector<Integer> newPreferredNeighbors = new Vector<Integer>(preferredNeighbors.size());
         // Sort the vector of peers
         sortPeerInfoVector();
         // The first 4 peers are the peers that have transmitted the most.
@@ -179,11 +179,13 @@ class peerProcess {
             // if tie, randomly choose among tied processes
             if (interested.size() > 0) {
                 for (int j = 0; j < interested.size(); j++) {
-                    if (peerInfoVector.get(i).getPeerId() == interested.get(j))
-                        preferredNeighbors.add(peerInfoVector.get(i).getPeerId());
+                    if (peerInfoVector.get(i).getPeerId() == interested.get(j)) {
+                        newPreferredNeighbors.add(peerInfoVector.get(i).getPeerId());
+                    }
                 }
             }
         }
+        preferredNeighbors = newPreferredNeighbors;
 
         // after recalculating the preferred neighbors, reset the value of the
         // transmitted data of all remote peers
@@ -199,6 +201,7 @@ class peerProcess {
         // this is the vector of peers to consider. It's the peers that are in
         // interested but not already in preferredNeighbors
         Vector<Integer> toConsider = new Vector<Integer>();
+        //logger.log(interested.toString() + "\n");
         for (Integer i : interested) {
             if (!preferredNeighbors.contains(i)) {
                 toConsider.add(i);
@@ -214,6 +217,7 @@ class peerProcess {
             randomPeerIndex = interested.size() - 1;
         optimisticallyUnchokedPeer = interested.get(randomPeerIndex);
         logger.onChangeOfOptimisticallyUnchokedNeighbor(optimisticallyUnchokedPeer);
+        logger.log("optimistically unchoked peer: " + optimisticUnchokingInterval);
     }
 
     // returns true if the given id belongs to either a preffered peer or an
@@ -231,6 +235,7 @@ class peerProcess {
     }
 
     private void sortPeerInfoVector() {
+
         Collections.sort(peerInfoVector, (o1, o2) -> {
             // We want the Vector to be in decreasing order, so we're comparing it backwards
             Integer o2Value = o2.getPiecesTransmitted();
