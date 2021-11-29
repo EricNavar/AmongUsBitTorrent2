@@ -106,21 +106,20 @@ public class FileHandling {
 		System.out.println("Shutting down the FileHandler for peer ID " + peerID);
 	}
 
-	// writes out the entire file.
-	// assumes the file is present in the hash table.
-	// suggest the application call the check for all pieces method first before
-	// writing the file to
-	// avoid an error.
-	// this will iterate over the expected number of pieces
+	// Writes out the entire file.
+	// Assumes the file is present in the hash table.
+	// Suggest the application call the check for all pieces method first before
+	// writing the file to avoid an error.
+	// This will iterate over the expected number of pieces
 	// the write will send out only the number of bytes expected to be written
 	// the number of bytes expected to be written in kept in a similar hash table
-	// called PieceLengths
+	// called PieceLengths.
 	// The file that is at an odd boundary can be written even if there are fewer
-	// than the buffersize of bytes
-	// in the piece.
+	// than the buffersize of bytes in the piece.
+
+	//TODO: this function is not right at the moment. It's writing the 
 	public boolean WriteFileOut(String FileNameInput) {
 		// Might fail if for some reason it didn't have totalPieces as needed.
-
 		int x;
 		int pieceLength;
 
@@ -155,7 +154,7 @@ public class FileHandling {
 			writingFileStream.close();
 		} catch (IOException e) {
 			// error so print out stack trace
-			System.out.println(" ERROR Trapped in writing to file " + fileNameWithPath);
+			//System.out.println(" ERROR Trapped in writing to file " + fileNameWithPath);
 			e.printStackTrace();
 		}
 
@@ -334,10 +333,10 @@ public class FileHandling {
 			// if every 16 then a new line
 			if (((x % 32) == 0) && (x > 0)) {
 				// new line character
-				System.out.println(" ");
+				//System.out.println(" ");
 			}
 		}
-		System.out.println(" ");
+		//System.out.println(" ");
 		// this worked so return true
 		return true;
 	}

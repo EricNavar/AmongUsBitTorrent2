@@ -66,7 +66,7 @@ public class Client {
                             pp.messagesToSend.add(Messages.createChokeMessage());
                             count++;
                             if (connectedToPeerId == rpi.getPeerId()) {
-                                System.out.println("Choking peer " + rpi.getPeerId());
+                                //System.out.println("Choking peer " + rpi.getPeerId());
                                 rpi.setChoked(true);
                                 sendMessageBB(pp.messagesToSend.get(count - 1));
                             }
@@ -74,7 +74,7 @@ public class Client {
                             pp.messagesToSend.add(Messages.createUnchokeMessage());
                             count++;
                             if (connectedToPeerId == rpi.getPeerId()) {
-                                System.out.println("Setting peer " + rpi.getPeerId() + " to be a preferred neighbor");
+                                //System.out.println("Setting peer " + rpi.getPeerId() + " to be a preferred neighbor");
                                 rpi.setChoked(false);
                                 sendMessageBB(pp.messagesToSend.get(count - 1));
                             }
@@ -102,7 +102,7 @@ public class Client {
                     pp.messagesToSend.clear();
                     pp.messagesToSend.add(Messages.createUnchokeMessage());
                     if (connectedToPeerId == rpi.getPeerId()) {
-                        System.out.println("Optimistically unchoking " + rpi.getPeerId());
+                        //System.out.println("Optimistically unchoking " + rpi.getPeerId());
                         rpi.setChoked(false);
                         sendMessageBB(pp.messagesToSend.get(0));
                     }
@@ -158,7 +158,7 @@ public class Client {
                 fromServer = new byte[in.available()];
                 in.read(fromServer);
                 ByteBuffer buff = ByteBuffer.wrap(fromServer);
-                System.out.println("Receive message"); // debug message
+                //System.out.println("Receive message"); // debug message
 
                 // receive handshake message from server
                 connectedToPeerId = Messages.decodeMessage(buff, pp, -1);
@@ -208,7 +208,8 @@ public class Client {
                             newId1 =Messages.decodeMessage(buff, pp, -1);
                         }
                         pieceMsg = Messages.decodeMessage(buff, pp, newId1);
-
+                        // send the bitfield message after receiving a message
+                        sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
                     }
                     while(in2.available() > 0)
                     {
@@ -219,7 +220,7 @@ public class Client {
                             newId2 =Messages.decodeMessage(buff, pp, -1);
                         }
                         pieceMsg = Messages.decodeMessage(buff, pp, newId2);
-
+                        sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
                     }
                     while(in3.available() > 0)
                     {
@@ -230,7 +231,7 @@ public class Client {
                             newId3 =Messages.decodeMessage(buff, pp, -1);
                         }
                         pieceMsg = Messages.decodeMessage(buff, pp, newId3);
-
+                        sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
                     }
                     while (in.available() <= 0) {
                     }

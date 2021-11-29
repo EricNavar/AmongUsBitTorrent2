@@ -34,7 +34,7 @@ public class Server {
         ServerSocket sixth = new ServerSocket(1006);
 
 
-        System.out.println("The server is running.");
+        //System.out.println("The server is running.");
         int clientNum = 1;
 
         // make list of peerIds that have the file
@@ -126,20 +126,20 @@ public class Server {
                         for (int i = 0; i < pp.peerInfoVector.size(); i++) {
                             RemotePeerInfo rpi = pp.peerInfoVector.get(i);
                             if (!pp.isNeighbor(rpi.getPeerId())) {
-                                // don't send choke messages to processes that are already choked
-                                if (connectedFrom == rpi.getPeerId()) {
+                                // do not send choke messages to processes that are already choked
+                                if (connectedFrom == rpi.getPeerId() && !rpi.isChoked()) {
                                     pp.messagesToSend.add(Messages.createChokeMessage());
                                     count++;
-                                    System.out.println("Choking peer " + rpi.getPeerId());
+                                    //System.out.println("Choking peer " + rpi.getPeerId());
                                     rpi.setChoked(true);
                                     sendMessageBB(pp.messagesToSend.get(count - 1));
                                 }
                             } else{
-                                // don't send unchoke messages to processes that are already unchoked
+                                // do not send unchoke messages to processes that are already unchoked
                                 pp.messagesToSend.add(Messages.createUnchokeMessage());
                                 count++;
-                                if (connectedFrom == rpi.getPeerId()) {
-                                    System.out.println("Unchoking peer " + rpi.getPeerId());
+                                if (connectedFrom == rpi.getPeerId() && rpi.isChoked()) {
+                                    //System.out.println("Unchoking peer " + rpi.getPeerId());
                                     rpi.setChoked(false);
                                     sendMessageBB(pp.messagesToSend.get(count - 1));
                                 }
@@ -154,7 +154,7 @@ public class Server {
         }
 
         private void runOptimisticallyUnchokedTimer() {
-            // Every 5 seconds, recalculate the preferred neighbors
+            // Every 10 seconds, recalculate the preferred neighbors
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
                 public void run() {
@@ -165,7 +165,7 @@ public class Server {
                         }
                         RemotePeerInfo rpi = pp.getRemotePeerInfo(pp.optimisticallyUnchokedPeer);
                         if (connectedFrom == rpi.getPeerId()) {
-                            System.out.println("Optimistically unchoking peer " + rpi.getPeerId());
+                            //System.out.println("Optimistically unchoking peer " + rpi.getPeerId());
                             rpi.setChoked(false);
                             sendMessageBB(Messages.createUnchokeMessage());
                         }
@@ -195,7 +195,7 @@ public class Server {
                 ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.peerId);
                 sendMessageBB(messageToSend);
 
-                System.out.println("I am peer " + pp.getPeerId() + " (server) and I am connected to " + connectedFrom);
+                //System.out.println("I am peer " + pp.getPeerId() + " (server) and I am connected to " + connectedFrom);
 
                 // receive bitfield message
 
@@ -224,7 +224,7 @@ public class Server {
 
                 System.out.print("Peers interested in 1001: ");
                 for (int i = 0; i < pp.interested.size(); i++) {
-                    System.out.println(pp.interested.get(i) + ", ");
+                    //System.out.println(pp.interested.get(i) + ", ");
                 }
 
                 // send interested/not interested
