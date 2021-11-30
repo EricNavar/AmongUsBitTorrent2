@@ -349,7 +349,6 @@ public class Client {
                                 bytesReadSoFar = in.read(messageLengthBuff, 0, 4);// only read in 4 bytes
                                 buff = ByteBuffer.wrap(messageLengthBuff);
                                 messageLength = Messages.GetMessageLength(buff);
-                                pp.logger.log("messageLength: " + messageLength);
                                 fromServer = new byte[messageLength + 5];
                                 fromServer[0] = messageLengthBuff[0];
                                 fromServer[1] = messageLengthBuff[1];
@@ -358,7 +357,6 @@ public class Client {
                             } else if (messageLength != -1 && in.available() > 0) {
                                 // read to the end of the message, or until the end of the input stream buffer
                                 int bytesToRead = Math.min(in.available(), messageLength + 5 - bytesReadSoFar);
-                                pp.logger.log("bytesReadSoFar: " + bytesReadSoFar + ". bytes left to read: " + (messageLength + 5 - bytesReadSoFar));
                                 connectedToPeerId = originalId;
                                 int bytesReadNow = in.read(fromServer, bytesReadSoFar, bytesToRead);
                                 pp.logger.log("Reading " + bytesReadNow + " bytes");
@@ -366,12 +364,10 @@ public class Client {
                                 buff = ByteBuffer.wrap(fromServer);
                                 
                                 if (bytesReadSoFar < messageLength) {
-                                    pp.logger.log("Bytes read so far: " + bytesReadSoFar);
                                     continue;
                                 }
                                 else {
                                     pp.logger.log("Done reading entire message. messageLength: " + messageLength + " + 5. bytesReadSoFar: " + bytesReadSoFar);
-                                    //System.out.println(Messages.HexPrint(buff));
                                 }
 
                                 pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
