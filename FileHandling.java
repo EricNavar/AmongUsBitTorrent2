@@ -48,8 +48,6 @@ public class FileHandling {
 
 	// Constructor
 	// Note: This class will not copy objects and as such does not have a copy
-	// constructor
-
 	public FileHandling(int peerID, int totalPieces, int pieceSize, String fileName) {
 		this.totalPieces = totalPieces; // transfer the needed information from the peer process to write files
 		// copy the piece size and keep track to allocate right buffer amount
@@ -66,17 +64,12 @@ public class FileHandling {
 	}
 
 	// Open File at the path for this peer under the correct directory. If no
-	// directory exists, create the directory
+	// directory exists, create the directory.
 	// If this is a client, it needs to empty the contents of the file, if this is a
-	// server, it needs to read in all the
-	// contents of the file and load a buffer.
+	// server, it needs to read in all the contents of the file and load a buffer.
 	public void openFile() {
 		try {
-			if (this.peerID == 1001) { // if server
-				fileNameWithPath = ".\\peer_1001\\" + fileName;
-			} else {
-				fileNameWithPath = ".\\peer_" + peerID + "\\" + fileName;
-			}
+			fileNameWithPath = ".\\peer_" + peerID + "\\" + fileName;
 			File file = new File(fileNameWithPath);
 
 			Desktop desktop = Desktop.getDesktop();
@@ -86,12 +79,11 @@ public class FileHandling {
 			} else { // create file
 				file.createNewFile();
 			}
-			if (this.peerID == 1001) { // if peer is the server, write contents of file to buffer
-
+			// if peer is the server, write contents of file to buffer
+			if (this.peerID == 1001) {
 				ReadFileIn(fileNameWithPath);
 			}
 			// if peer is a client, empty the contents of the file
-			// TODO: question: why is it necessary to empty the contents of the file?
 			else {
 				new FileOutputStream(fileNameWithPath).close();
 			}
@@ -100,9 +92,10 @@ public class FileHandling {
 		}
 	}
 
-	public void Shutdown() { // this can be called before shutting down if there are things that need to be
-								// done like closing files
+	// this can be called before shutting down if there are things that need to be done like closing files
+	public void Shutdown() {
 		System.out.println("Shutting down the FileHandler for peer ID " + peerID);
+		System.exit(0);
 	}
 
 	// Writes out the entire file.
@@ -130,10 +123,10 @@ public class FileHandling {
 		File writingFile = new File(fileNameWithPath);
 
 		// writingFile.write(EntireFile.get(Integer.valueOf(x)));fs
-		try (FileChannel writingFileStream = new FileOutputStream(writingFile, true).getChannel()) {
+		try (FileChannel writingFileStream = new FileOutputStream(writingFile).getChannel()) {
 			for (x = 0; x < totalPieces; ++x) {
 
-				// this only writes the number of bytes neededs
+				// this only writes the number of bytes needed
 				// two hash tables are kept
 				localByteBuffer.clear();
 				loadLocalByteBufferPieceNumber(x); // this says copy data from EntireFile to local byte buffer
@@ -233,15 +226,14 @@ public class FileHandling {
 																	// byte[] is incomingPiece.array(), start 0, length
 																	// PieceLength
 
-		// transfer the bynary data into the allocated buffer
 		EntireFile.put(Integer.valueOf(pieceNumber), newByteBuffer);
+		// transfer the binary data into the allocated buffer
 		// and keep track of the size of this piece.
 		// could convert this to load another class object that contains piece size, but
 		// maybe not do it because it is more than needed
 		PieceLengths.put(Integer.valueOf(pieceNumber), Integer.valueOf(PieceLength));
 
 		return true;
-
 	}
 
 	// checks to see if all peers have been received.
@@ -294,16 +286,15 @@ public class FileHandling {
 		// " + CopyOfBufferPtr.get(0) + " " + CopyOfBufferPtr.get(1) + " " +
 		// CopyOfBufferPtr.get(2));
 		localByteBuffer.put(CopyOfBufferPtr.array(), 0, amountToTransfer); // put(byte[] src, int offset, int length)
-																			// wjere byte[] is CopyOfBufferPtr.array(),
+																			// where byte[] is CopyOfBufferPtr.array(),
 																			// start 0, length amountToTransfer
 		return true;
 	}
 
-	// gets the current local byte buffer array handle that was loaded with the
-	// above method
-	// this can help with moving the data around and might be useful in tranmit /
-	// receive binary
-	// files to the port
+	// Gets the current local byte buffer array handle that was loaded with the
+	// above method.
+	// This can help with moving the data around and might be useful in tranmit /
+	// receive binary files to the port
 	public ByteBuffer getCurrentLocalByteBuffer() {
 		// Might fail if for some reason it didn't have totalPieces as needed.
 
@@ -312,8 +303,7 @@ public class FileHandling {
 
 	// gets the current local byte buffer size of this piece
 	// this can help with moving the data around and might be useful in tranmit /
-	// receive binary
-	// files to the port
+	// receive binary files to the port
 	public int getCurrentLocalByteBufferPieceSize() {
 		// Might fail if for some reason it didn't have totalPieces as needed.
 
@@ -330,11 +320,10 @@ public class FileHandling {
 			System.out.print(Integer.toHexString(this.localByteBuffer.get(x) & 0xFF) + " ");
 			// if every 16 then a new line
 			if (((x % 32) == 0) && (x > 0)) {
-				// new line character
-				// System.out.println(" ");
+				// System.out.println();
 			}
 		}
-		// System.out.println(" ");
+		// System.out.println();
 		// this worked so return true
 		return true;
 	}
