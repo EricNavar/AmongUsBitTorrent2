@@ -111,7 +111,7 @@ public class StartRemotePeers {
                             bufferedReader.close();
                             inputReader.close();
                         } catch (Exception ex) {
-                            System.out.println(remotePeer.getPeerID() + " Exception >:");
+                            System.err.println(remotePeer.getPeerID() + " Exception >:");
                             ex.printStackTrace();
                         }
 
@@ -122,10 +122,10 @@ public class StartRemotePeers {
 
             } catch (JSchException e) {
                 // TODO Auto-generated catch block
-                System.out.println(remotePeer.getPeerID() + " JSchException >:");
+                System.err.println(remotePeer.getPeerID() + " JSchException >:");
                 e.printStackTrace();
             } catch (IOException ex) {
-                System.out.println(remotePeer.getPeerID() + " Exception >:");
+                System.err.println(remotePeer.getPeerID() + " Exception >:");
                 ex.printStackTrace();
             }
 

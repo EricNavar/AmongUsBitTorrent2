@@ -17,7 +17,7 @@ class Logger {
         try {
             new FileOutputStream(fileName).close();
         } catch (IOException e) {
-            System.out.println("IO Exception");
+            System.err.println("IO Exception");
         }
     }
 
@@ -96,7 +96,7 @@ class Logger {
             outputStream.write(strToBytes);
             outputStream.close();
         } catch (IOException e) {
-            System.out.println("IO Exception");
+            System.err.println("IO Exception");
         }
     }
 
@@ -111,7 +111,7 @@ class Logger {
             outputStream.write(strToBytes);
             outputStream.close();
         } catch (IOException e) {
-            System.out.println("IO Exception");
+            System.err.println("IO Exception");
         }
     }
 }

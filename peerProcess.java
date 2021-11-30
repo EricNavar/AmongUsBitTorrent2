@@ -33,7 +33,7 @@ class peerProcess {
     // random port number we will use
     final protected int port = 12602;
     protected Vector<RemotePeerInfo> peerInfoVector;
-    protected Vector<RemotePeerInfo> allPeers= new Vector<RemotePeerInfo>(0);
+    protected Vector<RemotePeerInfo> allPeers = new Vector<RemotePeerInfo>(0);
 
     // denotes which pieces of the file this process has
     Vector<Boolean> bitfield = new Vector<Boolean>(0);
@@ -51,7 +51,7 @@ class peerProcess {
     public void incrementCollectedPieces() {
         collectedPieces++;
         boolean hasFileFlag = true;
-        for (Boolean b: bitfield) {
+        for (Boolean b : bitfield) {
             if (!b) {
                 hasFileFlag = false;
                 break;
@@ -109,7 +109,7 @@ class peerProcess {
             fileSize = Integer.valueOf(fileLines.get(4).split(" ")[1]);
             pieceSize = Integer.valueOf(fileLines.get(5).split(" ")[1]);
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
         totalPieces = (int) ceil((double) fileSize / pieceSize);
         bitfield.setSize(totalPieces);
@@ -205,7 +205,7 @@ class peerProcess {
         // this is the vector of peers to consider. It's the peers that are in
         // interested but not already in preferredNeighbors
         Vector<Integer> toConsider = new Vector<Integer>();
-        //logger.log(interested.toString() + "\n");
+        // logger.log(interested.toString() + "\n");
         for (Integer i : interested) {
             if (!preferredNeighbors.contains(i)) {
                 toConsider.add(i);
