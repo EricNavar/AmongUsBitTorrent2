@@ -435,9 +435,6 @@ public class Server {
 
         // send a message to the output stream
         public void sendMessageBB(ByteBuffer msg) {
-            if(Messages.GetMessageType(msg) == MessageType.PIECE.ordinal()) {
-                pp.logger.log("Check piece index: " + Messages.GetPieceMessageNumber(msg) + "\n");
-            }
             try {
                 out.write(msg.array());
                 out.flush();
