@@ -75,13 +75,13 @@ public class Client {
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             public void run() {
-                pp.logger.log("request timer");
-                sendMessageBB(Messages.createRequestMessage(pp.randomMissingPiece()));
-                sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
-                pp.logger.log("Pieces: " + pp.getCollectedPieces()  + "/" + pp.totalPieces);
+                if (!pp.hasFile()) {
+                    sendMessageBB(Messages.createRequestMessage(pp.randomMissingPiece()));
+                    sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
+                }
             }
 
-        }, 0, 1000);
+        }, 0, 2000);
     }
 
     // Timer for unchoking the neighbors who send the most data. Optimistically

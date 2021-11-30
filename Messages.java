@@ -437,6 +437,7 @@ public class Messages {
             pp.logger.onCompletionOfDownload();
             System.out.println("No longer interested");
             pp.messagesToSend.add(createNotInterestedMessage());
+            pp.messagesToSend.add(createBitfieldMessage(pp.getCurrBitfield()));
             pp.pieceMessages.clear();
         }
 
@@ -518,7 +519,6 @@ public class Messages {
             handleRequestMessage(pp, senderPeer, IncomingMessage);
         } else if (type == MessageType.PIECE.ordinal()) {
             // type 7
-            //pp.logger.log("handlePieceMessage(). length of mesage is " + length);
             handlePieceMessage(pp, senderPeer, length, IncomingMessage);
         } else {
             //System.out.println("Invalid message of type " + ParseByte(IncomingMessage, 4));
