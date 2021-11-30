@@ -318,8 +318,8 @@ public class Server {
                                     sendMessage3(messageToSend);
 
                                 }
-                                    if(handlers.get(i).connectedFrom == pp.allPeers.get(4).getPeerId())
-                                    {
+                                if(handlers.get(i).connectedFrom == pp.allPeers.get(4).getPeerId())
+                                 {
                                         messageToSend = Messages.createHandshakeMessage(connectedFrom);
                                         handlers.get(i).sendMessage4(messageToSend);
                                         messageToSend = Messages.createHandshakeMessage(handlers.get(i).connectedFrom);
@@ -329,9 +329,9 @@ public class Server {
                                         handlers.get(i).sendMessage4(messageToSend);
                                         messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(handlers.get(i).connectedFrom).getBitfield());
                                         sendMessage4(messageToSend);
-                                    }
-                                    if(handlers.get(i).connectedFrom == pp.allPeers.get(5).getPeerId())
-                                    {
+                                 }
+                                 if(handlers.get(i).connectedFrom == pp.allPeers.get(5).getPeerId())
+                                  {
                                         messageToSend = Messages.createHandshakeMessage(connectedFrom);
                                         handlers.get(i).sendMessage5(messageToSend);
                                         messageToSend = Messages.createHandshakeMessage(handlers.get(i).connectedFrom);

@@ -79,7 +79,7 @@ public class Client {
                             pp.messagesToSend.add(Messages.createChokeMessage());
                             count++;
                             if(rpi.getPeerId() == pp.allPeers.get(2).getPeerId())
-                                sendMessage2(pp.messagesToSend.get(count - 1));
+                                sendMessage1(pp.messagesToSend.get(count - 1));
 
                             if (connectedToPeerId == rpi.getPeerId()) {
                                 //System.out.println("Choking peer " + rpi.getPeerId());
@@ -91,7 +91,7 @@ public class Client {
                             pp.messagesToSend.add(Messages.createUnchokeMessage());
                             count++;
                             if(rpi.getPeerId() == pp.allPeers.get(2).getPeerId())
-                                sendMessage2(pp.messagesToSend.get(count - 1));
+                                sendMessage1(pp.messagesToSend.get(count - 1));
 
                             if (connectedToPeerId == rpi.getPeerId()) {
                                 //System.out.println("Setting peer " + rpi.getPeerId() + " to be a preferred neighbor");
@@ -232,10 +232,10 @@ public class Client {
                         pieceMsg = Messages.decodeMessage(buff, pp, newId1);
 
                         for (int i = 0; i < pp.pieceMessages.size(); i++) {
-                            sendMessageOther(pp.pieceMessages.get(i));
+                            sendMessage1(pp.pieceMessages.get(i));
                         }
                         for (int i = 0; i < pp.messagesToSend.size(); i++) {
-                            sendMessageOther(pp.messagesToSend.get(i));
+                            sendMessage1(pp.messagesToSend.get(i));
                         }
                         pp.messagesToSend.clear();
                        pp.pieceMessages.clear();
@@ -351,17 +351,8 @@ public class Client {
             ioException.printStackTrace();
         }
     }
-    void sendMessageOther(ByteBuffer msg) {
-        try {
-            // stream write the message
-            out1.write(msg.array());
-            out1.flush();
 
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
-    }
-    void sendMessage2(ByteBuffer msg) {
+    void sendMessage1(ByteBuffer msg) {
         try {
             // stream write the message
             out2.write(msg.array());
