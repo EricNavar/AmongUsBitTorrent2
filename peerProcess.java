@@ -205,7 +205,7 @@ class peerProcess {
         // this is the vector of peers to consider. It's the peers that are in
         // interested but not already in preferredNeighbors
         Vector<Integer> toConsider = new Vector<Integer>();
-        // logger.log(interested.toString() + "\n");
+        // logger.log(interested.toString());
         for (Integer i : interested) {
             if (!preferredNeighbors.contains(i)) {
                 toConsider.add(i);
