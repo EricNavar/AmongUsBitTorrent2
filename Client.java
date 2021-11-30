@@ -193,8 +193,7 @@ public class Client {
                 buff = ByteBuffer.wrap(fromServer);
                 int bitfieldMsg = Messages.decodeMessage(pp, buff, connectedToPeerId);
 
-                // send interested message to server, this messagesToSend is created in
-                // messsages.java
+                // send interested message to server, this messagesToSend is created in messsages.java
                 for (int i = 0; i < pp.messagesToSend.size(); i++) {
                     sendMessageBB(pp.messagesToSend.get(i));
                 }
@@ -259,6 +258,7 @@ public class Client {
                             fromServer = new byte[in.available()];
                             in.read(fromServer);
                             buff = ByteBuffer.wrap(fromServer);
+                            //pp.logger.log("Type of message that in.read() got: " + buff.array()[4] + "\n");
 
                             pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
 
