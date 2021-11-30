@@ -197,6 +197,7 @@ public class Messages {
                     | ((IncomingBuffer.array()[startLocation + 3] & 0x0FF) << 0));
         }
         catch(Exception e) {
+            e.printStackTrace();
             return 0;
         }
     }

@@ -26,7 +26,7 @@ import java.nio.channels.FileChannel;
 // https://www.w3schools.com/java/java_files_create.asp examples utilized as basis for creating file i/o code
 
 public class FileHandling {
-	String fileName; //thefile
+	String fileName; // thefile
 	// the name of the file
 	String fileNameWithPath;
 	// the handle name of the peer if added later to the file name
@@ -61,7 +61,7 @@ public class FileHandling {
 		localByteBuffer = ByteBuffer.allocate(pieceSize);
 		PieceLengths = new HashMap<>();
 		EntireFile = new HashMap<>();
-		this.fileName = fileName; 
+		this.fileName = fileName;
 		openFile();
 	}
 
@@ -74,8 +74,7 @@ public class FileHandling {
 		try {
 			if (this.peerID == 1001) { // if server
 				fileNameWithPath = ".\\peer_1001\\" + fileName;
-			}
-			else {
+			} else {
 				fileNameWithPath = ".\\peer_" + peerID + "\\" + fileName;
 			}
 			File file = new File(fileNameWithPath);
@@ -117,7 +116,7 @@ public class FileHandling {
 	// The file that is at an odd boundary can be written even if there are fewer
 	// than the buffersize of bytes in the piece.
 
-	//TODO: this function is not right at the moment. It's writing the 
+	// TODO: this function is not right at the moment. It's writing the
 	public boolean WriteFileOut(String FileNameInput) {
 		// Might fail if for some reason it didn't have totalPieces as needed.
 		int x;
@@ -153,8 +152,6 @@ public class FileHandling {
 			}
 			writingFileStream.close();
 		} catch (IOException e) {
-			// error so print out stack trace
-			//System.out.println(" ERROR Trapped in writing to file " + fileNameWithPath);
 			e.printStackTrace();
 		}
 
@@ -208,7 +205,8 @@ public class FileHandling {
 		// newByteBuffer.remaining() " + newByteBuffer.remaining() + " versus
 		// PieceLength " + PieceLength);
 
-		//TODO: this next line fails when using Common.small.config instead of Common.config. Not sure if that's something we should consider.
+		// TODO: this next line fails when using Common.small.config instead of
+		// Common.config. Not sure if that's something we should consider.
 		// I made Common.small.config so we can have a smaller test case.
 		newByteBuffer.put(EntireFile.get(Integer.valueOf(pieceNumber)).array(), 0,
 				PieceLengths.get(Integer.valueOf(pieceNumber))); // put(byte[] src, int offset, int length) wjere byte[]
@@ -333,10 +331,10 @@ public class FileHandling {
 			// if every 16 then a new line
 			if (((x % 32) == 0) && (x > 0)) {
 				// new line character
-				//System.out.println(" ");
+				// System.out.println(" ");
 			}
 		}
-		//System.out.println(" ");
+		// System.out.println(" ");
 		// this worked so return true
 		return true;
 	}
