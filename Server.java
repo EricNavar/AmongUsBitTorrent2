@@ -93,8 +93,11 @@ public class Server {
         private Socket connection10;
 
         Vector<ByteBuffer> receivedMessages = new Vector<ByteBuffer>(0);
+<<<<<<< HEAD
         Vector<ByteBuffer> receivedMessages2 = new Vector<ByteBuffer>(0);
         Vector<ByteBuffer> receivedMessages3 = new Vector<ByteBuffer>(0);
+=======
+>>>>>>> 015ec8da2bb1274f2c67f686cc71f5fc40c77300
 
         private ObjectInputStream in; // stream read from the socket
         private ObjectOutputStream out; // stream write to the socket
@@ -379,7 +382,7 @@ public class Server {
                                         while (in1.available() > 0) {
                                             message = new byte[in1.available()];
 
-                                            in1.read(message);
+                                        in1.read(message);
 
                                             buff = ByteBuffer.wrap(message);
                                             receivedMessages.add(buff);
@@ -656,7 +659,7 @@ public class Server {
                                 }
                             }
 
-                        
+
 
                     }
                     firstTime = false;
@@ -676,14 +679,27 @@ public class Server {
                     for (int i = 0; i < pp.messagesToSend.size(); i++) {
                         sendMessageBB(pp.messagesToSend.get(i));
                     }
-                    for (int i = 0; i < pp.pieceMessages.size(); i++) {
-                        pp.logger.log("Sending piece message");
-                        sendMessageBB(pp.pieceMessages.get(i));
+
+                    while (in.available() > 0) {
+                        message = new byte[in.available()];
+
+                        in.read(message);
+
+                        buff = ByteBuffer.wrap(message);
+
+                        int chokeRes = Messages.decodeMessage(buff, pp, connectedFrom);
+                        for (int i = 0; i < pp.messagesToSend.size(); i++) {
+                            sendMessageBB(pp.messagesToSend.get(i));
+                        }
+                        for (int i = 0; i < pp.pieceMessages.size(); i++) {
+                            pp.logger.log("Sending piece message");
+                            sendMessageBB(pp.pieceMessages.get(i));
+                        }
+                        pp.pieceMessages.clear();
+
                     }
-                    pp.pieceMessages.clear();
 
                 }
-
             }
             }
         }

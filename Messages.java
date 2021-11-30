@@ -151,9 +151,9 @@ public class Messages {
     }
 
     public static ByteBuffer createPieceMessage(ByteBuffer payload, int PieceNumber, int PieceLength) {
-        ByteBuffer MessageAssembly = ByteBuffer.allocate(65536); // Message is 9 bytes
+        ByteBuffer MessageAssembly = ByteBuffer.allocate(PieceLength + 9); // length of string + 5 bits at the start of each message + 4 bits for the message index
         // length is equal to 1 (message type) + 4 (piece index size) + piece size (bytes)
-        MessageAssembly.putInt(PieceLength + 5);
+        MessageAssembly.putInt(PieceLength + 4); // the payload of the message contains the 4-byte index and then the piece
         MessageAssembly.put(encodeType(MessageType.PIECE.ordinal()));
         MessageAssembly.putInt(PieceNumber); // piece number is index
         MessageAssembly.put(Arrays.copyOfRange(payload.array(), 0, PieceLength)); // piece number is index
@@ -363,13 +363,19 @@ public class Messages {
             pp.messagesToSend.add(Messages.createNotInterestedMessage());
 
         }
+
+        // if all the processes have the file, then exit
+        if (pp.doAllProcessesHaveTheFile()) {
+            pp.getFileObject().Shutdown();
+        }
+
         return;
     }
 
     // type 6
     private static void handleRequestMessage(peerProcess pp, int senderPeer, ByteBuffer IncomingMessage) {
         // a peer (senderPeer) has requested (payload) index message
-        FileHandling f = pp.getFileObject(); // DONE: if the receiver of the message has the piece, then send the piece
+        FileHandling f = pp.getFileObject(); // if the receiver of the message has the piece, then send the piece
 
         // parse out the requested item into an integer to look up in the map structure
         int index = GetRequestMessageIndex(IncomingMessage);
@@ -384,6 +390,8 @@ public class Messages {
             // get a copy of the piece
             ThePieceLength = pp.FileObject.GetPieceSize(index); // get the piece's length
             ByteBuffer toSend = createPieceMessage(ThePiece, index, ThePieceLength);
+
+            //pp.logger.log("Creating piece message. Piece size = " + ThePieceLength + ", Piece message size = " + GetMessageLength(toSend));
 		    pp.logger.log("Send piece " + GetPieceMessageNumber(toSend) + "."); //debug log. Remove this later.
             pp.pieceMessages.add(toSend); // send the piece
         } else {
@@ -394,6 +402,10 @@ public class Messages {
 
     // type 7
     private static void handlePieceMessage(peerProcess pp, int senderPeer, int length, ByteBuffer IncomingMessage) {
+
+        if (pp.hasFile()) {
+            return;
+        }
         pp.pieceMessages.add(createRequestMessage(pp.randomMissingPiece()));
         int index = GetPieceMessageNumber(IncomingMessage);
         pp.logger.log("Receive piece " + index + " from " + senderPeer);
@@ -436,11 +448,13 @@ public class Messages {
             pp.logger.onCompletionOfDownload();
             System.out.println("No longer interested");
             pp.messagesToSend.add(createNotInterestedMessage());
+            pp.messagesToSend.add(createBitfieldMessage(pp.getCurrBitfield()));
             pp.pieceMessages.clear();
         }
 
         updateInterestedStatus(pp);
-        pp.logger.log(pp.printBitfield(pp.bitfield));
+
+        pp.logger.log(pp.printBitfield(pp.bitfield)); //debug message. delete this later.
     }
 
     // Whenever a peer receives a piece completely, it checks the bitfields of
@@ -475,7 +489,7 @@ public class Messages {
         // if the message starts with the handShake header, then it's a handshake
         // message
 
-        if (IncomingMessage.remaining() >= 32) {
+        if (IncomingMessage.remaining() == 32) {
             if (GetHandshakeString(IncomingMessage).equals(handshakeHeader)) {
                 pp.logger.onConnectingTo(senderPeer);
 

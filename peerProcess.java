@@ -300,6 +300,15 @@ class peerProcess {
         return askForPiece;
     }
 
+    public boolean doAllProcessesHaveTheFile() {
+        for (RemotePeerInfo peer: peerInfoVector) {
+            if (!peer.hasFile()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static void main(String[] args) {
         int peerId = GetProcessId(args);
         if (peerId == -1) {
