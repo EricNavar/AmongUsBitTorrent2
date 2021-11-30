@@ -363,6 +363,13 @@ public class Messages {
             pp.messagesToSend.add(Messages.createNotInterestedMessage());
 
         }
+
+        // if all the processes have the file, then exit
+        if (pp.doAllProcessesHaveTheFile()) {
+            System.out.println("All peers have the file. Adios.");
+            System.exit(0);
+        }
+
         return;
     }
 
@@ -395,6 +402,9 @@ public class Messages {
 
     // type 7
     private static void handlePieceMessage(peerProcess pp, int senderPeer, int length, ByteBuffer IncomingMessage) {
+        if (pp.hasFile()) {
+            return;
+        }
         pp.pieceMessages.add(createRequestMessage(pp.randomMissingPiece()));
         int index = GetPieceMessageNumber(IncomingMessage);
         pp.logger.log("Receive piece " + index + " from " + senderPeer);
@@ -442,7 +452,7 @@ public class Messages {
         }
 
         updateInterestedStatus(pp);
-        pp.logger.log(pp.printBitfield(pp.bitfield));
+        pp.logger.log(pp.printBitfield(pp.bitfield)); //debug message. delete this later.
     }
 
     // Whenever a peer receives a piece completely, it checks the bitfields of
