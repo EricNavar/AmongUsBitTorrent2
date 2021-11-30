@@ -32,6 +32,11 @@ public class Server {
         ServerSocket fourth = new ServerSocket(pp.allPeers.get(3).getPeerId());
         ServerSocket fifth = new ServerSocket(pp.allPeers.get(4).getPeerId());
         ServerSocket sixth = new ServerSocket(pp.allPeers.get(5).getPeerId());
+        ServerSocket seventh = new ServerSocket(pp.allPeers.get(5).getPeerId()+1);
+        ServerSocket eighth = new ServerSocket(pp.allPeers.get(5).getPeerId()+2);
+        ServerSocket ninth = new ServerSocket(pp.allPeers.get(5).getPeerId()+3);
+        ServerSocket tenth = new ServerSocket(pp.allPeers.get(5).getPeerId()+4);
+        ServerSocket eleventh = new ServerSocket(pp.allPeers.get(5).getPeerId()+5);
 
 
         //System.out.println("The server is running.");
@@ -48,8 +53,7 @@ public class Server {
         try {
             while (true) {
 
-                Handler h = new Handler(listener.accept(), second.accept(), third.accept(), fourth.accept(), clientNum);
-                /*third.accept(), fourth.accept(), fifth.accept(), sixth.accept(),*/
+                Handler h = new Handler(listener.accept(), second.accept(), third.accept(), fourth.accept(), fifth.accept(), sixth.accept(), seventh.accept(), eighth.accept(), ninth.accept(), tenth.accept(),  eleventh.accept(), clientNum);
                 h.start();
                 handlers.add(h);
                 System.out.println("Client " + clientNum + " is connected!");
@@ -60,8 +64,14 @@ public class Server {
             second.close();
             third.close();
             fourth.close();
-            /*fifth.close();
-            sixth.close();*/
+            fifth.close();
+            sixth.close();
+            seventh.close();
+            eighth.close();
+            ninth.close();
+            tenth.close();
+            eleventh.close();
+
 
         }
     }
@@ -78,34 +88,65 @@ public class Server {
         private Socket connection3;
         private Socket connection4;
         private Socket connection5;
+        private Socket connection6;
+        private Socket connection7;
+        private Socket connection8;
+        private Socket connection9;
+        private Socket connection10;
+
         Vector<ByteBuffer> receivedMessages = new Vector<ByteBuffer>(0);
 
 
 
         private ObjectInputStream in; // stream read from the socket
         private ObjectOutputStream out; // stream write to the socket
+
         private ObjectInputStream in1; // stream read from the socket
         private ObjectOutputStream out1; // stream write to the socket
+
         private ObjectInputStream in2; // stream read from the socket
         private ObjectOutputStream out2; // stream write to the socket
+
         private ObjectInputStream in3; // stream read from the socket
         private ObjectOutputStream out3; // stream write to the socket
+
         private ObjectInputStream in4; // stream read from the socket
         private ObjectOutputStream out4; // stream write to the socket
+
         private ObjectInputStream in5; // stream read from the socket
         private ObjectOutputStream out5; // stream write to the socket
+
+        private ObjectInputStream in6; // stream read from the socket
+        private ObjectOutputStream out6; // stream write to the socket
+
+        private ObjectInputStream in7; // stream read from the socket
+        private ObjectOutputStream out7; // stream write to the socket
+
+        private ObjectInputStream in8; // stream read from the socket
+        private ObjectOutputStream out8; // stream write to the socket
+
+        private ObjectInputStream in9; // stream read from the socket
+        private ObjectOutputStream out9; // stream write to the socket
+
+        private ObjectInputStream in10; // stream read from the socket
+        private ObjectOutputStream out10; // stream write to the socket
 
         private int no; // The index number of the client
         int connectedFrom;
         boolean firstTime = true;
 
-        public Handler(Socket connection, Socket connection1, Socket connection2, Socket connection3, /*Socket connection4, Socket connection5,*/ int no) {
+        public Handler(Socket connection, Socket connection1, Socket connection2, Socket connection3, Socket connection4, Socket connection5,  Socket connection6, Socket connection7, Socket connection8, Socket connection9, Socket connection10, int no) {
             this.connection = connection;
             this.connection1 = connection1;
             this.connection2 = connection2;
             this.connection3 = connection3;
-            /*this.connection4 = connection4;
-            this.connection5 = connection5;*/
+            this.connection4 = connection4;
+            this.connection5 = connection5;
+            this.connection6 = connection6;
+            this.connection7 = connection7;
+            this.connection8 = connection8;
+            this.connection9 = connection9;
+            this.connection10 = connection10;
             this.no = no;
 
         }
@@ -236,15 +277,7 @@ public class Server {
                 runOptimisticallyUnchokedTimer();
 
                 while (true) {
-                    while (in1.available() > 0) {
-                        message = new byte[in1.available()];
 
-                        in1.read(message);
-
-                        buff = ByteBuffer.wrap(message);
-                        receivedMessages.add(buff);
-
-                    }
                     if (handlers.size() >= 2) {
                         for (int i = 0; i < handlers.size(); i++) {
                             // start sending piece messages here
@@ -258,6 +291,9 @@ public class Server {
                                     continue;
 
                                 if (handlers.get(i).connectedFrom == pp.allPeers.get(1).getPeerId()) {
+                                    // if 1002, channel 1
+                                    // if 1004 channel 2
+                                    // dont reuse same channel for one process
                                     messageToSend = Messages.createHandshakeMessage(connectedFrom);
                                     handlers.get(i).sendMessage1(messageToSend);
                                     messageToSend = Messages.createHandshakeMessage(handlers.get(i).connectedFrom);
@@ -346,14 +382,15 @@ public class Server {
                             else
                             {
                                 // peer "1003"
+                                // create new channels for these
                                 if(handlers.get(i).connectedFrom == pp.allPeers.get(2).getPeerId())
                                 {
                                     boolean continueOn = false;
                                     // receive either choke or unchoke
-                                    while (in2.available() > 0) {
-                                        message = new byte[in2.available()];
+                                    while (in1.available() > 0) {
+                                        message = new byte[in1.available()];
 
-                                        in2.read(message);
+                                        in1.read(message);
 
                                         buff = ByteBuffer.wrap(message);
                                         if(Messages.GetMessageType(buff) == 1)
@@ -461,13 +498,33 @@ public class Server {
                 out3.flush();
                 in3 = new ObjectInputStream(connection3.getInputStream());
 
-                /*out4 = new ObjectOutputStream(connection4.getOutputStream());
+                out4 = new ObjectOutputStream(connection4.getOutputStream());
                 out4.flush();
                 in4 = new ObjectInputStream(connection4.getInputStream());
 
                 out5 = new ObjectOutputStream(connection5.getOutputStream());
                 out5.flush();
-                in5 = new ObjectInputStream(connection5.getInputStream());*/
+                in5 = new ObjectInputStream(connection5.getInputStream());
+
+                out6 = new ObjectOutputStream(connection6.getOutputStream());
+                out6.flush();
+                in6 = new ObjectInputStream(connection6.getInputStream());
+
+                out7 = new ObjectOutputStream(connection7.getOutputStream());
+                out7.flush();
+                in7= new ObjectInputStream(connection7.getInputStream());
+
+                out8 = new ObjectOutputStream(connection8.getOutputStream());
+                out8.flush();
+                in8 = new ObjectInputStream(connection8.getInputStream());
+
+                out9 = new ObjectOutputStream(connection9.getOutputStream());
+                out9.flush();
+                in9 = new ObjectInputStream(connection9.getInputStream());
+
+                out10 = new ObjectOutputStream(connection10.getOutputStream());
+                out10.flush();
+                in10 = new ObjectInputStream(connection10.getInputStream());
 
                 try {
                     serverLoop();
@@ -495,13 +552,33 @@ public class Server {
                     out3.close();
                     connection3.close();
 
-                    /*in4.close();
+                    in4.close();
                     out4.close();
                     connection4.close();
 
                     in5.close();
                     out5.close();
-                    connection5.close();*/
+                    connection5.close();
+
+                    in6.close();
+                    out6.close();
+                    connection6.close();
+
+                    in7.close();
+                    out7.close();
+                    connection7.close();
+
+                    in8.close();
+                    out8.close();
+                    connection8.close();
+
+                    in9.close();
+                    out9.close();
+                    connection9.close();
+
+                    in10.close();
+                    out10.close();
+                    connection10.close();
 
                 } catch (IOException ioException) {
                     System.out.println("Disconnect with Client " + no);
