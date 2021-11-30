@@ -79,7 +79,7 @@ public class Client {
                             pp.messagesToSend.add(Messages.createChokeMessage());
                             count++;
                             if(rpi.getPeerId() == pp.allPeers.get(2).getPeerId())
-                                sendMessage1(pp.messagesToSend.get(count - 1));
+                                sendMessage2(pp.messagesToSend.get(count - 1));
 
                             if (connectedToPeerId == rpi.getPeerId()) {
                                 //System.out.println("Choking peer " + rpi.getPeerId());
@@ -91,7 +91,7 @@ public class Client {
                             pp.messagesToSend.add(Messages.createUnchokeMessage());
                             count++;
                             if(rpi.getPeerId() == pp.allPeers.get(2).getPeerId())
-                                sendMessage1(pp.messagesToSend.get(count - 1));
+                                sendMessage2(pp.messagesToSend.get(count - 1));
 
                             if (connectedToPeerId == rpi.getPeerId()) {
                                 //System.out.println("Setting peer " + rpi.getPeerId() + " to be a preferred neighbor");
@@ -355,6 +355,17 @@ public class Client {
     void sendMessage1(ByteBuffer msg) {
         try {
             // stream write the message
+            out1.write(msg.array());
+            out1.flush();
+
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+    }
+
+    void sendMessage2(ByteBuffer msg) {
+        try {
+            // stream write the message
             out2.write(msg.array());
             out2.flush();
 
@@ -362,5 +373,4 @@ public class Client {
             ioException.printStackTrace();
         }
     }
-
 }
