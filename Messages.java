@@ -476,7 +476,7 @@ public class Messages {
         // if the message starts with the handShake header, then it's a handshake
         // message
 
-        if (IncomingMessage.remaining() >= 32) {
+        if (IncomingMessage.remaining() == 32) {
             if (GetHandshakeString(IncomingMessage).equals(handshakeHeader)) {
                 pp.logger.onConnectingTo(senderPeer);
 
