@@ -93,11 +93,8 @@ public class Server {
         private Socket connection10;
 
         Vector<ByteBuffer> receivedMessages = new Vector<ByteBuffer>(0);
-<<<<<<< HEAD
         Vector<ByteBuffer> receivedMessages2 = new Vector<ByteBuffer>(0);
         Vector<ByteBuffer> receivedMessages3 = new Vector<ByteBuffer>(0);
-=======
->>>>>>> 015ec8da2bb1274f2c67f686cc71f5fc40c77300
 
         private ObjectInputStream in; // stream read from the socket
         private ObjectOutputStream out; // stream write to the socket
@@ -687,7 +684,7 @@ public class Server {
 
                         buff = ByteBuffer.wrap(message);
 
-                        int chokeRes = Messages.decodeMessage(buff, pp, connectedFrom);
+                        chokeRes = Messages.decodeMessage(buff, pp, connectedFrom);
                         for (int i = 0; i < pp.messagesToSend.size(); i++) {
                             sendMessageBB(pp.messagesToSend.get(i));
                         }
