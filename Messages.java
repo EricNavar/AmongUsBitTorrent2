@@ -366,8 +366,7 @@ public class Messages {
 
         // if all the processes have the file, then exit
         if (pp.doAllProcessesHaveTheFile()) {
-            System.out.println("All peers have the file. Adios.");
-            System.exit(0);
+            pp.getFileObject().Shutdown();
         }
 
         return;
@@ -376,7 +375,7 @@ public class Messages {
     // type 6
     private static void handleRequestMessage(peerProcess pp, int senderPeer, ByteBuffer IncomingMessage) {
         // a peer (senderPeer) has requested (payload) index message
-        FileHandling f = pp.getFileObject(); // DONE: if the receiver of the message has the piece, then send the piece
+        FileHandling f = pp.getFileObject(); // if the receiver of the message has the piece, then send the piece
 
         // parse out the requested item into an integer to look up in the map structure
         int index = GetRequestMessageIndex(IncomingMessage);
