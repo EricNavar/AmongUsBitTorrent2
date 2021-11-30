@@ -48,7 +48,7 @@ public class RemotePeerInfo {
 			fileSize = Integer.parseInt(fileSizes[1]);
 			pieceSize = Integer.parseInt(pieceSizes[1]);
 		} catch (Exception e) {
-
+			e.printStackTrace();
 		}
 		int totalPieces = (int) ceil((double) fileSize / pieceSize);
 		bitfield.setSize(totalPieces);
@@ -88,15 +88,14 @@ public class RemotePeerInfo {
 	public void setChoked(boolean choked) {
 		this.choked = choked;
 	}
-	
+
 	public void setMessagesToSend(Vector<ByteBuffer> messagesToSend) {
 		this.messagesToSend = messagesToSend;
 	}
-	
+
 	public Vector<ByteBuffer> getMessagesToSend() {
 		return this.messagesToSend;
 	}
-
 
 	public boolean isInterested() {
 		return interested;

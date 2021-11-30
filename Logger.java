@@ -17,7 +17,7 @@ class Logger {
         try {
             new FileOutputStream(fileName).close();
         } catch (IOException e) {
-            System.out.println("IO Exception");
+            System.err.println("IO Exception");
         }
     }
 
@@ -28,11 +28,11 @@ class Logger {
     }
 
     public void onConnectingTo(int peerID2) {
-        log(getDate() + ": Peer " + this.peerID + " makes a connection to Peer " + peerID2 + ".\n");
+        log(getDate() + ": Peer " + this.peerID + " makes a connection to Peer " + peerID2 + ".");
     }
 
     public void onConnectingFrom(int peerID2) {
-        log(getDate() + ": Peer " + this.peerID + " is connected from Peer " + peerID2 + ".\n");
+        log(getDate() + ": Peer " + this.peerID + " is connected from Peer " + peerID2 + ".");
     }
 
     public void onChangeOfPreferredNeighbors(Vector<Integer> preferredNeighbors) {
@@ -44,45 +44,45 @@ class Logger {
             }
             toPrint.append(preferredNeighbors.get(i));
         }
-        toPrint.append(".\n");
+        toPrint.append(".");
         log(toPrint.toString());
     }
 
     public void onChangeOfOptimisticallyUnchokedNeighbor(int optimisticallyUnchockedNeighbor_ID) {
         log(getDate() + ": Peer " + this.peerID + " has the optimistically unchoked neighbor "
-                + optimisticallyUnchockedNeighbor_ID + ".\n");
+                + optimisticallyUnchockedNeighbor_ID + ".");
     }
 
     public void onUnchoking(int peerID2) {
-        log(getDate() + ": Peer " + this.peerID + " is unchoked by " + peerID2 + ".\n");
+        log(getDate() + ": Peer " + this.peerID + " is unchoked by " + peerID2 + ".");
     }
 
     // choke me plz, well... at least we didn't throw four interceptions this
     // week...
     public void onChoking(int peerID2) {
-        log(getDate() + ": Peer " + this.peerID + " is choked by " + peerID2 + ".\n");
+        log(getDate() + ": Peer " + this.peerID + " is choked by " + peerID2 + ".");
     }
 
     public void onReceiveHaveMessage(int peerID2, int pieceIndex) {
         log(getDate() + ": Peer " + this.peerID + " received the  ‘have’ message from " + peerID2 + " for the piece "
-                + pieceIndex + ".\n");
+                + pieceIndex + ".");
     }
 
     public void onReceiveInterestedMessage(int peerID2) {
-        log(getDate() + ": Peer " + this.peerID + " received the ‘interested’ message from " + peerID2 + ".\n");
+        log(getDate() + ": Peer " + this.peerID + " received the ‘interested’ message from " + peerID2 + ".");
     }
 
     public void onReceiveNotInterestedMessage(int peerID2) {
-        log(getDate() + ": Peer " + this.peerID + " received the ‘not interested’ message from " + peerID2 + ".\n");
+        log(getDate() + ": Peer " + this.peerID + " received the ‘not interested’ message from " + peerID2 + ".");
     }
 
     public void onDownloadingAPiece(int peerID2, int piece_index, int number_of_pieces) {
         log(getDate() + ": Peer " + this.peerID + " has downloaded the piece " + String.valueOf(piece_index) + " from "
-                + peerID2 + ". Now the number of pieces it has is " + String.valueOf(number_of_pieces) + ".\n");
+                + peerID2 + ". Now the number of pieces it has is " + String.valueOf(number_of_pieces) + ".");
     }
 
     public void onCompletionOfDownload() {
-        log(getDate() + ": Peer " + this.peerID + "has downloaded the complete file.\n");
+        log(getDate() + ": Peer " + this.peerID + "has downloaded the complete file.");
     }
 
     public void log(String toPrint) {
@@ -92,11 +92,12 @@ class Logger {
         try {
             // true in constructor means append
             FileOutputStream outputStream = new FileOutputStream(fileName, true);
+            toPrint = toPrint + "\n";
             byte[] strToBytes = toPrint.getBytes();
             outputStream.write(strToBytes);
             outputStream.close();
         } catch (IOException e) {
-            System.out.println("IO Exception");
+            System.err.println("IO Exception");
         }
     }
 
@@ -111,7 +112,7 @@ class Logger {
             outputStream.write(strToBytes);
             outputStream.close();
         } catch (IOException e) {
-            System.out.println("IO Exception");
+            System.err.println("IO Exception");
         }
     }
 }

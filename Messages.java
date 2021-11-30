@@ -200,6 +200,7 @@ public class Messages {
                     | ((IncomingBuffer.array()[startLocation + 3] & 0x0FF) << 0));
         }
         catch(Exception e) {
+            e.printStackTrace();
             return 0;
         }
     }
@@ -353,7 +354,7 @@ public class Messages {
                 rpi.getBitfield().set(i, bitvalue == 1);
             }
         }
-        pp.logger.log( "Received bitfield from " + senderPeer + ": " + pp.printBitfield(rpi.getBitfield()) + "\n");
+        pp.logger.log( "Received bitfield from " + senderPeer + ": " + pp.printBitfield(rpi.getBitfield()));
         //System.out.println("The interest of " + pp.getPeerId() + " in " + senderPeer + " is set to " + nowInterested);
 
         if (nowInterested) {
@@ -373,7 +374,7 @@ public class Messages {
         // parse out the requested item into an integer to look up in the map structure
         int index = GetRequestMessageIndex(IncomingMessage);
 
-        pp.logger.log("Peer " + senderPeer + " has requested piece " + index + "\n"); // debug statement. remove this later.
+        pp.logger.log("Peer " + senderPeer + " has requested piece " + index); // debug statement. remove this later.
 
         if (f.CheckForPieceNumber(index)) { // if we actually have this piece in the stored location...
             ByteBuffer ThePiece;
@@ -383,7 +384,7 @@ public class Messages {
             // get a copy of the piece
             ThePieceLength = pp.FileObject.GetPieceSize(index); // get the piece's length
             ByteBuffer toSend = createPieceMessage(ThePiece, index, ThePieceLength);
-		    pp.logger.log("Send piece " + index + "=" + GetPieceMessageNumber(toSend) + ".\n"); //debug log. Remove this later.
+		    pp.logger.log("Send piece " + GetPieceMessageNumber(toSend) + "."); //debug log. Remove this later.
             pp.pieceMessages.add(toSend); // send the piece
         } else {
             System.out.println("Some questionable character/actor identified as " + senderPeer + " asked for piece "
@@ -393,11 +394,9 @@ public class Messages {
 
     // type 7
     private static void handlePieceMessage(peerProcess pp, int senderPeer, int length, ByteBuffer IncomingMessage) {
-        //System.out.println("Receive piece message from " + senderPeer);
-
         pp.pieceMessages.add(createRequestMessage(pp.randomMissingPiece()));
         int index = GetPieceMessageNumber(IncomingMessage);
-        pp.logger.log("Received piece " + index + '\n');
+        pp.logger.log("Receive piece " + index + " from " + senderPeer);
         // Done: write the piece to a file (wherever it should be written, idk) See
         // Below, handles logging of the received piece
         ByteBuffer GrabPieceData = ByteBuffer.allocate(65536); // Message is longer
@@ -441,7 +440,7 @@ public class Messages {
         }
 
         updateInterestedStatus(pp);
-        pp.logger.log(pp.printBitfield(pp.bitfield) + "\n");
+        pp.logger.log(pp.printBitfield(pp.bitfield));
     }
 
     // Whenever a peer receives a piece completely, it checks the bitfields of
@@ -518,6 +517,7 @@ public class Messages {
             handleRequestMessage(pp, senderPeer, IncomingMessage);
         } else if (type == MessageType.PIECE.ordinal()) {
             // type 7
+            //pp.logger.log("handlePieceMessage(). length of mesage is " + length);
             handlePieceMessage(pp, senderPeer, length, IncomingMessage);
         } else {
             //System.out.println("Invalid message of type " + ParseByte(IncomingMessage, 4));

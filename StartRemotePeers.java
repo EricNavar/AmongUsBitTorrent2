@@ -30,7 +30,7 @@ public class StartRemotePeers {
 	public void getConfiguration() {
 		String st;
 		pp.peerInfoVector = new Vector<RemotePeerInfo>();
-		int count =0;
+		int count = 0;
 		try {
 			BufferedReader in = new BufferedReader(new FileReader("PeerInfo.cfg"));
 			while ((st = in.readLine()) != null) {
@@ -44,8 +44,7 @@ public class StartRemotePeers {
 					if (tokens[3].equals("1")) {
 						pp.setHasFile(true);
 					}
-				}
-				else {	
+				} else {
 					pp.peerInfoVector.addElement(new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3]));
 
 				}
@@ -53,7 +52,7 @@ public class StartRemotePeers {
 
 			in.close();
 		} catch (Exception ex) {
-			System.out.println(ex.toString());
+			ex.printStackTrace();
 		}
 	}
 
@@ -73,14 +72,15 @@ public class StartRemotePeers {
 				RemotePeerInfo pInfo = (RemotePeerInfo) pp.peerInfoVector.elementAt(i);
 
 				System.out.println("Start remote peer " + pInfo.getPeerId() + " at " + pInfo.getPeerAddress());
-				
-				//Runtime.getRuntime().exec("ssh " + pInfo.peerAddress + " cd " + path + "; java peerProcess " + pInfo.peerId);
+
+				// Runtime.getRuntime().exec("ssh " + pInfo.peerAddress + " cd " + path + ";
+				// java peerProcess " + pInfo.peerId);
 				Runtime.getRuntime().exec("java peerProcess " + pInfo.getPeerId());
 			}
 			System.out.println("Starting all remote peers has done.");
 
 		} catch (Exception ex) {
-			System.out.println(ex);
+			ex.printStackTrace();
 		}
 	}
 }
