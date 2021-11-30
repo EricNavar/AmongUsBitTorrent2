@@ -134,6 +134,10 @@ public class Server {
         private int no; // The index number of the client
         int connectedFrom;
         boolean firstTime = true;
+        boolean secondTurn = true;
+
+        boolean turn1 = true;
+
 
         public Handler(Socket connection, Socket connection1, Socket connection2, Socket connection3, Socket connection4, Socket connection5,  Socket connection6, Socket connection7, Socket connection8, Socket connection9, Socket connection10, int no) {
             this.connection = connection;
@@ -276,6 +280,33 @@ public class Server {
                 runOptimisticallyUnchokedTimer();
 
                 while (true) {
+                   while (in1.available() > 0) {
+                        message = new byte[in1.available()];
+
+                        in1.read(message);
+
+                        buff = ByteBuffer.wrap(message);
+                        receivedMessages.add(buff);
+
+                    }
+                    while (in2.available() > 0) {
+                        message = new byte[in2.available()];
+
+                        in2.read(message);
+
+                        buff = ByteBuffer.wrap(message);
+                        receivedMessages.add(buff);
+
+                    }
+                    while (in3.available() > 0) {
+                        message = new byte[in3.available()];
+
+                        in3.read(message);
+
+                        buff = ByteBuffer.wrap(message);
+                        receivedMessages.add(buff);
+
+                    }
 
                     if (handlers.size() >= 2) {
                         for (int i = 0; i < handlers.size(); i++) {
@@ -289,131 +320,63 @@ public class Server {
                                 if (handlers.get(i).connectedFrom == connectedFrom)
                                     continue;
 
+
+
                                 if (handlers.get(i).connectedFrom == pp.allPeers.get(1).getPeerId()) {
-                                    // if 1002, channel 1
-                                    // if 1004 channel 2
-                                    // dont reuse same channel for one process
-                                    messageToSend = Messages.createHandshakeMessage(connectedFrom);
-                                    handlers.get(i).sendMessage1(messageToSend);
-                                    messageToSend = Messages.createHandshakeMessage(handlers.get(i).connectedFrom);
-                                    sendMessage1(messageToSend);
 
-                                    messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(connectedFrom).getBitfield());
-                                    handlers.get(i).sendMessage1(messageToSend);
-                                    messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(handlers.get(i).connectedFrom).getBitfield());
-                                    sendMessage1(messageToSend);
-                                    while (in1.available() <= 0) {
+                                  if(connectedFrom == 1004) {
 
-                                    }
-                                    while (in1.available() > 0) {
-                                        message = new byte[in1.available()];
-
-                                        in1.read(message);
-
-                                        buff = ByteBuffer.wrap(message);
-                                        receivedMessages.add(buff);
-
-                                    }
-                                    while (receivedMessages.size() == 0) {
-                                    }
-                                    for (int j = 0; j < receivedMessages.size(); j++) {
-                                        handlers.get(i).sendMessage1(receivedMessages.get(j));
-                                    }
-
-                                    while (handlers.get(i).receivedMessages.size() == 0) {
-                                    }
-                                    for (int j = 0; j < handlers.get(i).receivedMessages.size(); j++) {
-                                        sendMessage1(handlers.get(i).receivedMessages.get(j));
-                                    }
-                                    handlers.get(i).receivedMessages.clear();
-
-
-                                    receivedMessages.clear();
-                                }
-                                /*if (handlers.get(i).connectedFrom == pp.allPeers.get(2).getPeerId()) {
-                                    messageToSend = Messages.createHandshakeMessage(connectedFrom);
-                                    handlers.get(i).sendMessage2(messageToSend);
-                                    messageToSend = Messages.createHandshakeMessage(handlers.get(i).connectedFrom);
-                                    sendMessage2(messageToSend);
-
-                                    messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(connectedFrom).getBitfield());
-                                    handlers.get(i).sendMessage2(messageToSend);
-                                    messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(handlers.get(i).connectedFrom).getBitfield());
-                                    sendMessage2(messageToSend);
-                                }
-                                if (handlers.get(i).connectedFrom == pp.allPeers.get(3).getPeerId()) {
-                                    messageToSend = Messages.createHandshakeMessage(connectedFrom);
-                                    handlers.get(i).sendMessage3(messageToSend);
-                                    messageToSend = Messages.createHandshakeMessage(handlers.get(i).connectedFrom);
-                                    sendMessage3(messageToSend);
-
-                                    messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(connectedFrom).getBitfield());
-                                    handlers.get(i).sendMessage3(messageToSend);
-                                    messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(handlers.get(i).connectedFrom).getBitfield());
-                                    sendMessage3(messageToSend);
-
-                                }
-                                if(handlers.get(i).connectedFrom == pp.allPeers.get(4).getPeerId())
-                                 {
+                                      
                                         messageToSend = Messages.createHandshakeMessage(connectedFrom);
-                                        handlers.get(i).sendMessage4(messageToSend);
+                                        handlers.get(i).sendMessage3(messageToSend);
                                         messageToSend = Messages.createHandshakeMessage(handlers.get(i).connectedFrom);
-                                        sendMessage4(messageToSend);
+                                        sendMessage3(messageToSend);
 
                                         messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(connectedFrom).getBitfield());
-                                        handlers.get(i).sendMessage4(messageToSend);
+                                        handlers.get(i).sendMessage3(messageToSend);
                                         messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(handlers.get(i).connectedFrom).getBitfield());
-                                        sendMessage4(messageToSend);
-                                 }
-                                 if(handlers.get(i).connectedFrom == pp.allPeers.get(5).getPeerId())
-                                  {
-                                        messageToSend = Messages.createHandshakeMessage(connectedFrom);
-                                        handlers.get(i).sendMessage5(messageToSend);
-                                        messageToSend = Messages.createHandshakeMessage(handlers.get(i).connectedFrom);
-                                        sendMessage5(messageToSend);
+                                        sendMessage3(messageToSend);
+                                       while (in3.available() <= 0) {
 
-                                        messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(connectedFrom).getBitfield());
-                                        handlers.get(i).sendMessage5(messageToSend);
-                                        messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(handlers.get(i).connectedFrom).getBitfield());
-                                        sendMessage5(messageToSend);
-                                    }*/
-                            }
-                            else
-                            {
-                                // peer "1003"
-                                // create new channels for these
-                                if(handlers.get(i).connectedFrom == pp.allPeers.get(2).getPeerId())
-                                {
-                                    boolean continueOn = false;
-                                    // receive either choke or unchoke
-                                    while (in1.available() > 0) {
-                                        message = new byte[in1.available()];
+                                       }
 
-                                        in1.read(message);
+                                       while (in3.available() > 0) {
+                                            message = new byte[in3.available()];
 
-                                        buff = ByteBuffer.wrap(message);
-                                        if(Messages.GetMessageType(buff) == 1)
-                                            continueOn = true;
-                                        receivedMessages.add(buff);
+                                            in3.read(message);
 
-                                    }
-                                    // if an unchoke message is received
-                                    if(continueOn) {
-                                        // send unchoke message to peer
-                                        for (int j = 0; j < receivedMessages.size(); j++) {
-                                            handlers.get(i).sendMessage1(receivedMessages.get(j));
+                                            buff = ByteBuffer.wrap(message);
+                                            receivedMessages.add(buff);
+
+                                        }
+
+                                       while (receivedMessages.size() == 0) {
+                                       }
+                                       for (int j = 0; j < receivedMessages.size(); j++) {
+                                            handlers.get(i).sendMessage3(receivedMessages.get(j));
                                         }
 
                                         while (handlers.get(i).receivedMessages.size() == 0) {
                                         }
-
-                                        // send request message to origin
                                         for (int j = 0; j < handlers.get(i).receivedMessages.size(); j++) {
-                                            sendMessage1(handlers.get(i).receivedMessages.get(j));
+                                            sendMessage3(handlers.get(i).receivedMessages.get(j));
                                         }
-                                        // receive piece message from origin
+                                        handlers.get(i).receivedMessages.clear();
 
-                                        while (in.available() <= 0) {
+                                        receivedMessages.clear();
+                                    }
+                                    if(connectedFrom == 1003) {
+                                        messageToSend = Messages.createHandshakeMessage(connectedFrom);
+                                        handlers.get(i).sendMessage1(messageToSend);
+                                        messageToSend = Messages.createHandshakeMessage(handlers.get(i).connectedFrom);
+                                        sendMessage1(messageToSend);
+
+                                        messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(connectedFrom).getBitfield());
+                                        handlers.get(i).sendMessage1(messageToSend);
+                                        messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(handlers.get(i).connectedFrom).getBitfield());
+                                        sendMessage1(messageToSend);
+                                        while (in1.available() <= 0) {
+
                                         }
                                         while (in1.available() > 0) {
                                             message = new byte[in1.available()];
@@ -424,17 +387,203 @@ public class Server {
                                             receivedMessages.add(buff);
 
                                         }
-
-                                        //send piece message to peer
+                                        while (receivedMessages.size() == 0) {
+                                        }
                                         for (int j = 0; j < receivedMessages.size(); j++) {
                                             handlers.get(i).sendMessage1(receivedMessages.get(j));
                                         }
 
+                                        while (handlers.get(i).receivedMessages.size() == 0) {
+                                        }
+                                        for (int j = 0; j < handlers.get(i).receivedMessages.size(); j++) {
+                                            sendMessage1(handlers.get(i).receivedMessages.get(j));
+                                        }
+                                        handlers.get(i).receivedMessages.clear();
+
+
+                                        receivedMessages.clear();
                                     }
 
+                                }
+
+
+
+
+                            }
+                            else {
+                                    if(secondTurn) {
+                                        if (handlers.get(i).connectedFrom == pp.allPeers.get(2).getPeerId()) {
+
+                                            if (connectedFrom == 1004) {
+                                                if(in3.available() > 0)
+                                                {
+                                                    continue;
+                                                }
+                                                else
+                                                    secondTurn = false;
+
+
+
+                                                messageToSend = Messages.createHandshakeMessage(connectedFrom);
+                                                handlers.get(i).sendMessage2(messageToSend);
+                                                messageToSend = Messages.createHandshakeMessage(handlers.get(i).connectedFrom);
+                                                sendMessage2(messageToSend);
+
+                                                messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(connectedFrom).getBitfield());
+                                                handlers.get(i).sendMessage2(messageToSend);
+                                                messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(handlers.get(i).connectedFrom).getBitfield());
+                                                sendMessage2(messageToSend);
+                                                while (in2.available() <= 0) {
+
+                                                }
+
+                                                while (in2.available() > 0) {
+                                                    message = new byte[in2.available()];
+
+                                                    in2.read(message);
+
+                                                    buff = ByteBuffer.wrap(message);
+                                                    receivedMessages.add(buff);
+
+                                                }
+
+                                                while (receivedMessages.size() == 0) {
+                                                }
+                                                for (int j = 0; j < receivedMessages.size(); j++) {
+                                                    handlers.get(i).sendMessage2(receivedMessages.get(j));
+                                                }
+
+                                                while (handlers.get(i).receivedMessages.size() == 0) {
+                                                }
+                                                for (int j = 0; j < handlers.get(i).receivedMessages.size(); j++) {
+                                                    sendMessage2(handlers.get(i).receivedMessages.get(j));
+                                                }
+                                                handlers.get(i).receivedMessages.clear();
+
+                                                receivedMessages.clear();
+                                            }
+                                        }
+                                    }
+                              if (handlers.get(i).connectedFrom == pp.allPeers.get(2).getPeerId()) {
+                                    if (connectedFrom == 1002) {
+                                        boolean continueOn = false;
+                                        // receive either choke or unchoke
+
+                                        while (in1.available() > 0) {
+
+
+                                            message = new byte[in1.available()];
+
+                                            in1.read(message);
+
+                                            buff = ByteBuffer.wrap(message);
+                                            if (Messages.GetMessageType(buff) == 1)
+                                                continueOn = true;
+                                            receivedMessages.add(buff);
+
+                                        }
+                                        // if an unchoke message is received
+                                        if (continueOn) {
+                                            // send unchoke message to peer
+                                            for (int j = 0; j < receivedMessages.size(); j++) {
+                                                handlers.get(i).sendMessage1(receivedMessages.get(j));
+                                            }
+
+                                            while (handlers.get(i).receivedMessages.size() == 0) {
+                                            }
+
+                                            // send request message to origin
+                                            for (int j = 0; j < handlers.get(i).receivedMessages.size(); j++) {
+                                                sendMessage1(handlers.get(i).receivedMessages.get(j));
+                                            }
+
+
+                                            // receive piece message from origin
+
+                                            while (in1.available() <= 0) {
+                                            }
+                                            while (in1.available() > 0) {
+                                                message = new byte[in1.available()];
+
+                                                in1.read(message);
+
+                                                buff = ByteBuffer.wrap(message);
+                                                receivedMessages.add(buff);
+
+                                            }
+
+                                            //send piece message to peer
+                                            for (int j = 0; j < receivedMessages.size(); j++) {
+                                                handlers.get(i).sendMessage1(receivedMessages.get(j));
+                                            }
+                                            handlers.get(i).receivedMessages.clear();
+
+
+                                            receivedMessages.clear();
+
+                                        }
+                                    }
+                                    if (connectedFrom == 1004) {
+                                        boolean continueOn = false;
+                                        // receive either choke or unchoke
+                                        while (in2.available() > 0) {
+                                            message = new byte[in2.available()];
+
+                                            in2.read(message);
+
+                                            buff = ByteBuffer.wrap(message);
+                                            if (Messages.GetMessageType(buff) == 1)
+                                                continueOn = true;
+                                            receivedMessages.add(buff);
+
+                                        }
+                                        // if an unchoke message is received
+                                        if (continueOn) {
+                                            // send unchoke message to peer
+                                            for (int j = 0; j < receivedMessages.size(); j++) {
+                                                handlers.get(i).sendMessage2(receivedMessages.get(j));
+                                            }
+
+                                            while (handlers.get(i).receivedMessages.size() == 0) {
+                                            }
+
+                                            // send request message to origin
+                                            for (int j = 0; j < handlers.get(i).receivedMessages.size(); j++) {
+                                                sendMessage2(handlers.get(i).receivedMessages.get(j));
+                                            }
+
+                                            // receive piece message from origin
+
+                                            while (in2.available() <= 0) {
+                                            }
+                                            while (in2.available() > 0) {
+                                                message = new byte[in1.available()];
+
+                                                in2.read(message);
+
+                                                buff = ByteBuffer.wrap(message);
+                                                receivedMessages.add(buff);
+
+                                            }
+
+                                            //send piece message to peer
+                                            for (int j = 0; j < receivedMessages.size(); j++) {
+                                                handlers.get(i).sendMessage2(receivedMessages.get(j));
+                                            }
+                                            handlers.get(i).receivedMessages.clear();
+
+
+                                            receivedMessages.clear();
+
+                                        }
+                                    }
 
                                 }
                             }
+
+
+
+                            
                         }
                         firstTime = false;
 
