@@ -74,18 +74,25 @@ public class Client {
                     int count = 0;
                     for (int i = 0; i < pp.peerInfoVector.size(); i++) {
                         RemotePeerInfo rpi = pp.peerInfoVector.get(i);
-                        if (!pp.isNeighbor(rpi.getPeerId()) && !rpi.isChoked()) { // do not send choke message if it's
+                        if (!pp.isNeighbor(rpi.getPeerId())) { // do not send choke message if it's
                                                                                   // already choked
                             pp.messagesToSend.add(Messages.createChokeMessage());
                             count++;
+                            if(rpi.getPeerId() == pp.allPeers.get(2).getPeerId())
+                                sendMessage2(pp.messagesToSend.get(count - 1));
+
                             if (connectedToPeerId == rpi.getPeerId()) {
                                 //System.out.println("Choking peer " + rpi.getPeerId());
                                 rpi.setChoked(true);
                                 sendMessageBB(pp.messagesToSend.get(count - 1));
                             }
-                        } else if (pp.isNeighbor(rpi.getPeerId()) && rpi.isChoked()) {
+                        } else if (pp.isNeighbor(rpi.getPeerId())) {
+
                             pp.messagesToSend.add(Messages.createUnchokeMessage());
                             count++;
+                            if(rpi.getPeerId() == pp.allPeers.get(2).getPeerId())
+                                sendMessage2(pp.messagesToSend.get(count - 1));
+
                             if (connectedToPeerId == rpi.getPeerId()) {
                                 //System.out.println("Setting peer " + rpi.getPeerId() + " to be a preferred neighbor");
                                 rpi.setChoked(false);
@@ -223,9 +230,15 @@ public class Client {
                             newId1 =Messages.decodeMessage(buff, pp, -1);
                         }
                         pieceMsg = Messages.decodeMessage(buff, pp, newId1);
+
+                        for (int i = 0; i < pp.pieceMessages.size(); i++) {
+                            sendMessageOther(pp.pieceMessages.get(i));
+                        }
                         for (int i = 0; i < pp.messagesToSend.size(); i++) {
                             sendMessageOther(pp.messagesToSend.get(i));
                         }
+                        pp.messagesToSend.clear();
+                       pp.pieceMessages.clear();
 
                         // send the bitfield message after receiving a message
                         sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
@@ -343,6 +356,16 @@ public class Client {
             // stream write the message
             out1.write(msg.array());
             out1.flush();
+
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+    }
+    void sendMessage2(ByteBuffer msg) {
+        try {
+            // stream write the message
+            out2.write(msg.array());
+            out2.flush();
 
         } catch (IOException ioException) {
             ioException.printStackTrace();
