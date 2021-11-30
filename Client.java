@@ -54,9 +54,11 @@ public class Client {
         timer.schedule(new TimerTask() {
             public void run() {
                 sendMessageBB(Messages.createRequestMessage(pp.randomMissingPiece()));
+                sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
+                pp.logger.log("Pieces: " + pp.getCollectedPieces()  + "/" + pp.totalPieces + "\n");
             }
 
-        }, 0, pp.unchokingInterval * 1000);
+        }, 0, 1000);
     }
 
     // Timer for unchoking the neighbors who send the most data. Optimistically
@@ -199,8 +201,7 @@ public class Client {
                 buff = ByteBuffer.wrap(fromServer);
                 int bitfieldMsg = Messages.decodeMessage(pp, buff, connectedToPeerId);
 
-                // send interested message to server, this messagesToSend is created in
-                // messsages.java
+                // send interested message to server, this messagesToSend is created in messsages.java
                 for (int i = 0; i < pp.messagesToSend.size(); i++) {
                     sendMessageBB(pp.messagesToSend.get(i));
                 }
@@ -241,6 +242,7 @@ public class Client {
                        pp.pieceMessages.clear();
 
                         // send the bitfield message after receiving a message
+                        pp.logger.log("Sending bitfield\n");
                         sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
                     }
                     while(in2.available() > 0)
@@ -274,6 +276,7 @@ public class Client {
                             fromServer = new byte[in.available()];
                             in.read(fromServer);
                             buff = ByteBuffer.wrap(fromServer);
+                            //pp.logger.log("Type of message that in.read() got: " + buff.array()[4] + "\n");
 
                             pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
 
@@ -330,17 +333,6 @@ public class Client {
     }
 
     // send a message to the output stream
-    void sendMessage(String msg) {
-        try {
-            // stream write the message
-            out.writeObject(msg);
-            out.flush();
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
-    }
-
-    // send a message to the output stream
     void sendMessageBB(ByteBuffer msg) {
         try {
             // stream write the message
@@ -351,7 +343,7 @@ public class Client {
             ioException.printStackTrace();
         }
     }
-
+  
     void sendMessage1(ByteBuffer msg) {
         try {
             // stream write the message
