@@ -33,6 +33,8 @@ class peerProcess {
     // random port number we will use
     final protected int port = 12602;
     protected Vector<RemotePeerInfo> peerInfoVector;
+    protected Vector<RemotePeerInfo> allPeers= new Vector<RemotePeerInfo>(0);
+
     // denotes which pieces of the file this process has
     Vector<Boolean> bitfield = new Vector<Boolean>(0);
     Vector<Integer> preferredNeighbors;

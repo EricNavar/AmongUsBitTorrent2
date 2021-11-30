@@ -193,22 +193,24 @@ public class Messages {
     }
 
     public static int ParseInteger(ByteBuffer IncomingBuffer, int startLocation) {
-        int result; 
         try {
-            result = (((IncomingBuffer.array()[startLocation] & 0x0FF) << 24)
-                | ((IncomingBuffer.array()[startLocation + 1] & 0x0FF) << 16) |
-                ((IncomingBuffer.array()[startLocation + 2] & 0x0FF) << 8)
-                | ((IncomingBuffer.array()[startLocation + 3] & 0x0FF) << 0));
+            return (((IncomingBuffer.array()[startLocation] & 0x0FF) << 24)
+                    | ((IncomingBuffer.array()[startLocation + 1] & 0x0FF) << 16) |
+                    ((IncomingBuffer.array()[startLocation + 2] & 0x0FF) << 8)
+                    | ((IncomingBuffer.array()[startLocation + 3] & 0x0FF) << 0));
         }
-        catch (ArrayIndexOutOfBoundsException e) {
-            result = -1;
-            System.out.println(IncomingBuffer.array());
+        catch(Exception e) {
+            return 0;
         }
-        return result;
     }
 
     public static byte ParseByte(ByteBuffer IncomingBuffer, int location) {
-        return (byte) (IncomingBuffer.array()[location] & 0x0FF);
+        try {
+            return (byte) (IncomingBuffer.array()[location] & 0x0FF);
+        }
+        catch(Exception e){
+            return (byte) 0;
+        }
     }
 
     public static int GetMessageLength(ByteBuffer IncomingBuffer) {
@@ -384,14 +386,14 @@ public class Messages {
 		    pp.logger.log("Send piece " + index + "=" + GetPieceMessageNumber(toSend) + ".\n"); //debug log. Remove this later.
             pp.pieceMessages.add(toSend); // send the piece
         } else {
-            //System.out.println("Some questionable character/actor identified as " + senderPeer + " asked for piece "
-                    //+ index + " but this peer known as " + pp.peerId + " does not have it...");
+            System.out.println("Some questionable character/actor identified as " + senderPeer + " asked for piece "
+                    + index + " but this peer known as " + pp.peerId + " does not have it...");
         }
     }
 
     // type 7
     private static void handlePieceMessage(peerProcess pp, int senderPeer, int length, ByteBuffer IncomingMessage) {
-        //System.out.println("Receive piece message");
+        //System.out.println("Receive piece message from " + senderPeer);
 
         pp.pieceMessages.add(createRequestMessage(pp.randomMissingPiece()));
         int index = GetPieceMessageNumber(IncomingMessage);
@@ -425,6 +427,7 @@ public class Messages {
         boolean isNewPiece = !pp.getCurrBitfield().get(index);
         // update the bitfield
         pp.getCurrBitfield().set(index, true);
+
         if (isNewPiece) {
             pp.incrementCollectedPieces();
         }
