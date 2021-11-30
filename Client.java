@@ -14,6 +14,13 @@ public class Client {
     Socket nextSock; // socket connect to the server
     Socket nextSock2; // socket connect to the server
     Socket nextSock3; // socket connect to the server
+    Socket nextSock4; // socket connect to the server
+    Socket nextSock5; // socket connect to the server
+    Socket nextSock6; // socket connect to the server
+    Socket nextSock7; // socket connect to the server
+    Socket nextSock8; // socket connect to the server
+    Socket nextSock9; // socket connect to the server
+    Socket nextSock10; // socket connect to the server
 
     ObjectOutputStream out; // stream write to the socket
     ObjectInputStream in; // stream read from the socket
@@ -23,6 +30,21 @@ public class Client {
     ObjectInputStream in2; // stream read from the socket
     ObjectOutputStream out3; // stream write to the socket
     ObjectInputStream in3; // stream read from the socket
+    ObjectOutputStream out4; // stream write to the socket
+    ObjectInputStream in4; // stream read from the socket
+    ObjectOutputStream out5; // stream write to the socket
+    ObjectInputStream in5; // stream read from the socket
+    ObjectOutputStream out6; // stream write to the socket
+    ObjectInputStream in6; // stream read from the socket
+    ObjectOutputStream out7; // stream write to the socket
+    ObjectInputStream in7; // stream read from the socket
+    ObjectOutputStream out8; // stream write to the socket
+    ObjectInputStream in8; // stream read from the socket
+    ObjectOutputStream out9; // stream write to the socket
+    ObjectInputStream in9; // stream read from the socket
+    ObjectOutputStream out10; // stream write to the socket
+    ObjectInputStream in10; // stream read from the socket
+
 
     byte[] fromServer; // capitalized message read from the server
     int peerID;
@@ -54,9 +76,11 @@ public class Client {
         timer.schedule(new TimerTask() {
             public void run() {
                 sendMessageBB(Messages.createRequestMessage(pp.randomMissingPiece()));
+                sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
+                pp.logger.log("Pieces: " + pp.getCollectedPieces()  + "/" + pp.totalPieces + "\n");
             }
 
-        }, 0, pp.unchokingInterval * 1000);
+        }, 0, 1000);
     }
 
     // Timer for unchoking the neighbors who send the most data. Optimistically
@@ -78,6 +102,7 @@ public class Client {
                                                                // already choked
                             pp.messagesToSend.add(Messages.createChokeMessage());
                             count++;
+
                             if (rpi.getPeerId() == pp.allPeers.get(2).getPeerId())
                                 sendMessage2(pp.messagesToSend.get(count - 1));
 
@@ -90,8 +115,10 @@ public class Client {
 
                             pp.messagesToSend.add(Messages.createUnchokeMessage());
                             count++;
+
                             if (rpi.getPeerId() == pp.allPeers.get(2).getPeerId())
                                 sendMessage2(pp.messagesToSend.get(count - 1));
+
 
                             if (connectedToPeerId == rpi.getPeerId()) {
                                 // System.out.println("Setting peer " + rpi.getPeerId() + " to be a preferred
@@ -150,6 +177,20 @@ public class Client {
             System.out.println("Connected to localhost " + pp.allPeers.get(2).getPeerId());
             nextSock3 = new Socket("localhost", pp.allPeers.get(3).getPeerId());
             System.out.println("Connected to localhost " + pp.allPeers.get(3).getPeerId());
+            nextSock4 = new Socket("localhost", pp.allPeers.get(4).getPeerId());
+            System.out.println("Connected to localhost " + pp.allPeers.get(4).getPeerId());
+            nextSock5 = new Socket("localhost", pp.allPeers.get(5).getPeerId());
+            System.out.println("Connected to localhost " + pp.allPeers.get(5).getPeerId());
+            nextSock6 = new Socket("localhost", pp.allPeers.get(5).getPeerId()+1);
+            System.out.println("Connected to localhost " + pp.allPeers.get(5).getPeerId()+1);
+            nextSock7 = new Socket("localhost", pp.allPeers.get(5).getPeerId()+2);
+            System.out.println("Connected to localhost " + pp.allPeers.get(1).getPeerId()+2);
+            nextSock8 = new Socket("localhost", pp.allPeers.get(5).getPeerId()+3);
+            System.out.println("Connected to localhost " + pp.allPeers.get(5).getPeerId()+3);
+            nextSock9 = new Socket("localhost", pp.allPeers.get(5).getPeerId()+4);
+            System.out.println("Connected to localhost " + pp.allPeers.get(5).getPeerId()+4);
+            nextSock10 = new Socket("localhost", pp.allPeers.get(5).getPeerId()+5);
+            System.out.println("Connected to localhost " + pp.allPeers.get(3).getPeerId()+5);
 
             // initialize inputStream and outputStream
             out = new ObjectOutputStream(requestSocket.getOutputStream());
@@ -163,10 +204,39 @@ public class Client {
             out2 = new ObjectOutputStream(nextSock2.getOutputStream());
             out2.flush();
             in2 = new ObjectInputStream(nextSock2.getInputStream());
-
+            
             out3 = new ObjectOutputStream(nextSock3.getOutputStream());
             out3.flush();
             in3 = new ObjectInputStream(nextSock3.getInputStream());
+
+            out4 = new ObjectOutputStream(nextSock4.getOutputStream());
+            out4.flush();
+            in4 = new ObjectInputStream(nextSock4.getInputStream());
+
+            out5 = new ObjectOutputStream(nextSock5.getOutputStream());
+            out5.flush();
+            in5 = new ObjectInputStream(nextSock5.getInputStream());
+
+            out6 = new ObjectOutputStream(nextSock6.getOutputStream());
+            out6.flush();
+            in6 = new ObjectInputStream(nextSock6.getInputStream());
+
+            out7 = new ObjectOutputStream(nextSock7.getOutputStream());
+            out7.flush();
+            in7 = new ObjectInputStream(nextSock7.getInputStream());
+
+            out8 = new ObjectOutputStream(nextSock8.getOutputStream());
+            out8.flush();
+            in8 = new ObjectInputStream(nextSock8.getInputStream());
+
+            out9 = new ObjectOutputStream(nextSock9.getOutputStream());
+            out9.flush();
+            in9 = new ObjectInputStream(nextSock9.getInputStream());
+
+            out10 = new ObjectOutputStream(nextSock10.getOutputStream());
+            out10.flush();
+            in10 = new ObjectInputStream(nextSock10.getInputStream());
+
 
             // create handshake message and send to server
             ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.getPeerId());
@@ -200,8 +270,7 @@ public class Client {
                 buff = ByteBuffer.wrap(fromServer);
                 int bitfieldMsg = Messages.decodeMessage(pp, buff, connectedToPeerId);
 
-                // send interested message to server, this messagesToSend is created in
-                // messsages.java
+                // send interested message to server, this messagesToSend is created in messsages.java
                 for (int i = 0; i < pp.messagesToSend.size(); i++) {
                     sendMessageBB(pp.messagesToSend.get(i));
                 }
@@ -240,6 +309,7 @@ public class Client {
                         pp.pieceMessages.clear();
 
                         // send the bitfield message after receiving a message
+                        pp.logger.log("Sending bitfield\n");
                         sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
                     }
                     while (in2.available() > 0) {
@@ -271,6 +341,7 @@ public class Client {
                             fromServer = new byte[in.available()];
                             in.read(fromServer);
                             buff = ByteBuffer.wrap(fromServer);
+                            //pp.logger.log("Type of message that in.read() got: " + buff.array()[4] + "\n");
 
                             pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
 
@@ -311,31 +382,53 @@ public class Client {
             try {
                 in.close();
                 out.close();
+
                 in1.close();
                 out1.close();
+
                 in2.close();
                 out2.close();
+
                 in3.close();
                 out3.close();
+
+                in4.close();
+                out4.close();
+
+                in5.close();
+                out5.close();
+
+                in6.close();
+                out6.close();
+
+                in7.close();
+                out7.close();
+
+                in8.close();
+                out8.close();
+
+                in9.close();
+                out9.close();
+
+                in10.close();
+                out10.close();
+
                 requestSocket.close();
                 nextSock.close();
                 nextSock2.close();
                 nextSock3.close();
+                nextSock4.close();
+                nextSock5.close();
+                nextSock6.close();
+                nextSock7.close();
+                nextSock8.close();
+                nextSock9.close();
+                nextSock10.close();
+
 
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
-        }
-    }
-
-    // send a message to the output stream
-    void sendMessage(String msg) {
-        try {
-            // stream write the message
-            out.writeObject(msg);
-            out.flush();
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
         }
     }
 
@@ -350,7 +443,7 @@ public class Client {
             ioException.printStackTrace();
         }
     }
-
+  
     void sendMessage1(ByteBuffer msg) {
         try {
             // stream write the message
