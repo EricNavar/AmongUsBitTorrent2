@@ -151,7 +151,7 @@ public class Messages {
     }
 
     public static ByteBuffer createPieceMessage(ByteBuffer payload, int PieceNumber, int PieceLength) {
-        ByteBuffer MessageAssembly = ByteBuffer.allocate(65536); // Message is 9 bytes
+        ByteBuffer MessageAssembly = ByteBuffer.allocate(PieceLength + 9); // length of string + 5 bits at the start of each message + 4 bits for the message index
         // length is equal to 1 (message type) + 4 (piece index size) + piece size (bytes)
         MessageAssembly.putInt(PieceLength + 5);
         MessageAssembly.put(encodeType(MessageType.PIECE.ordinal()));

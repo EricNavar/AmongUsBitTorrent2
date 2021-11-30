@@ -343,28 +343,27 @@ public class Client {
                         // is -1, then it's unknown, and the next thing to read is the message length.
                         // If it's not negative one, then read messageLength + 1 bytes. +1 because of
                         // the message type.
-                        while ((messageLength == -1 && in.available() >= 4) || (messageLength != -1 && in.available() >= 0)) {
+                        while ((messageLength == -1 && in.available() >= 4) || (messageLength != -1 && in.available() > 0)) {
                             if (messageLength == -1 && in.available() >= 4) {
                                 byte[] messageLengthBuff = new byte[4];
-                                in.read(messageLengthBuff, 0, 4);// only read in 4 bytes
+                                bytesReadSoFar = in.read(messageLengthBuff, 0, 4);// only read in 4 bytes
                                 buff = ByteBuffer.wrap(messageLengthBuff);
                                 messageLength = Messages.GetMessageLength(buff);
                                 pp.logger.log("messageLength: " + messageLength);
-                                bytesReadSoFar = 4;
                                 fromServer = new byte[messageLength + 5];
                                 fromServer[0] = messageLengthBuff[0];
                                 fromServer[1] = messageLengthBuff[1];
                                 fromServer[2] = messageLengthBuff[2];
                                 fromServer[3] = messageLengthBuff[3];
-                            } else if (messageLength != -1 && in.available() >= 0) {
+                            } else if (messageLength != -1 && in.available() > 0) {
                                 // read to the end of the message, or until the end of the input stream buffer
                                 int bytesToRead = Math.min(in.available(), messageLength + 5 - bytesReadSoFar);
+                                pp.logger.log("bytesReadSoFar: " + bytesReadSoFar + ". bytes left to read: " + (messageLength + 5 - bytesReadSoFar));
                                 connectedToPeerId = originalId;
-                                pp.logger.log("Reading " + bytesToRead + " bytes");
-
-                                in.read(fromServer, bytesReadSoFar, bytesToRead);
+                                int bytesReadNow = in.read(fromServer, bytesReadSoFar, bytesToRead);
+                                pp.logger.log("Reading " + bytesReadNow + " bytes");
+                                bytesReadSoFar += bytesReadNow;
                                 buff = ByteBuffer.wrap(fromServer);
-                                bytesReadSoFar += bytesToRead;
                                 
                                 if (bytesReadSoFar < messageLength) {
                                     pp.logger.log("Bytes read so far: " + bytesReadSoFar);
