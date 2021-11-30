@@ -58,7 +58,7 @@ public class Client {
                 pp.logger.log("Pieces: " + pp.getCollectedPieces()  + "/" + pp.totalPieces + "\n");
             }
 
-        }, 0, pp.unchokingInterval * 1000);
+        }, 0, 1000);
     }
 
     // Timer for unchoking the neighbors who send the most data. Optimistically

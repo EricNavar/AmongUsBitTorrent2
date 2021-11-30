@@ -154,6 +154,7 @@ public class Messages {
         MessageAssembly.put(encodeType(MessageType.PIECE.ordinal()));
         MessageAssembly.putInt(PieceNumber); // piece number is index
         MessageAssembly.put(Arrays.copyOfRange(payload.array(), 0, PieceLength)); // piece number is index
+        
         return MessageAssembly;
     }
 
@@ -220,7 +221,12 @@ public class Messages {
     }
 
     public static int GetPieceMessageNumber(ByteBuffer IncomingBuffer) {
-        return (int) (ParseInteger(IncomingBuffer, 5));
+        int result = (int) (ParseInteger(IncomingBuffer, 5));
+        // if (result == 0 && || result == 131) {
+        //     System.out.println("\n\n\npiece number: "+ result);
+        //     System.out.println(HexPrint(IncomingBuffer));
+        // }
+        return result;
     }
 
     public static int GetRequestMessageIndex(ByteBuffer IncomingBuffer) {
@@ -369,8 +375,8 @@ public class Messages {
             ThePiece = pp.FileObject.MakeCopyPieceByteBuffer(index);
             // get a copy of the piece
             ThePieceLength = pp.FileObject.GetPieceSize(index); // get the piece's length
-		    pp.logger.log("Send piece " + index + "\n"); //debug log. Remove this later.
             ByteBuffer toSend = createPieceMessage(ThePiece, index, ThePieceLength);
+		    pp.logger.log("Send piece " + index + "=" + GetPieceMessageNumber(toSend) + ".\n"); //debug log. Remove this later.
             pp.pieceMessages.add(toSend); // send the piece
         } else {
             //System.out.println("Some questionable character/actor identified as " + senderPeer + " asked for piece "
@@ -384,6 +390,7 @@ public class Messages {
 
         pp.pieceMessages.add(createRequestMessage(pp.randomMissingPiece()));
         int index = GetPieceMessageNumber(IncomingMessage);
+        pp.logger.log("Received piece " + index + '\n');
         // Done: write the piece to a file (wherever it should be written, idk) See
         // Below, handles logging of the received piece
         ByteBuffer GrabPieceData = ByteBuffer.allocate(65536); // Message is longer

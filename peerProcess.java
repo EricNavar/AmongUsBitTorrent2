@@ -293,7 +293,7 @@ class peerProcess {
 
         int missingPieceIndex = (int) Math.floor(Math.random() * (missingPieces.size()));
         int askForPiece = 0;
-        if (missingPieceIndex < missingPieces.size() - 1)
+        if (missingPieceIndex < missingPieces.size())
             askForPiece = missingPieces.get(missingPieceIndex);
         return askForPiece;
     }
