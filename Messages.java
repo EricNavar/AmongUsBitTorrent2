@@ -1,5 +1,8 @@
 
 import java.util.Vector;
+
+import javax.swing.JFormattedTextField.AbstractFormatterFactory;
+
 import java.nio.*;
 import java.rmi.Remote;
 import java.util.*;
@@ -190,10 +193,18 @@ public class Messages {
     }
 
     public static int ParseInteger(ByteBuffer IncomingBuffer, int startLocation) {
-        return (((IncomingBuffer.array()[startLocation] & 0x0FF) << 24)
+        int result; 
+        try {
+            result = (((IncomingBuffer.array()[startLocation] & 0x0FF) << 24)
                 | ((IncomingBuffer.array()[startLocation + 1] & 0x0FF) << 16) |
                 ((IncomingBuffer.array()[startLocation + 2] & 0x0FF) << 8)
                 | ((IncomingBuffer.array()[startLocation + 3] & 0x0FF) << 0));
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
+            result = -1;
+            System.out.println(IncomingBuffer.array());
+        }
+        return result;
     }
 
     public static byte ParseByte(ByteBuffer IncomingBuffer, int location) {
@@ -222,10 +233,6 @@ public class Messages {
 
     public static int GetPieceMessageNumber(ByteBuffer IncomingBuffer) {
         int result = (int) (ParseInteger(IncomingBuffer, 5));
-        // if (result == 0 && || result == 131) {
-        //     System.out.println("\n\n\npiece number: "+ result);
-        //     System.out.println(HexPrint(IncomingBuffer));
-        // }
         return result;
     }
 
