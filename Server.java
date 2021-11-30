@@ -166,8 +166,8 @@ public class Server {
                             RemotePeerInfo rpi = pp.peerInfoVector.get(i);
                             if (!pp.isNeighbor(rpi.getPeerId())) {
                                 // do not send choke messages to processes that are already choked
-                                // pp.logger.log(rpi.getPeerId() + " is not a neighbor\n");
-                                if (connectedFrom == rpi.getPeerId() /* && !rpi.isChoked() */) {
+                                // pp.logger.log(rpi.getPeerId() + " is not a neighbor");
+                                if (connectedFrom == rpi.getPeerId() && !rpi.isChoked()) {
                                     pp.messagesToSend.add(Messages.createChokeMessage());
                                     count++;
                                     // System.out.println("Choking peer " + rpi.getPeerId());
@@ -176,10 +176,10 @@ public class Server {
                                 }
                             } else {
                                 // do not send unchoke messages to processes that are already unchoked
-                                // pp.logger.log(rpi.getPeerId() + " is a neighbor\n");
-                                pp.messagesToSend.add(Messages.createUnchokeMessage());
-                                count++;
+                                // pp.logger.log(rpi.getPeerId() + " is a neighbor");
                                 if (connectedFrom == rpi.getPeerId() && rpi.isChoked()) {
+                                    pp.messagesToSend.add(Messages.createUnchokeMessage());
+                                    count++;
                                     // System.out.println("Unchoking peer " + rpi.getPeerId());
                                     rpi.setChoked(false);
                                     sendMessageBB(pp.messagesToSend.get(count - 1));
@@ -227,7 +227,6 @@ public class Server {
                 }
 
                 message = new byte[in.available()];
-
                 in.read(message);
 
                 ByteBuffer buff = ByteBuffer.wrap(message);
@@ -401,8 +400,6 @@ public class Server {
                             } else {
                                 // peer "1003"
 
-                                if (handlers.get(i).connectedFrom == pp.allPeers.get(2).getPeerId()) {
-                                // create new channels for these
                                 if(handlers.get(i).connectedFrom == pp.allPeers.get(2).getPeerId())
                                 {
 
@@ -440,7 +437,7 @@ public class Server {
                                         while (in1.available() > 0) {
                                             message = new byte[in1.available()];
 
-                                            in1.read(message);
+                                        in1.read(message);
 
                                             buff = ByteBuffer.wrap(message);
                                             receivedMessages.add(buff);
@@ -471,13 +468,11 @@ public class Server {
                         buff = ByteBuffer.wrap(message);
 
                         int chokeRes = Messages.decodeMessage(buff, pp, connectedFrom);
-
                         for (int i = 0; i < pp.messagesToSend.size(); i++) {
                             sendMessageBB(pp.messagesToSend.get(i));
                         }
-                        pp.messagesToSend.clear();
-
                         for (int i = 0; i < pp.pieceMessages.size(); i++) {
+                            pp.logger.log("Sending piece message");
                             sendMessageBB(pp.pieceMessages.get(i));
                         }
                         pp.pieceMessages.clear();
@@ -485,7 +480,6 @@ public class Server {
                     }
 
                 }
-
             }
         }
 

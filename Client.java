@@ -75,9 +75,10 @@ public class Client {
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             public void run() {
+                pp.logger.log("request timer");
                 sendMessageBB(Messages.createRequestMessage(pp.randomMissingPiece()));
                 sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
-                pp.logger.log("Pieces: " + pp.getCollectedPieces()  + "/" + pp.totalPieces + "\n");
+                pp.logger.log("Pieces: " + pp.getCollectedPieces()  + "/" + pp.totalPieces);
             }
 
         }, 0, 1000);
@@ -98,8 +99,8 @@ public class Client {
                     int count = 0;
                     for (int i = 0; i < pp.peerInfoVector.size(); i++) {
                         RemotePeerInfo rpi = pp.peerInfoVector.get(i);
-                        if (!pp.isNeighbor(rpi.getPeerId())) { // do not send choke message if it's
-                                                               // already choked
+                        if (!pp.isNeighbor(rpi.getPeerId())) { 
+                            // do not send choke message if it's already choked
                             pp.messagesToSend.add(Messages.createChokeMessage());
                             count++;
 
@@ -112,7 +113,6 @@ public class Client {
                                 sendMessageBB(pp.messagesToSend.get(count - 1));
                             }
                         } else if (pp.isNeighbor(rpi.getPeerId())) {
-
                             pp.messagesToSend.add(Messages.createUnchokeMessage());
                             count++;
 
@@ -288,6 +288,8 @@ public class Client {
                 runRequestTimer();
                 int pieceMsg = 0;
 
+                int messageLength = -1;
+                int bytesReadSoFar = 0;
                 while (true) {
                     // used for connections between clients
                     while (in1.available() > 0) {
@@ -335,33 +337,62 @@ public class Client {
                     while (in.available() <= 0) {
                     }
                     try {
-                        while (in.available() > 0) {
 
-                            connectedToPeerId = originalId;
-                            fromServer = new byte[in.available()];
-                            in.read(fromServer);
-                            buff = ByteBuffer.wrap(fromServer);
-                            //pp.logger.log("Type of message that in.read() got: " + buff.array()[4] + "\n");
+                        // the number of bytes that should be read from the buffer. This number is
+                        // obtained by looking at the first 4 bytes of the message. If messageLength
+                        // is -1, then it's unknown, and the next thing to read is the message length.
+                        // If it's not negative one, then read messageLength + 1 bytes. +1 because of
+                        // the message type.
+                        while ((messageLength == -1 && in.available() >= 4) || (messageLength != -1 && in.available() >= 0)) {
+                            if (messageLength == -1 && in.available() >= 4) {
+                                byte[] messageLengthBuff = new byte[4];
+                                in.read(messageLengthBuff, 0, 4);// only read in 4 bytes
+                                buff = ByteBuffer.wrap(messageLengthBuff);
+                                messageLength = Messages.GetMessageLength(buff);
+                                pp.logger.log("messageLength: " + messageLength);
+                                bytesReadSoFar = 4;
+                                fromServer = new byte[messageLength + 5];
+                                fromServer[0] = messageLengthBuff[0];
+                                fromServer[1] = messageLengthBuff[1];
+                                fromServer[2] = messageLengthBuff[2];
+                                fromServer[3] = messageLengthBuff[3];
+                            } else if (messageLength != -1 && in.available() >= 0) {
+                                // read to the end of the message, or until the end of the input stream buffer
+                                int bytesToRead = Math.min(in.available(), messageLength + 5 - bytesReadSoFar);
+                                connectedToPeerId = originalId;
+                                pp.logger.log("Reading " + bytesToRead + " bytes");
 
-                            pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
+                                in.read(fromServer, bytesReadSoFar, bytesToRead);
+                                buff = ByteBuffer.wrap(fromServer);
+                                bytesReadSoFar += bytesToRead;
+                                
+                                if (bytesReadSoFar < messageLength) {
+                                    pp.logger.log("Bytes read so far: " + bytesReadSoFar);
+                                    continue;
+                                }
+                                else {
+                                    pp.logger.log("Done reading entire message. messageLength: " + messageLength + " + 5. bytesReadSoFar: " + bytesReadSoFar);
+                                    //System.out.println(Messages.HexPrint(buff));
+                                }
 
-                            for (int i = 0; i < pp.messagesToSend.size(); i++) {
-                                sendMessageBB(pp.messagesToSend.get(i));
+                                pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
+
+                                for (int i = 0; i < pp.messagesToSend.size(); i++) {
+                                    sendMessageBB(pp.messagesToSend.get(i));
+                                }
+                                pp.messagesToSend.clear();
+                                for (int i = 0; i < pp.pieceMessages.size(); i++) {
+                                    sendMessageBB(pp.pieceMessages.get(i));
+                                }
+
+                                pp.pieceMessages.clear();
+                                messageLength = -1;
+                                bytesReadSoFar = 0;
                             }
-                            pp.messagesToSend.clear();
-                            for (int i = 0; i < pp.pieceMessages.size(); i++)
-                                sendMessageBB(pp.pieceMessages.get(i));
-
-                            pp.pieceMessages.clear();
-
+                            else {
+                                pp.logger.log("Waiting for more data from in. in.available() = " + in.available() + ". messageLength = " + messageLength);
+                            }
                         }
-
-                        /*
-                         * while(in1.available() > 0)
-                         * {
-                         * in.read();
-                         * }
-                         */
 
                     } catch (Exception e) {
                         e.printStackTrace();
