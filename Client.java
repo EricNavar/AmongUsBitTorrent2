@@ -47,6 +47,10 @@ public class Client {
 
 
     byte[] fromServer; // capitalized message read from the server
+    byte[] fromServer1; // capitalized message read from the server
+    byte[] fromServer2; // capitalized message read from the server
+    byte[] fromServer3; // capitalized message read from the server
+
     int peerID;
     int connectedToPeerId;
     int originalId;
@@ -326,195 +330,6 @@ public class Client {
                 boolean in3handshaked = false;
 
                 while (true) {
-                    // used for connections between clients
-                    while (in1.available() > 0) {
-                        fromServer = new byte[in1.available()];
-                        in1.read(fromServer);
-                        buff = ByteBuffer.wrap(fromServer);
-                        newId1 = Messages.decodeMessage(buff, pp, -1);
-                        if (newId1 == -1) {
-                            in1handshaked = true;
-                        }
-                    }
-                    while (in1handshaked && ((messageLength1 == -1 && in1.available() >= 4) || (messageLength1 != -1 && in1.available() > 0))) {
-                        if (messageLength1 == -1 && in1.available() >= 4) {
-                            byte[] messageLengthBuff = new byte[4];
-                            bytesReadSoFar = in1.read(messageLengthBuff, 0, 4);// only read in 4 bytes
-                            buff = ByteBuffer.wrap(messageLengthBuff);
-                            messageLength1 = Messages.GetMessageLength(buff);
-                            fromServer = new byte[messageLength1 + 5];
-                            fromServer[0] = messageLengthBuff[0];
-                            fromServer[1] = messageLengthBuff[1];
-                            fromServer[2] = messageLengthBuff[2];
-                            fromServer[3] = messageLengthBuff[3];
-
-                        } else if (messageLength3 != -1 && in1.available() > 0) {
-                            // read to the end of the message, or until the end of the input stream buffer
-                            int bytesToRead = Math.min(in1.available(), messageLength3 + 5 - bytesReadSoFar1);
-                            connectedToPeerId = originalId;
-                            int bytesReadNow = in1.read(fromServer, bytesReadSoFar1, bytesToRead);
-                            pp.logger.log("Reading " + bytesReadNow + " bytes");
-                            bytesReadSoFar1 += bytesReadNow;
-                            buff = ByteBuffer.wrap(fromServer);
-                            
-                            if (bytesReadSoFar1 < messageLength3) {
-                                continue;
-                            }
-                            else {
-                                pp.logger.log("Done reading entire message. messageLength1: " + messageLength3 + " + 5. bytesReadSoFar: " + bytesReadSoFar1);
-                            }
-
-                            pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
-
-                            for (int i = 0; i < pp.messagesToSend.size(); i++) {
-                                sendMessageBB(pp.messagesToSend.get(i));
-                            }
-                            pp.messagesToSend.clear();
-                            for (int i = 0; i < pp.pieceMessages.size(); i++) {
-                                sendMessageBB(pp.pieceMessages.get(i));
-                            }
-
-                            for (int i = 0; i < pp.pieceMessages.size(); i++) {
-                                sendMessage1(pp.pieceMessages.get(i));
-                            }
-                            for (int i = 0; i < pp.messagesToSend.size(); i++) {
-                                sendMessage1(pp.messagesToSend.get(i));
-                            }
-                            pp.messagesToSend.clear();
-                            pp.pieceMessages.clear();
-
-                            // send the bitfield message after receiving a message
-                            pp.logger.log("Sending bitfield\n");
-                            sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
-                        }
-                    }
-                    while(in2.available() > 0)
-                    {
-
-                        fromServer = new byte[in2.available()];
-                        in2.read(fromServer);
-                        buff = ByteBuffer.wrap(fromServer);
-
-                        newId2 = Messages.decodeMessage(buff, pp, -1);
-                        if (newId2 == -1) {
-                            in2handshaked = true;
-                        }
-                    }
-                    while (in2handshaked && ((messageLength2 == -1 && in2.available() >= 4) || (messageLength2 != -1 && in2.available() > 0))) {
-                        if (messageLength2 == -1 && in2.available() >= 4) {
-                            byte[] messageLengthBuff = new byte[4];
-                            bytesReadSoFar = in2.read(messageLengthBuff, 0, 4);// only read in 4 bytes
-                            buff = ByteBuffer.wrap(messageLengthBuff);
-                            messageLength2 = Messages.GetMessageLength(buff);
-                            fromServer = new byte[messageLength2 + 5];
-                            fromServer[0] = messageLengthBuff[0];
-                            fromServer[1] = messageLengthBuff[1];
-                            fromServer[2] = messageLengthBuff[2];
-                            fromServer[3] = messageLengthBuff[3];
-
-                        } else if (messageLength3 != -1 && in2.available() > 0) {
-                            // read to the end of the message, or until the end of the input stream buffer
-                            int bytesToRead = Math.min(in2.available(), messageLength3 + 5 - bytesReadSoFar2);
-                            connectedToPeerId = originalId;
-                            int bytesReadNow = in2.read(fromServer, bytesReadSoFar2, bytesToRead);
-                            pp.logger.log("Reading " + bytesReadNow + " bytes");
-                            bytesReadSoFar2 += bytesReadNow;
-                            buff = ByteBuffer.wrap(fromServer);
-                            
-                            if (bytesReadSoFar2 < messageLength3) {
-                                continue;
-                            }
-                            else {
-                                pp.logger.log("Done reading entire message. messageLength2: " + messageLength3 + " + 5. bytesReadSoFar: " + bytesReadSoFar2);
-                            }
-
-                            pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
-
-                            for (int i = 0; i < pp.messagesToSend.size(); i++) {
-                                sendMessageBB(pp.messagesToSend.get(i));
-                            }
-                            pp.messagesToSend.clear();
-                            for (int i = 0; i < pp.pieceMessages.size(); i++) {
-                                sendMessageBB(pp.pieceMessages.get(i));
-                            }
-
-                            for (int i = 0; i < pp.pieceMessages.size(); i++) {
-                                sendMessage2(pp.pieceMessages.get(i));
-                            }
-
-                            for (int i = 0; i < pp.messagesToSend.size(); i++) {
-                                sendMessage2(pp.messagesToSend.get(i));
-                            }
-                            pp.messagesToSend.clear();
-                            pp.pieceMessages.clear();
-
-                            // send the bitfield message after receiving a message
-                            pp.logger.log("Sending bitfield\n");
-                            sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
-                        }
-                    }
-                    while (in3.available() > 0) {
-                        fromServer = new byte[in3.available()];
-                        in3.read(fromServer);
-                        buff = ByteBuffer.wrap(fromServer);
-
-                        newId3 = Messages.decodeMessage(buff, pp, -1);
-                        if (newId3 == -1) {
-                            in3handshaked = true;
-                        }
-                    }
-                    while (in3handshaked && ((messageLength3 == -1 && in3.available() >= 4) || (messageLength3 != -1 && in3.available() > 0))) {
-                        if (messageLength3 == -1 && in3.available() >= 4) {
-                            byte[] messageLengthBuff = new byte[4];
-                            bytesReadSoFar = in3.read(messageLengthBuff, 0, 4);// only read in 4 bytes
-                            buff = ByteBuffer.wrap(messageLengthBuff);
-                            messageLength3 = Messages.GetMessageLength(buff);
-                            fromServer = new byte[messageLength3 + 5];
-                            fromServer[0] = messageLengthBuff[0];
-                            fromServer[1] = messageLengthBuff[1];
-                            fromServer[2] = messageLengthBuff[2];
-                            fromServer[3] = messageLengthBuff[3];
-
-                        } else if (messageLength3 != -1 && in3.available() > 0) {
-                            // read to the end of the message, or until the end of the input stream buffer
-                            int bytesToRead = Math.min(in3.available(), messageLength3 + 5 - bytesReadSoFar3);
-                            connectedToPeerId = originalId;
-                            int bytesReadNow = in3.read(fromServer, bytesReadSoFar3, bytesToRead);
-                            pp.logger.log("Reading " + bytesReadNow + " bytes");
-                            bytesReadSoFar3 += bytesReadNow;
-                            buff = ByteBuffer.wrap(fromServer);
-                            
-                            if (bytesReadSoFar3 < messageLength3) {
-                                continue;
-                            }
-                            else {
-                                pp.logger.log("Done reading entire message. messageLength3: " + messageLength3 + " + 5. bytesReadSoFar: " + bytesReadSoFar3);
-                            }
-
-                            pieceMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
-
-                            for (int i = 0; i < pp.messagesToSend.size(); i++) {
-                                sendMessageBB(pp.messagesToSend.get(i));
-                            }
-                            pp.messagesToSend.clear();
-                            for (int i = 0; i < pp.pieceMessages.size(); i++) {
-                                sendMessageBB(pp.pieceMessages.get(i));
-                            }
-
-
-                        for (int i = 0; i < pp.pieceMessages.size(); i++) {
-                            sendMessage3(pp.pieceMessages.get(i));
-                        }
-                        for (int i = 0; i < pp.messagesToSend.size(); i++) {
-                            sendMessage3(pp.messagesToSend.get(i));
-                        }
-                        pp.messagesToSend.clear();
-                        pp.pieceMessages.clear();
-
-                        // send the bitfield message after receiving a message
-                        pp.logger.log("Sending bitfield\n");
-                        sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
-                    }
                     while (in.available() <= 0) {
                     }
                     try {
@@ -524,7 +339,6 @@ public class Client {
                         // is -1, then it's unknown, and the next thing to read is the message length.
                         // If it's not negative one, then read messageLength + 1 bytes. +1 because of
                         // the message type.
-
                         while ((messageLength == -1 && in.available() >= 4) || (messageLength != -1 && in.available() > 0)) {
                             if (messageLength == -1 && in.available() >= 4) {
                                 byte[] messageLengthBuff = new byte[4];
@@ -545,11 +359,10 @@ public class Client {
                                 pp.logger.log("Reading " + bytesReadNow + " bytes");
                                 bytesReadSoFar += bytesReadNow;
                                 buff = ByteBuffer.wrap(fromServer);
-                                
+
                                 if (bytesReadSoFar < messageLength) {
                                     continue;
-                                }
-                                else {
+                                } else {
                                     pp.logger.log("Done reading entire message. messageLength: " + messageLength + " + 5. bytesReadSoFar: " + bytesReadSoFar);
                                 }
 
@@ -566,8 +379,7 @@ public class Client {
                                 pp.pieceMessages.clear();
                                 messageLength = -1;
                                 bytesReadSoFar = 0;
-                            }
-                            else {
+                            } else {
                                 pp.logger.log("Waiting for more data from in. in.available() = " + in.available() + ". messageLength = " + messageLength);
                             }
                         }
@@ -575,9 +387,215 @@ public class Client {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                }
+                    // used for connections between clients
+                    if (!in1handshaked) {
+                        while (in1.available() > 0) {
+                            fromServer1 = new byte[in1.available()];
+                            in1.read(fromServer1);
+                            buff = ByteBuffer.wrap(fromServer1);
+                            if (buff.remaining() == 32) {
+                                newId1 = Messages.decodeMessage(buff, pp, -1);
+                                in1handshaked = true;
+                                break;
+                            }
+                        }
+                    }
+                    while (in1handshaked && ((messageLength1 == -1 && in1.available() >= 4) || (messageLength1 != -1 && in1.available() > 0))) {
+                        if (messageLength1 == -1 && in1.available() >= 4) {
+                            byte[] messageLengthBuff = new byte[4];
+                            bytesReadSoFar1 = in1.read(messageLengthBuff, 0, 4);// only read in 4 bytes
+                            buff = ByteBuffer.wrap(messageLengthBuff);
+                            messageLength1 = Messages.GetMessageLength(buff);
+                            fromServer1 = new byte[messageLength1 + 5];
+                            fromServer1[0] = messageLengthBuff[0];
+                            fromServer1[1] = messageLengthBuff[1];
+                            fromServer1[2] = messageLengthBuff[2];
+                            fromServer1[3] = messageLengthBuff[3];
 
-            }
+                        } else if (messageLength1 != -1 && in1.available() > 0) {
+                            // read to the end of the message, or until the end of the input stream buffer
+                            int bytesToRead = Math.min(in1.available(), messageLength1 + 5 - bytesReadSoFar1);
+                            int bytesReadNow = in1.read(fromServer1, bytesReadSoFar1, bytesToRead);
+                            pp.logger.log("Reading " + bytesReadNow + " bytes");
+                            bytesReadSoFar1 += bytesReadNow;
+                            buff = ByteBuffer.wrap(fromServer1);
+
+
+                            if (bytesReadSoFar1 < messageLength1) {
+                                continue;
+                            } else {
+                                pp.logger.log("Done reading entire message. messageLength1: " + messageLength1 + " + 5. bytesReadSoFar: " + bytesReadSoFar1);
+                            }
+
+                            pieceMsg = Messages.decodeMessage(buff, pp, newId1);
+
+                            /*for (int i = 0; i < pp.messagesToSend.size(); i++) {
+                                sendMessageBB(pp.messagesToSend.get(i));
+                            }
+                            pp.messagesToSend.clear();
+                            for (int i = 0; i < pp.pieceMessages.size(); i++) {
+                                sendMessageBB(pp.pieceMessages.get(i));
+                            }*/
+
+                            for (int i = 0; i < pp.pieceMessages.size(); i++) {
+                                sendMessage1(pp.pieceMessages.get(i));
+                            }
+                            for (int i = 0; i < pp.messagesToSend.size(); i++) {
+                                sendMessage1(pp.messagesToSend.get(i));
+                            }
+
+                            pp.messagesToSend.clear();
+                            pp.pieceMessages.clear();
+
+                            // send the bitfield message after receiving a message
+                            /*pp.logger.log("Sending bitfield\n");
+                            sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));*/
+                            messageLength1 = -1;
+                            bytesReadSoFar1 = 0;
+
+
+                        }
+                    }
+                    if (!in2handshaked) {
+                        while (in2.available() > 0) {
+
+                            fromServer2 = new byte[in2.available()];
+                            in2.read(fromServer2);
+                            buff = ByteBuffer.wrap(fromServer2);
+
+                            if (buff.remaining() == 32) {
+                                in2handshaked = true;
+                                newId2 = Messages.decodeMessage(buff, pp, -1);
+                                break;
+                            }
+                        }
+                    }
+                    while (in2handshaked && ((messageLength2 == -1 && in2.available() >= 4) || (messageLength2 != -1 && in2.available() > 0))) {
+                        if (messageLength2 == -1 && in2.available() >= 4) {
+                            byte[] messageLengthBuff = new byte[4];
+                            bytesReadSoFar2 = in2.read(messageLengthBuff, 0, 4);// only read in 4 bytes
+                            buff = ByteBuffer.wrap(messageLengthBuff);
+                            messageLength2 = Messages.GetMessageLength(buff);
+                            fromServer2 = new byte[messageLength2 + 5];
+                            fromServer2[0] = messageLengthBuff[0];
+                            fromServer2[1] = messageLengthBuff[1];
+                            fromServer2[2] = messageLengthBuff[2];
+                            fromServer2[3] = messageLengthBuff[3];
+
+                        } else if (messageLength2 != -1 && in2.available() > 0) {
+                            // read to the end of the message, or until the end of the input stream buffer
+                            int bytesToRead = Math.min(in2.available(), messageLength2 + 5 - bytesReadSoFar2);
+                            connectedToPeerId = originalId;
+                            int bytesReadNow = in2.read(fromServer2, bytesReadSoFar2, bytesToRead);
+                            pp.logger.log("Reading " + bytesReadNow + " bytes");
+                            bytesReadSoFar2 += bytesReadNow;
+                            buff = ByteBuffer.wrap(fromServer2);
+
+                            if (bytesReadSoFar2 < messageLength3) {
+                                continue;
+                            } else {
+                                pp.logger.log("Done reading entire message. messageLength2: " + messageLength2 + " + 5. bytesReadSoFar: " + bytesReadSoFar2);
+                            }
+
+                            pieceMsg = Messages.decodeMessage(buff, pp, newId2);
+
+                            /*for (int i = 0; i < pp.messagesToSend.size(); i++) {
+                                sendMessageBB(pp.messagesToSend.get(i));
+                            }
+                            pp.messagesToSend.clear();
+                            for (int i = 0; i < pp.pieceMessages.size(); i++) {
+                                sendMessageBB(pp.pieceMessages.get(i));
+                            }*/
+
+                            for (int i = 0; i < pp.pieceMessages.size(); i++) {
+                                sendMessage2(pp.pieceMessages.get(i));
+                            }
+
+                            for (int i = 0; i < pp.messagesToSend.size(); i++) {
+                                sendMessage2(pp.messagesToSend.get(i));
+                            }
+                            pp.messagesToSend.clear();
+                            pp.pieceMessages.clear();
+
+                            // send the bitfield message after receiving a message
+                           /* pp.logger.log("Sending bitfield\n");
+                            sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));*/
+                            messageLength2 = -1;
+                            bytesReadSoFar2 = 0;
+                        }
+
+                    }
+                    if (!in3handshaked) {
+                        while (in3.available() > 0) {
+                            fromServer3 = new byte[in3.available()];
+                            in3.read(fromServer3);
+                            buff = ByteBuffer.wrap(fromServer3);
+
+                            if (buff.remaining() == 32) {
+                                in3handshaked = true;
+                                newId3 = Messages.decodeMessage(buff, pp, -1);
+                                break;
+                            }
+                        }
+                    }
+                    while (in3handshaked && ((messageLength3 == -1 && in3.available() >= 4) || (messageLength3 != -1 && in3.available() > 0))) {
+                        if (messageLength3 == -1 && in3.available() >= 4) {
+                            byte[] messageLengthBuff = new byte[4];
+                            bytesReadSoFar3 = in3.read(messageLengthBuff, 0, 4);// only read in 4 bytes
+                            buff = ByteBuffer.wrap(messageLengthBuff);
+                            messageLength3 = Messages.GetMessageLength(buff);
+                            fromServer3 = new byte[messageLength3 + 5];
+                            fromServer3[0] = messageLengthBuff[0];
+                            fromServer3[1] = messageLengthBuff[1];
+                            fromServer3[2] = messageLengthBuff[2];
+                            fromServer3[3] = messageLengthBuff[3];
+
+                        } else if (messageLength3 != -1 && in3.available() > 0) {
+                            // read to the end of the message, or until the end of the input stream buffer
+                            int bytesToRead = Math.min(in3.available(), messageLength3 + 5 - bytesReadSoFar3);
+                            connectedToPeerId = originalId;
+                            int bytesReadNow = in3.read(fromServer3, bytesReadSoFar3, bytesToRead);
+                            pp.logger.log("Reading " + bytesReadNow + " bytes");
+                            bytesReadSoFar3 += bytesReadNow;
+                            buff = ByteBuffer.wrap(fromServer3);
+
+                            if (bytesReadSoFar3 < messageLength3) {
+                                continue;
+                            } else {
+                                pp.logger.log("Done reading entire message. messageLength3: " + messageLength3 + " + 5. bytesReadSoFar: " + bytesReadSoFar3);
+                            }
+
+                            pieceMsg = Messages.decodeMessage(buff, pp, newId3);
+
+                           /* for (int i = 0; i < pp.messagesToSend.size(); i++) {
+                                sendMessageBB(pp.messagesToSend.get(i));
+                            }
+                            pp.messagesToSend.clear();
+                            for (int i = 0; i < pp.pieceMessages.size(); i++) {
+                                sendMessageBB(pp.pieceMessages.get(i));
+                            }*/
+
+
+                            for (int i = 0; i < pp.pieceMessages.size(); i++) {
+                                sendMessage3(pp.pieceMessages.get(i));
+                            }
+                            for (int i = 0; i < pp.messagesToSend.size(); i++) {
+                                sendMessage3(pp.messagesToSend.get(i));
+                            }
+                            pp.messagesToSend.clear();
+                            pp.pieceMessages.clear();
+
+                            // send the bitfield message after receiving a message
+                            /*pp.logger.log("Sending bitfield\n");
+                            sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));*/
+                            messageLength3 = -1;
+                            bytesReadSoFar3 = 0;
+                        }
+
+                    }
+
+                }
+            
         }
         } catch (ConnectException e) {
             System.err.println("Connection refused. You need to initiate a server first.");

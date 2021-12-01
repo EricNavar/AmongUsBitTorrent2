@@ -318,7 +318,49 @@ public class Server {
 
                                 if (handlers.get(i).connectedFrom == connectedFrom)
                                     continue;
+                                if (handlers.get(i).connectedFrom == pp.allPeers.get(2).getPeerId()) {
 
+                                    if (connectedFrom == 1004) {
+                                        secondTurn = false;
+                                        messageToSend = Messages.createHandshakeMessage(connectedFrom);
+                                        handlers.get(i).sendMessage2(messageToSend);
+                                        messageToSend = Messages.createHandshakeMessage(handlers.get(i).connectedFrom);
+                                        sendMessage2(messageToSend);
+
+                                        messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(connectedFrom).getBitfield());
+                                        handlers.get(i).sendMessage2(messageToSend);
+                                        messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(handlers.get(i).connectedFrom).getBitfield());
+                                        sendMessage2(messageToSend);
+                                        while (in2.available() <= 0) {
+
+                                        }
+
+                                        while (in2.available() > 0) {
+                                            message = new byte[in2.available()];
+
+                                            in2.read(message);
+
+                                            buff = ByteBuffer.wrap(message);
+                                            receivedMessages2.add(buff);
+
+                                        }
+
+                                        while (receivedMessages2.size() == 0) {
+                                        }
+                                        for (int j = 0; j < receivedMessages2.size(); j++) {
+                                            handlers.get(i).sendMessage2(receivedMessages2.get(j));
+                                        }
+
+                                        while (handlers.get(i).receivedMessages2.size() == 0) {
+                                        }
+                                        for (int j = 0; j < handlers.get(i).receivedMessages2.size(); j++) {
+                                            sendMessage2(handlers.get(i).receivedMessages2.get(j));
+                                        }
+                                        handlers.get(i).receivedMessages2.clear();
+
+                                        receivedMessages2.clear();
+                                    }
+                                }
 
                                 if (handlers.get(i).connectedFrom == pp.allPeers.get(1).getPeerId()) {
 
@@ -407,55 +449,6 @@ public class Server {
 
 
                             } else {
-                                // for some reason we can't handshake with this in the first round
-                               if (secondTurn) {
-                                    if (handlers.get(i).connectedFrom == pp.allPeers.get(2).getPeerId()) {
-
-                                        if (connectedFrom == 1004) {
-                                            secondTurn = false;
-                                            messageToSend = Messages.createHandshakeMessage(connectedFrom);
-                                            handlers.get(i).sendMessage2(messageToSend);
-                                            messageToSend = Messages.createHandshakeMessage(handlers.get(i).connectedFrom);
-                                            sendMessage2(messageToSend);
-
-                                            messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(connectedFrom).getBitfield());
-                                            handlers.get(i).sendMessage2(messageToSend);
-                                            messageToSend = Messages.createBitfieldMessage(pp.getRemotePeerInfo(handlers.get(i).connectedFrom).getBitfield());
-                                            sendMessage2(messageToSend);
-                                            while (in2.available() <= 0) {
-
-                                            }
-
-                                            while (in2.available() > 0) {
-                                                message = new byte[in2.available()];
-
-                                                in2.read(message);
-
-                                                buff = ByteBuffer.wrap(message);
-                                                receivedMessages2.add(buff);
-
-                                            }
-
-                                            while (receivedMessages2.size() == 0) {
-                                            }
-                                            for (int j = 0; j < receivedMessages2.size(); j++) {
-                                                handlers.get(i).sendMessage2(receivedMessages2.get(j));
-                                            }
-
-                                            while (handlers.get(i).receivedMessages2.size() == 0) {
-                                            }
-                                            for (int j = 0; j < handlers.get(i).receivedMessages2.size(); j++) {
-                                                sendMessage2(handlers.get(i).receivedMessages2.get(j));
-                                            }
-                                            handlers.get(i).receivedMessages2.clear();
-
-                                            receivedMessages2.clear();
-                                        }
-                                    }
-
-
-                                }
-
 
                                 if ((connectedFrom == 1002 && handlers.get(i).connectedFrom == 1003) || (connectedFrom == 1003 && handlers.get(i).connectedFrom == 1002)) {
                                     boolean continueOn = false;
