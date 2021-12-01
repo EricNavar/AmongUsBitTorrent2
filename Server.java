@@ -460,7 +460,6 @@ public class Server {
                                 if ((connectedFrom == 1002 && handlers.get(i).connectedFrom == 1003) || (connectedFrom == 1003 && handlers.get(i).connectedFrom == 1002)) {
                                     boolean continueOn = false;
                                     // receive either choke or unchoke
-
                                     if (receivedMessages.size() > 0) {
                                         for (int k = 0; k < receivedMessages.size(); k++) {
                                             if (Messages.GetMessageType(buff) == 1) {
@@ -486,12 +485,13 @@ public class Server {
                                     }
                                     // send unchoke/choke message to peer
                                     for (int j = 0; j < receivedMessages.size(); j++) {
-
-
                                         handlers.get(i).sendMessage1(receivedMessages.get(j));
                                     }
-                                    if(!continueOn)
+                                    if(!continueOn) {
                                         handlers.get(i).receivedMessages.clear();
+                                        receivedMessages.clear();
+
+                                    }
 
 
                                     // if an unchoke message is received
@@ -562,9 +562,11 @@ public class Server {
                                         handlers.get(i).sendMessage3(receivedMessages2.get(j));
                                     }
                                     // if an unchoke message is received
-                                    if(!continueOn)
+                                    if(!continueOn) {
                                         handlers.get(i).receivedMessages.clear();
+                                        receivedMessages.clear();
 
+                                    }
                                     if (continueOn) {
 
 
@@ -631,9 +633,11 @@ public class Server {
                                 for (int j = 0; j < receivedMessages3.size(); j++) {
                                     handlers.get(i).sendMessage3(receivedMessages3.get(j));
                                 }
-                                if(!continueOn)
+                                if(!continueOn) {
                                     handlers.get(i).receivedMessages.clear();
+                                    receivedMessages.clear();
 
+                                }
                                 // if an unchoke message is received
                                 if (continueOn) {
 

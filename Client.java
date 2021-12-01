@@ -119,6 +119,7 @@ public class Client {
 
 
 
+
                             if (connectedToPeerId == rpi.getPeerId()) {
                                 // System.out.println("Choking peer " + rpi.getPeerId());
                                 rpi.setChoked(true);
