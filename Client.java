@@ -389,6 +389,7 @@ public class Client {
                     }
                     // used for connections between clients
                     if (!in1handshaked) {
+
                         while (in1.available() > 0) {
                             fromServer1 = new byte[in1.available()];
                             in1.read(fromServer1);
@@ -404,6 +405,7 @@ public class Client {
                         if (messageLength1 == -1 && in1.available() >= 4) {
                             byte[] messageLengthBuff = new byte[4];
                             bytesReadSoFar1 = in1.read(messageLengthBuff, 0, 4);// only read in 4 bytes
+
                             buff = ByteBuffer.wrap(messageLengthBuff);
                             messageLength1 = Messages.GetMessageLength(buff);
                             fromServer1 = new byte[messageLength1 + 5];
@@ -455,6 +457,7 @@ public class Client {
 
 
                         }
+
                     }
                     if (!in2handshaked) {
                         while (in2.available() > 0) {
@@ -462,6 +465,7 @@ public class Client {
                             fromServer2 = new byte[in2.available()];
                             in2.read(fromServer2);
                             buff = ByteBuffer.wrap(fromServer2);
+
 
                             if (buff.remaining() == 32) {
                                 in2handshaked = true;
@@ -474,6 +478,7 @@ public class Client {
                         if (messageLength2 == -1 && in2.available() >= 4) {
                             byte[] messageLengthBuff = new byte[4];
                             bytesReadSoFar2 = in2.read(messageLengthBuff, 0, 4);// only read in 4 bytes
+
                             buff = ByteBuffer.wrap(messageLengthBuff);
                             messageLength2 = Messages.GetMessageLength(buff);
                             fromServer2 = new byte[messageLength2 + 5];
@@ -524,12 +529,14 @@ public class Client {
                             bytesReadSoFar2 = 0;
                         }
 
+
                     }
                     if (!in3handshaked) {
                         while (in3.available() > 0) {
                             fromServer3 = new byte[in3.available()];
                             in3.read(fromServer3);
                             buff = ByteBuffer.wrap(fromServer3);
+
 
                             if (buff.remaining() == 32) {
                                 in3handshaked = true;
@@ -542,6 +549,7 @@ public class Client {
                         if (messageLength3 == -1 && in3.available() >= 4) {
                             byte[] messageLengthBuff = new byte[4];
                             bytesReadSoFar3 = in3.read(messageLengthBuff, 0, 4);// only read in 4 bytes
+
                             buff = ByteBuffer.wrap(messageLengthBuff);
                             messageLength3 = Messages.GetMessageLength(buff);
                             fromServer3 = new byte[messageLength3 + 5];
@@ -591,6 +599,7 @@ public class Client {
                             messageLength3 = -1;
                             bytesReadSoFar3 = 0;
                         }
+
 
                     }
 
