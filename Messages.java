@@ -491,9 +491,9 @@ public class Messages {
 
         if (IncomingMessage.remaining() == 32) {
             if (GetHandshakeString(IncomingMessage).equals(handshakeHeader)) {
+                senderPeer = handleHandshakeMessage(IncomingMessage);
                 pp.logger.onConnectingTo(senderPeer);
-
-                return handleHandshakeMessage(IncomingMessage);
+                return senderPeer;
             }
         }
 
