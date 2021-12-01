@@ -407,7 +407,8 @@ public class Server {
 
 
                             } else {
-                                if (secondTurn) {
+                                // for some reason we can't handshake with this in the first round
+                               if (secondTurn) {
                                     if (handlers.get(i).connectedFrom == pp.allPeers.get(2).getPeerId()) {
 
                                         if (connectedFrom == 1004) {
