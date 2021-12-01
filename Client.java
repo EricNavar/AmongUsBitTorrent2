@@ -327,9 +327,12 @@ public class Client {
                         fromServer = new byte[32];
                         in1.read(fromServer);
                         buff = ByteBuffer.wrap(fromServer);
-                        newId3 = Messages.decodeMessage(buff, pp, -1);
+                        newId1 = Messages.decodeMessage(buff, pp, -1);
+                        if (newId1 == -1) {
+                            in1handshaked = true;
+                        }
                     }
-                    while (in1handshaked && (messageLength1 == -1 && in1.available() >= 4) || (messageLength1 != -1 && in1.available() > 0)) {
+                    while (in1handshaked && ((messageLength1 == -1 && in1.available() >= 4) || (messageLength1 != -1 && in1.available() > 0))) {
                         if (messageLength1 == -1 && in1.available() >= 4) {
                             byte[] messageLengthBuff = new byte[4];
                             bytesReadSoFar = in1.read(messageLengthBuff, 0, 4);// only read in 4 bytes
@@ -380,9 +383,12 @@ public class Client {
                         fromServer = new byte[32];
                         in2.read(fromServer);
                         buff = ByteBuffer.wrap(fromServer);
-                        newId3 = Messages.decodeMessage(buff, pp, -1);
+                        newId2 = Messages.decodeMessage(buff, pp, -1);
+                        if (newId2 == -1) {
+                            in2handshaked = true;
+                        }
                     }
-                    while (in2handshaked && (messageLength2 == -1 && in2.available() >= 4) || (messageLength2 != -1 && in2.available() > 0)) {
+                    while (in2handshaked && ((messageLength2 == -1 && in2.available() >= 4) || (messageLength2 != -1 && in2.available() > 0))) {
                         if (messageLength2 == -1 && in2.available() >= 4) {
                             byte[] messageLengthBuff = new byte[4];
                             bytesReadSoFar = in2.read(messageLengthBuff, 0, 4);// only read in 4 bytes
@@ -434,8 +440,11 @@ public class Client {
                         in3.read(fromServer);
                         buff = ByteBuffer.wrap(fromServer);
                         newId3 = Messages.decodeMessage(buff, pp, -1);
+                        if (newId3 == -1) {
+                            in3handshaked = true;
+                        }
                     }
-                    while (in3handshaked && (messageLength3 == -1 && in3.available() >= 4) || (messageLength3 != -1 && in3.available() > 0)) {
+                    while (in3handshaked && ((messageLength3 == -1 && in3.available() >= 4) || (messageLength3 != -1 && in3.available() > 0))) {
                         if (messageLength3 == -1 && in3.available() >= 4) {
                             byte[] messageLengthBuff = new byte[4];
                             bytesReadSoFar = in3.read(messageLengthBuff, 0, 4);// only read in 4 bytes
