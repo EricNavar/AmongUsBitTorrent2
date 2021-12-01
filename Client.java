@@ -311,6 +311,19 @@ public class Client {
 
                 int messageLength = -1;
                 int bytesReadSoFar = 0;
+
+                int messageLength1 = -1;
+                int bytesReadSoFar1 = 0;
+                boolean in1handshaked = false;
+
+                int messageLength2 = -1;
+                int bytesReadSoFar2 = 0;
+                boolean in2handshaked = false;
+
+                int messageLength3 = -1;
+                int bytesReadSoFar3 = 0;
+                boolean in3handshaked = false;
+
                 while (true) {
                     // used for connections between clients
                     while (in1.available() > 0) {
@@ -360,18 +373,19 @@ public class Client {
                                 sendMessageBB(pp.pieceMessages.get(i));
                             }
 
-                        for (int i = 0; i < pp.pieceMessages.size(); i++) {
-                            sendMessage1(pp.pieceMessages.get(i));
-                        }
-                        for (int i = 0; i < pp.messagesToSend.size(); i++) {
-                            sendMessage1(pp.messagesToSend.get(i));
-                        }
-                        pp.messagesToSend.clear();
-                        pp.pieceMessages.clear();
+                            for (int i = 0; i < pp.pieceMessages.size(); i++) {
+                                sendMessage1(pp.pieceMessages.get(i));
+                            }
+                            for (int i = 0; i < pp.messagesToSend.size(); i++) {
+                                sendMessage1(pp.messagesToSend.get(i));
+                            }
+                            pp.messagesToSend.clear();
+                            pp.pieceMessages.clear();
 
-                        // send the bitfield message after receiving a message
-                        pp.logger.log("Sending bitfield\n");
-                        sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
+                            // send the bitfield message after receiving a message
+                            pp.logger.log("Sending bitfield\n");
+                            sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
+                        }
                     }
                     while(in2.available() > 0)
                     {
@@ -423,19 +437,20 @@ public class Client {
                                 sendMessageBB(pp.pieceMessages.get(i));
                             }
 
-                        for (int i = 0; i < pp.pieceMessages.size(); i++) {
-                            sendMessage2(pp.pieceMessages.get(i));
-                        }
+                            for (int i = 0; i < pp.pieceMessages.size(); i++) {
+                                sendMessage2(pp.pieceMessages.get(i));
+                            }
 
-                        for (int i = 0; i < pp.messagesToSend.size(); i++) {
-                            sendMessage2(pp.messagesToSend.get(i));
-                        }
-                        pp.messagesToSend.clear();
-                        pp.pieceMessages.clear();
+                            for (int i = 0; i < pp.messagesToSend.size(); i++) {
+                                sendMessage2(pp.messagesToSend.get(i));
+                            }
+                            pp.messagesToSend.clear();
+                            pp.pieceMessages.clear();
 
-                        // send the bitfield message after receiving a message
-                        pp.logger.log("Sending bitfield\n");
-                        sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
+                            // send the bitfield message after receiving a message
+                            pp.logger.log("Sending bitfield\n");
+                            sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
+                        }
                     }
                     while (in3.available() > 0) {
                         fromServer = new byte[in3.available()];
@@ -562,7 +577,7 @@ public class Client {
                 }
 
             }
-
+        }
         } catch (ConnectException e) {
             System.err.println("Connection refused. You need to initiate a server first.");
         } catch (UnknownHostException unknownHost) {
