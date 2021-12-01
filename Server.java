@@ -407,7 +407,8 @@ public class Server {
 
 
                             } else {
-                                if (secondTurn) {
+                                // for some reason we can't handshake with this in the first round
+                               if (secondTurn) {
                                     if (handlers.get(i).connectedFrom == pp.allPeers.get(2).getPeerId()) {
 
                                         if (connectedFrom == 1004) {
@@ -456,7 +457,7 @@ public class Server {
                                 }
 
 
-                                if ((connectedFrom == 1002 && handlers.get(i).connectedFrom == pp.allPeers.get(2).getPeerId()) || (connectedFrom == 1003 && handlers.get(i).connectedFrom == 1002)) {
+                                if ((connectedFrom == 1002 && handlers.get(i).connectedFrom == 1003) || (connectedFrom == 1003 && handlers.get(i).connectedFrom == 1002)) {
                                     boolean continueOn = false;
                                     // receive either choke or unchoke
 
@@ -464,10 +465,12 @@ public class Server {
                                         for (int k = 0; k < receivedMessages.size(); k++) {
                                             if (Messages.GetMessageType(buff) == 1) {
 
+
                                                 continueOn = true;
                                             }
                                         }
                                     }
+
                                     while (in1.available() > 0) {
 
                                         message = new byte[in1.available()];
@@ -475,16 +478,19 @@ public class Server {
                                         in1.read(message);
 
                                         buff = ByteBuffer.wrap(message);
-                                        if (Messages.GetMessageType(buff) == 1) {
 
+                                        if (Messages.GetMessageType(buff) == 1) {
                                             continueOn = true;
                                         }
                                         receivedMessages.add(buff);
-                                        // send unchoke/choke message to peer
-                                        for (int j = 0; j < receivedMessages.size(); j++) {
-                                            handlers.get(i).sendMessage1(receivedMessages.get(j));
-                                        }
 
+
+                                    }
+                                    // send unchoke/choke message to peer
+                                    for (int j = 0; j < receivedMessages.size(); j++) {
+
+
+                                        handlers.get(i).sendMessage1(receivedMessages.get(j));
                                     }
 
                                     // if an unchoke message is received
@@ -546,11 +552,13 @@ public class Server {
                                         if (Messages.GetMessageType(buff) == 1)
                                             continueOn = true;
                                         receivedMessages2.add(buff);
-                                        // send unchoke/choke message to peer
-                                        for (int j = 0; j < receivedMessages2.size(); j++) {
-                                            handlers.get(i).sendMessage3(receivedMessages2.get(j));
-                                        }
 
+
+                                    }
+                                    // send unchoke/choke message to peer
+
+                                    for (int j = 0; j < receivedMessages2.size(); j++) {
+                                        handlers.get(i).sendMessage3(receivedMessages2.get(j));
                                     }
                                     // if an unchoke message is received
                                     if (continueOn) {
@@ -612,12 +620,14 @@ public class Server {
                                     if (Messages.GetMessageType(buff) == 1)
                                         continueOn = true;
                                     receivedMessages3.add(buff);
-                                    // send unchoke/choke message to peer
-                                    for (int j = 0; j < receivedMessages3.size(); j++) {
-                                        handlers.get(i).sendMessage3(receivedMessages3.get(j));
-                                    }
 
                                 }
+                                // send unchoke/choke message to peer
+
+                                for (int j = 0; j < receivedMessages3.size(); j++) {
+                                    handlers.get(i).sendMessage3(receivedMessages3.get(j));
+                                }
+
                                 // if an unchoke message is received
                                 if (continueOn) {
 

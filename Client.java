@@ -105,7 +105,7 @@ public class Client {
                             pp.messagesToSend.add(Messages.createChokeMessage());
                             count++;
                             //1003, 1002
-                            if((rpi.getPeerId() == 1003 && peerID ==1002) && (rpi.getPeerId() == 1002 && peerID ==1003)) {
+                            if((rpi.getPeerId() == 1003 && peerID ==1002) || (rpi.getPeerId() == 1002 && peerID ==1003)) {
                                 sendMessage1(pp.messagesToSend.get(count - 1));
                             }
 
@@ -128,7 +128,7 @@ public class Client {
                             pp.messagesToSend.add(Messages.createUnchokeMessage());
                             count++;
                             //1003, 1002
-                            if((rpi.getPeerId() == 1003 && peerID ==1002) && (rpi.getPeerId() == 1002 && peerID ==1003)) {
+                            if((rpi.getPeerId() == 1003 && peerID ==1002) || (rpi.getPeerId() == 1002 && peerID ==1003)) {
                                 sendMessage1(pp.messagesToSend.get(count - 1));
                             }
 
@@ -311,20 +311,10 @@ public class Client {
 
                 int messageLength = -1;
                 int bytesReadSoFar = 0;
-                int messageLength1 = -1;
-                int bytesReadSoFar1 = 0;
-                boolean in1handshaked = false;
-                int messageLength2 = -1;
-                int bytesReadSoFar2 = 0;
-                boolean in2handshaked = false;
-                int messageLength3 = -1;
-                int bytesReadSoFar3 = 0;
-                boolean in3handshaked = false;
                 while (true) {
                     // used for connections between clients
-                    // a handshake is 32 bytes
-                    while (!in1handshaked && in1.available() == 32) {
-                        fromServer = new byte[32];
+                    while (in1.available() > 0) {
+                        fromServer = new byte[in1.available()];
                         in1.read(fromServer);
                         buff = ByteBuffer.wrap(fromServer);
                         newId1 = Messages.decodeMessage(buff, pp, -1);
@@ -370,19 +360,26 @@ public class Client {
                                 sendMessageBB(pp.pieceMessages.get(i));
                             }
 
-                            pp.pieceMessages.clear();
-                            messageLength1 = -1;
-                            bytesReadSoFar1 = 0;
+                        for (int i = 0; i < pp.pieceMessages.size(); i++) {
+                            sendMessage1(pp.pieceMessages.get(i));
                         }
-                        else {
-                            pp.logger.log("Waiting for more data from in. in.available() = " + in.available() + ". messageLength1 = " + messageLength1);
+                        for (int i = 0; i < pp.messagesToSend.size(); i++) {
+                            sendMessage1(pp.messagesToSend.get(i));
                         }
+                        pp.messagesToSend.clear();
+                        pp.pieceMessages.clear();
+
+                        // send the bitfield message after receiving a message
+                        pp.logger.log("Sending bitfield\n");
+                        sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
                     }
-                    // a handshake is 32 bytes
-                    while (!in2handshaked && in2.available() == 32) {
-                        fromServer = new byte[32];
+                    while(in2.available() > 0)
+                    {
+
+                        fromServer = new byte[in2.available()];
                         in2.read(fromServer);
                         buff = ByteBuffer.wrap(fromServer);
+
                         newId2 = Messages.decodeMessage(buff, pp, -1);
                         if (newId2 == -1) {
                             in2handshaked = true;
@@ -426,19 +423,25 @@ public class Client {
                                 sendMessageBB(pp.pieceMessages.get(i));
                             }
 
-                            pp.pieceMessages.clear();
-                            messageLength2 = -1;
-                            bytesReadSoFar2 = 0;
+                        for (int i = 0; i < pp.pieceMessages.size(); i++) {
+                            sendMessage2(pp.pieceMessages.get(i));
                         }
-                        else {
-                            pp.logger.log("Waiting for more data from in. in.available() = " + in.available() + ". messageLength2 = " + messageLength2);
+
+                        for (int i = 0; i < pp.messagesToSend.size(); i++) {
+                            sendMessage2(pp.messagesToSend.get(i));
                         }
+                        pp.messagesToSend.clear();
+                        pp.pieceMessages.clear();
+
+                        // send the bitfield message after receiving a message
+                        pp.logger.log("Sending bitfield\n");
+                        sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
                     }
-                    // a handshake is 32 bytes
-                    while (!in3handshaked && in3.available() == 32) {
-                        fromServer = new byte[32];
+                    while (in3.available() > 0) {
+                        fromServer = new byte[in3.available()];
                         in3.read(fromServer);
                         buff = ByteBuffer.wrap(fromServer);
+
                         newId3 = Messages.decodeMessage(buff, pp, -1);
                         if (newId3 == -1) {
                             in3handshaked = true;
@@ -482,13 +485,19 @@ public class Client {
                                 sendMessageBB(pp.pieceMessages.get(i));
                             }
 
-                            pp.pieceMessages.clear();
-                            messageLength3 = -1;
-                            bytesReadSoFar3 = 0;
+
+                        for (int i = 0; i < pp.pieceMessages.size(); i++) {
+                            sendMessage3(pp.pieceMessages.get(i));
                         }
-                        else {
-                            pp.logger.log("Waiting for more data from in. in.available() = " + in.available() + ". messageLength3 = " + messageLength3);
+                        for (int i = 0; i < pp.messagesToSend.size(); i++) {
+                            sendMessage3(pp.messagesToSend.get(i));
                         }
+                        pp.messagesToSend.clear();
+                        pp.pieceMessages.clear();
+
+                        // send the bitfield message after receiving a message
+                        pp.logger.log("Sending bitfield\n");
+                        sendMessageBB(Messages.createBitfieldMessage(pp.getCurrBitfield()));
                     }
                     while (in.available() <= 0) {
                     }
