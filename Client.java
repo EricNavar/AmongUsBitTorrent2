@@ -320,6 +320,7 @@ public class Client {
                         if (buff.remaining() >= 32) {
                             newId1 = Messages.decodeMessage(buff, pp, -1);
                         }
+                        else
                         pieceMsg = Messages.decodeMessage(buff, pp, newId1);
 
                         for (int i = 0; i < pp.pieceMessages.size(); i++) {
@@ -344,6 +345,7 @@ public class Client {
                         if (buff.remaining() >= 32) {
                             newId2 = Messages.decodeMessage(buff, pp, -1);
                         }
+                        else
                         pieceMsg = Messages.decodeMessage(buff, pp, newId2);
 
                         for (int i = 0; i < pp.pieceMessages.size(); i++) {
@@ -367,6 +369,7 @@ public class Client {
                         if (buff.remaining() >= 32) {
                             newId3 = Messages.decodeMessage(buff, pp, -1);
                         }
+                        else
                         pieceMsg = Messages.decodeMessage(buff, pp, newId3);
 
                         for (int i = 0; i < pp.pieceMessages.size(); i++) {

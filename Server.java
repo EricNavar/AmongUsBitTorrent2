@@ -457,7 +457,7 @@ public class Server {
                                 }
 
 
-                                if ((connectedFrom == 1002 && handlers.get(i).connectedFrom == pp.allPeers.get(2).getPeerId()) || (connectedFrom == 1003 && handlers.get(i).connectedFrom == 1002)) {
+                                if ((connectedFrom == 1002 && handlers.get(i).connectedFrom == 1003) || (connectedFrom == 1003 && handlers.get(i).connectedFrom == 1002)) {
                                     boolean continueOn = false;
                                     // receive either choke or unchoke
 
@@ -465,10 +465,12 @@ public class Server {
                                         for (int k = 0; k < receivedMessages.size(); k++) {
                                             if (Messages.GetMessageType(buff) == 1) {
 
+
                                                 continueOn = true;
                                             }
                                         }
                                     }
+
                                     while (in1.available() > 0) {
 
                                         message = new byte[in1.available()];
@@ -476,8 +478,8 @@ public class Server {
                                         in1.read(message);
 
                                         buff = ByteBuffer.wrap(message);
-                                        if (Messages.GetMessageType(buff) == 1) {
 
+                                        if (Messages.GetMessageType(buff) == 1) {
                                             continueOn = true;
                                         }
                                         receivedMessages.add(buff);
@@ -485,10 +487,12 @@ public class Server {
 
                                     }
                                     // send unchoke/choke message to peer
-
                                     for (int j = 0; j < receivedMessages.size(); j++) {
+
+
                                         handlers.get(i).sendMessage1(receivedMessages.get(j));
                                     }
+
                                     // if an unchoke message is received
                                     if (continueOn) {
 
