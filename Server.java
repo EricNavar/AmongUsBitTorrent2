@@ -464,8 +464,6 @@ public class Server {
                                     if (receivedMessages.size() > 0) {
                                         for (int k = 0; k < receivedMessages.size(); k++) {
                                             if (Messages.GetMessageType(buff) == 1) {
-
-
                                                 continueOn = true;
                                             }
                                         }
@@ -492,6 +490,9 @@ public class Server {
 
                                         handlers.get(i).sendMessage1(receivedMessages.get(j));
                                     }
+                                    if(!continueOn)
+                                        handlers.get(i).receivedMessages.clear();
+
 
                                     // if an unchoke message is received
                                     if (continueOn) {
@@ -561,6 +562,9 @@ public class Server {
                                         handlers.get(i).sendMessage3(receivedMessages2.get(j));
                                     }
                                     // if an unchoke message is received
+                                    if(!continueOn)
+                                        handlers.get(i).receivedMessages.clear();
+
                                     if (continueOn) {
 
 
@@ -627,6 +631,8 @@ public class Server {
                                 for (int j = 0; j < receivedMessages3.size(); j++) {
                                     handlers.get(i).sendMessage3(receivedMessages3.get(j));
                                 }
+                                if(!continueOn)
+                                    handlers.get(i).receivedMessages.clear();
 
                                 // if an unchoke message is received
                                 if (continueOn) {
