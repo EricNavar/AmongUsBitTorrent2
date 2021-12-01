@@ -105,7 +105,7 @@ public class Client {
                             pp.messagesToSend.add(Messages.createChokeMessage());
                             count++;
                             //1003, 1002
-                            if((rpi.getPeerId() == 1003 && peerID ==1002) && (rpi.getPeerId() == 1002 && peerID ==1003)) {
+                            if((rpi.getPeerId() == 1003 && peerID ==1002) || (rpi.getPeerId() == 1002 && peerID ==1003)) {
                                 sendMessage1(pp.messagesToSend.get(count - 1));
                             }
 
@@ -128,7 +128,7 @@ public class Client {
                             pp.messagesToSend.add(Messages.createUnchokeMessage());
                             count++;
                             //1003, 1002
-                            if((rpi.getPeerId() == 1003 && peerID ==1002) && (rpi.getPeerId() == 1002 && peerID ==1003)) {
+                            if((rpi.getPeerId() == 1003 && peerID ==1002) || (rpi.getPeerId() == 1002 && peerID ==1003)) {
                                 sendMessage1(pp.messagesToSend.get(count - 1));
                             }
 
