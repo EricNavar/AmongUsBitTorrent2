@@ -181,15 +181,21 @@ public class Client {
             for (int i = 0; i < pp.allPeers.size(); i++) {
                 //ObjectOutputStream out; // stream write to the socket
                 //ObjectInputStream in; // stream read from the socket
+				System.out.println(" Output at " + i);
 				OutputStreamlist.add(new ObjectOutputStream(socketlist.get(i).getOutputStream()));
+				System.out.println(" Flushing at " + i);
 				OutputStreamlist.get(i).flush();
+				System.out.println(" Input at " + i);
                 InputStreamlist.add(new ObjectInputStream(socketlist.get(i).getInputStream()));
+				System.out.println(" Starting at " + i);
 				System.out.println(" Getting number " + i);
                 }
 
             // create handshake message and send to server
-            ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.getPeerId());
-            sendMessageBB(messageToSend);
+           ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.getPeerId());
+ 		   System.out.println(" Sending HandShake " + messageToSend);
+           sendMessageBB(messageToSend);
+ 		   System.out.println(" Sent HandShake " + messageToSend);
 
             while (true) {
                 // busy wait for input
