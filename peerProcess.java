@@ -173,6 +173,7 @@ class peerProcess {
         } else { // if server
             System.out.println("Starting a listener at the port and try to handshake with other processes...");
             server = new Server(this);
+            System.out.println("Step 1...");
             server.startServer();
         }
     }

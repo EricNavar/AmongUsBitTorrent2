@@ -167,12 +167,12 @@ public class Client {
 
         try {
             // create a socket to connect to the server
-
-            for (int i = 0; i < pp.allPeers.size(); i++) {
+            System.out.println(" peerID " + this.peerID + " fist one is " + pp.allPeers.get(0).getPeerId());
+            for (int i = 0; ((pp.allPeers.get(i).getPeerId()) < this.peerID); i++) {
             Socket nextSock;
-			System.out.println("Attempting to connect to localhost " + pp.allPeers.get(i).getPeerId() + " which is not " + pp.peerInfoVector(i).peerPort);
-            socketlist.add(new Socket("localhost",  pp.peerInfoVector(i).peerPort));
-			System.out.println("Connected to localhost " + pp.allPeers.get(i).getPeerId());
+			System.out.println(" I am " + pp.getPeerId() + " Attempting to connect to localhost " + pp.allPeers.get(i).getPeerId() + " which is on port " + pp.peerInfoVector.get(i).getPeerPort());
+            socketlist.add(new Socket("localhost",  pp.allPeers.get(i).getPeerPort()));
+			System.out.println("Connected to localhost " + pp.allPeers.get(i).getPeerId() + " and peer port " + pp.allPeers.get(i).getPeerPort());
             pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
             }
 			

@@ -26,19 +26,19 @@ public class Server {
     }
 
     public void startServer() throws Exception {
-        ServerSocket listener = new ServerSocket(pp.getPortNumber());
-        ServerSocket second = new ServerSocket(pp.allPeers.get(1).getPeerId());
-        ServerSocket third = new ServerSocket(pp.allPeers.get(2).getPeerId());
-        ServerSocket fourth = new ServerSocket(pp.allPeers.get(3).getPeerId());
-        ServerSocket fifth = new ServerSocket(pp.allPeers.get(4).getPeerId());
-        ServerSocket sixth = new ServerSocket(pp.allPeers.get(5).getPeerId());
-        ServerSocket seventh = new ServerSocket(pp.allPeers.get(5).getPeerId()+1);
-        ServerSocket eighth = new ServerSocket(pp.allPeers.get(5).getPeerId()+2);
-        ServerSocket ninth = new ServerSocket(pp.allPeers.get(5).getPeerId()+3);
-        ServerSocket tenth = new ServerSocket(pp.allPeers.get(5).getPeerId()+4);
-        ServerSocket eleventh = new ServerSocket(pp.allPeers.get(5).getPeerId()+5);
+        ServerSocket listener = new ServerSocket(pp.peerInfoVector.get(0).getPeerPort());
+        ServerSocket second = new ServerSocket(pp.peerInfoVector.get(1).getPeerPort());
+        ServerSocket third = new ServerSocket(pp.peerInfoVector.get(2).getPeerPort());
+        ServerSocket fourth = new ServerSocket(pp.peerInfoVector.get(3).getPeerPort());
+        ServerSocket fifth = new ServerSocket(pp.peerInfoVector.get(4).getPeerPort());
+        ServerSocket sixth = new ServerSocket(pp.peerInfoVector.get(5).getPeerPort());
+        ServerSocket seventh = new ServerSocket(pp.peerInfoVector.get(6).getPeerPort());
+        ServerSocket eighth = new ServerSocket(pp.peerInfoVector.get(7).getPeerPort());
+        ServerSocket ninth = new ServerSocket(pp.peerInfoVector.get(8).getPeerPort());
+        ServerSocket tenth = new ServerSocket(pp.peerInfoVector.get(9).getPeerPort());
+        ServerSocket eleventh = new ServerSocket(pp.peerInfoVector.get(10).getPeerPort());
 
-        // System.out.println("The server is running.");
+        System.out.println("The server is running.");
         int clientNum = 1;
 
         // make list of peerIds that have the file
