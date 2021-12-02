@@ -57,6 +57,7 @@ public class Client {
 					Socket NewSocket;
 					NewSocket = new Socket("localhost", PeerPortToUse);
 					Handler MyHandler = new Handler(NewSocket, pp.allPeers.get(i).getPeerId(), pp);
+					MyHandler.start();
                     socketlist.add(NewSocket);
 			        System.out.println("Created a initiator socket with peer " + pp.allPeers.get(i).getPeerId() + " on their port " + PeerPortToUse);
                     pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
@@ -82,6 +83,7 @@ public class Client {
 					System.out.println("Trying to accept socket of allpeeres(" + i + ") known as peerID " + pp.allPeers.get(i).getPeerId());
 					Socket GetIt = NewSocket.accept();
 					Handler MyHandler = new Handler(GetIt, pp.allPeers.get(i).getPeerId(), pp);
+					MyHandler.start();
                     socketServerlist.add(NewSocket);
 			        System.out.println("Created a server socket " + pp.allPeers.get(i).getPeerId() + " and peer port " + PeerPortToUse);
                     pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
@@ -137,18 +139,6 @@ public class Client {
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
-        }
-    }
-
-    // send a message to the output stream
-    void sendMessage(ByteBuffer msg, int streamID) {
-        try {
-            // stream write the message
-			System.out.println(" Getting number 0 sendMessageBB " + msg.array());
-            OutputStreamlist.get(streamID).write(msg.array());
-            OutputStreamlist.get(streamID).flush();
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
         }
     }
   
