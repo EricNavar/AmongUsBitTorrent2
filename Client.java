@@ -58,8 +58,9 @@ public class Client {
 			    if (pp.getPeerId() == pp.allPeers.get(i).getPeerId() ) {
 					//break;
 				} else {
-					Socket GetIt = new Handler(socketlist.get(i).accept(), pp.allPeers.get(i).getPeerId());
-					System.out.println("Trying to accept socket " + i + " as " + GetIt);
+					Socket GetIt = socketlist.get(i).accept();
+					Handler MyHandler = new Handler(GetIt, pp.allPeers.get(i).getPeerId());
+					System.out.println("Trying to accept socket " + i + " as " + MyHandler);
 				}
             }
 			
