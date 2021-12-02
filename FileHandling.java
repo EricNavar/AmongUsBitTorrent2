@@ -70,7 +70,7 @@ public class FileHandling {
 	public void openFile() {
 		try {
 
-			fileNameWithPath = ".\\peer_" + peerID + "\\" + fileName;
+			fileNameWithPath = "./peer_" + peerID + "/" + fileName;
 			File file = new File(fileNameWithPath);
 
 			Desktop desktop = Desktop.getDesktop();
