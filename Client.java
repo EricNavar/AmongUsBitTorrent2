@@ -2,6 +2,7 @@
 
 import java.net.*;
 import java.io.*;
+import java.util.*;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -10,41 +11,10 @@ import java.io.IOException;
 // idea of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
 
 public class Client {
-    Socket requestSocket; // socket connect to the server
-    Socket nextSock; // socket connect to the server
-    Socket nextSock2; // socket connect to the server
-    Socket nextSock3; // socket connect to the server
-    Socket nextSock4; // socket connect to the server
-    Socket nextSock5; // socket connect to the server
-    Socket nextSock6; // socket connect to the server
-    Socket nextSock7; // socket connect to the server
-    Socket nextSock8; // socket connect to the server
-    Socket nextSock9; // socket connect to the server
-    Socket nextSock10; // socket connect to the server
 
-    ObjectOutputStream out; // stream write to the socket
-    ObjectInputStream in; // stream read from the socket
-    ObjectOutputStream out1; // stream write to the socket
-    ObjectInputStream in1; // stream read from the socket
-    ObjectOutputStream out2; // stream write to the socket
-    ObjectInputStream in2; // stream read from the socket
-    ObjectOutputStream out3; // stream write to the socket
-    ObjectInputStream in3; // stream read from the socket
-    ObjectOutputStream out4; // stream write to the socket
-    ObjectInputStream in4; // stream read from the socket
-    ObjectOutputStream out5; // stream write to the socket
-    ObjectInputStream in5; // stream read from the socket
-    ObjectOutputStream out6; // stream write to the socket
-    ObjectInputStream in6; // stream read from the socket
-    ObjectOutputStream out7; // stream write to the socket
-    ObjectInputStream in7; // stream read from the socket
-    ObjectOutputStream out8; // stream write to the socket
-    ObjectInputStream in8; // stream read from the socket
-    ObjectOutputStream out9; // stream write to the socket
-    ObjectInputStream in9; // stream read from the socket
-    ObjectOutputStream out10; // stream write to the socket
-    ObjectInputStream in10; // stream read from the socket
-
+    Vector<Socket> socketlist;
+    Vector<ObjectInputStream> InputStreamlist;
+    Vector<ObjectOutputStream> OutputStreamlist;
 
     byte[] fromServer; // capitalized message read from the server
     byte[] fromServer1; // capitalized message read from the server
@@ -69,7 +39,10 @@ public class Client {
     }
 
     public Client(peerProcess pp) {
-        this.pp = pp;
+        this.pp          = pp;
+        socketlist       = new Vector<Socket>();
+        InputStreamlist  = new Vector<ObjectInputStream>();
+        OutputStreamlist = new Vector<ObjectOutputStream>();
     }
 
     // Sometimes the program just stops, so I'm making this timer to see if
@@ -195,74 +168,27 @@ public class Client {
         try {
             // create a socket to connect to the server
 
-            requestSocket = new Socket("localhost", pp.getPortNumber());
-            System.out.println("Connected to localhost " + pp.getPortNumber());
-            nextSock = new Socket("localhost", pp.allPeers.get(1).getPeerId());
-            System.out.println("Connected to localhost " + pp.allPeers.get(1).getPeerId());
-            nextSock2 = new Socket("localhost", pp.allPeers.get(2).getPeerId());
-            System.out.println("Connected to localhost " + pp.allPeers.get(2).getPeerId());
-            nextSock3 = new Socket("localhost", pp.allPeers.get(3).getPeerId());
-            System.out.println("Connected to localhost " + pp.allPeers.get(3).getPeerId());
-            nextSock4 = new Socket("localhost", pp.allPeers.get(4).getPeerId());
-            System.out.println("Connected to localhost " + pp.allPeers.get(4).getPeerId());
-            nextSock5 = new Socket("localhost", pp.allPeers.get(5).getPeerId());
-            System.out.println("Connected to localhost " + pp.allPeers.get(5).getPeerId());
-            nextSock6 = new Socket("localhost", pp.allPeers.get(5).getPeerId()+1);
-            System.out.println("Connected to localhost " + pp.allPeers.get(5).getPeerId()+1);
-            nextSock7 = new Socket("localhost", pp.allPeers.get(5).getPeerId()+2);
-            System.out.println("Connected to localhost " + pp.allPeers.get(1).getPeerId()+2);
-            nextSock8 = new Socket("localhost", pp.allPeers.get(5).getPeerId()+3);
-            System.out.println("Connected to localhost " + pp.allPeers.get(5).getPeerId()+3);
-            nextSock9 = new Socket("localhost", pp.allPeers.get(5).getPeerId()+4);
-            System.out.println("Connected to localhost " + pp.allPeers.get(5).getPeerId()+4);
-            nextSock10 = new Socket("localhost", pp.allPeers.get(5).getPeerId()+5);
-            System.out.println("Connected to localhost " + pp.allPeers.get(3).getPeerId()+5);
+			Socket TheNewSocket = new Socket("localhost", pp.getPortNumber());
+			socketlist.add(TheNewSocket);
 
-            // initialize inputStream and outputStream
-            out = new ObjectOutputStream(requestSocket.getOutputStream());
-            out.flush();
-            in = new ObjectInputStream(requestSocket.getInputStream());
-
-            out1 = new ObjectOutputStream(nextSock.getOutputStream());
-            out1.flush();
-            in1 = new ObjectInputStream(nextSock.getInputStream());
-
-            out2 = new ObjectOutputStream(nextSock2.getOutputStream());
-            out2.flush();
-            in2 = new ObjectInputStream(nextSock2.getInputStream());
-            
-            out3 = new ObjectOutputStream(nextSock3.getOutputStream());
-            out3.flush();
-            in3 = new ObjectInputStream(nextSock3.getInputStream());
-
-            out4 = new ObjectOutputStream(nextSock4.getOutputStream());
-            out4.flush();
-            in4 = new ObjectInputStream(nextSock4.getInputStream());
-
-            out5 = new ObjectOutputStream(nextSock5.getOutputStream());
-            out5.flush();
-            in5 = new ObjectInputStream(nextSock5.getInputStream());
-
-            out6 = new ObjectOutputStream(nextSock6.getOutputStream());
-            out6.flush();
-            in6 = new ObjectInputStream(nextSock6.getInputStream());
-
-            out7 = new ObjectOutputStream(nextSock7.getOutputStream());
-            out7.flush();
-            in7 = new ObjectInputStream(nextSock7.getInputStream());
-
-            out8 = new ObjectOutputStream(nextSock8.getOutputStream());
-            out8.flush();
-            in8 = new ObjectInputStream(nextSock8.getInputStream());
-
-            out9 = new ObjectOutputStream(nextSock9.getOutputStream());
-            out9.flush();
-            in9 = new ObjectInputStream(nextSock9.getInputStream());
-
-            out10 = new ObjectOutputStream(nextSock10.getOutputStream());
-            out10.flush();
-            in10 = new ObjectInputStream(nextSock10.getInputStream());
-
+            for (int i = 0; i < pp.allPeers.size() - 1; i++) {
+            Socket nextSock;
+			System.out.println("Attempting to connect to localhost " + pp.allPeers.get(i).getPeerId() + " which is not " + pp.getPortNumber());
+            socketlist.add(new Socket("localhost", pp.getPortNumber()));
+			System.out.println("Connected to localhost " + pp.allPeers.get(i).getPeerId());
+            pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+            }
+			
+			System.out.println("A4 " + pp.getPortNumber());
+			
+            for (int i = 0; i < pp.allPeers.size(); i++) {
+                //ObjectOutputStream out; // stream write to the socket
+                //ObjectInputStream in; // stream read from the socket
+				OutputStreamlist.add(new ObjectOutputStream(socketlist.get(i).getOutputStream()));
+				OutputStreamlist.get(i).flush();
+                InputStreamlist.add(new ObjectInputStream(socketlist.get(i).getInputStream()));
+				System.out.println(" Getting number " + i);
+                }
 
             // create handshake message and send to server
             ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.getPeerId());
@@ -270,11 +196,11 @@ public class Client {
 
             while (true) {
                 // busy wait for input
-                while (in.available() <= 0) {
+                while (InputStreamlist.get(0).available() <= 0) {
                 }
 
-                fromServer = new byte[in.available()];
-                in.read(fromServer);
+                fromServer = new byte[InputStreamlist.get(0).available()];
+                InputStreamlist.get(0).read(fromServer);
                 ByteBuffer buff = ByteBuffer.wrap(fromServer);
                 // System.out.println("Receive message"); // debug message
 
@@ -289,10 +215,10 @@ public class Client {
                 sendMessageBB(messageToSend);
 
                 // expect a bitfield back
-                while (in.available() <= 0) {
+                while (InputStreamlist.get(0).available() <= 0) {
                 }
-                fromServer = new byte[in.available()];
-                in.read(fromServer);
+                fromServer = new byte[InputStreamlist.get(0).available()];
+                InputStreamlist.get(0).read(fromServer);
                 buff = ByteBuffer.wrap(fromServer);
                 int bitfieldMsg = Messages.decodeMessage(pp, buff, connectedToPeerId);
 
@@ -301,10 +227,10 @@ public class Client {
                     sendMessageBB(pp.messagesToSend.get(i));
                 }
 
-                while (in.available() <= 0) {
+                while (InputStreamlist.get(0).available() <= 0) {
                 }
-                fromServer = new byte[in.available()];
-                in.read(fromServer);
+                fromServer = new byte[InputStreamlist.get(0).available()];
+                InputStreamlist.get(0).read(fromServer);
                 buff = ByteBuffer.wrap(fromServer);
                 int interestMsg = Messages.decodeMessage(buff, pp, connectedToPeerId);
 
@@ -330,7 +256,7 @@ public class Client {
                 boolean in3handshaked = false;
 
                 while (true) {
-                    while (in.available() <= 0) {
+                   while (InputStreamlist.get(0).available() <= 0) {
                     }
                     try {
 
@@ -339,10 +265,10 @@ public class Client {
                         // is -1, then it's unknown, and the next thing to read is the message length.
                         // If it's not negative one, then read messageLength + 1 bytes. +1 because of
                         // the message type.
-                        while ((messageLength == -1 && in.available() >= 4) || (messageLength != -1 && in.available() > 0)) {
-                            if (messageLength == -1 && in.available() >= 4) {
+                        while ((messageLength == -1 && InputStreamlist.get(0).available() >= 4) || (messageLength != -1 && InputStreamlist.get(0).available() >= 0)) {
+                            if (messageLength == -1 && InputStreamlist.get(0).available() >= 4) {
                                 byte[] messageLengthBuff = new byte[4];
-                                bytesReadSoFar = in.read(messageLengthBuff, 0, 4);// only read in 4 bytes
+                                bytesReadSoFar = InputStreamlist.get(0).read(messageLengthBuff, 0, 4);// only read in 4 bytes
                                 buff = ByteBuffer.wrap(messageLengthBuff);
                                 messageLength = Messages.GetMessageLength(buff);
                                 fromServer = new byte[messageLength + 5];
@@ -351,11 +277,11 @@ public class Client {
                                 fromServer[2] = messageLengthBuff[2];
                                 fromServer[3] = messageLengthBuff[3];
 
-                            } else if (messageLength != -1 && in.available() > 0) {
+                            } else if (messageLength != -1 && InputStreamlist.get(0).available() >= 0) {			
                                 // read to the end of the message, or until the end of the input stream buffer
-                                int bytesToRead = Math.min(in.available(), messageLength + 5 - bytesReadSoFar);
+                                int bytesToRead = Math.min(InputStreamlist.get(0).available(), messageLength + 5 - bytesReadSoFar);
                                 connectedToPeerId = originalId;
-                                int bytesReadNow = in.read(fromServer, bytesReadSoFar, bytesToRead);
+                                int bytesReadNow = InputStreamlist.get(0).read(fromServer, bytesReadSoFar, bytesToRead);
                                 pp.logger.log("Reading " + bytesReadNow + " bytes");
                                 bytesReadSoFar += bytesReadNow;
                                 buff = ByteBuffer.wrap(fromServer);
@@ -380,7 +306,7 @@ public class Client {
                                 messageLength = -1;
                                 bytesReadSoFar = 0;
                             } else {
-                                pp.logger.log("Waiting for more data from in. in.available() = " + in.available() + ". messageLength = " + messageLength);
+                                pp.logger.log("Waiting for more data from in. in.available() = " + InputStreamlist.get(0).available() + ". messageLength = " + messageLength);
                             }
                         }
 
@@ -390,9 +316,9 @@ public class Client {
                     // used for connections between clients
                     if (!in1handshaked) {
 
-                        while (in1.available() > 0) {
-                            fromServer1 = new byte[in1.available()];
-                            in1.read(fromServer1);
+                        while (InputStreamlist.get(1).available() > 0) {
+                            fromServer1 = new byte[InputStreamlist.get(1).available()];
+                            InputStreamlist.get(1).read(fromServer1);
                             buff = ByteBuffer.wrap(fromServer1);
                             if (buff.remaining() == 32) {
                                 newId1 = Messages.decodeMessage(buff, pp, -1);
@@ -401,10 +327,10 @@ public class Client {
                             }
                         }
                     }
-                    while (in1handshaked && ((messageLength1 == -1 && in1.available() >= 4) || (messageLength1 != -1 && in1.available() > 0))) {
-                        if (messageLength1 == -1 && in1.available() >= 4) {
+                    while (in1handshaked && ((messageLength1 == -1 && InputStreamlist.get(1).available() >= 4) || (messageLength1 != -1 && InputStreamlist.get(1).available() > 0))) {
+                        if (messageLength1 == -1 && InputStreamlist.get(1).available() >= 4) {
                             byte[] messageLengthBuff = new byte[4];
-                            bytesReadSoFar1 = in1.read(messageLengthBuff, 0, 4);// only read in 4 bytes
+                            bytesReadSoFar1 = InputStreamlist.get(1).read(messageLengthBuff, 0, 4);// only read in 4 bytes
 
                             buff = ByteBuffer.wrap(messageLengthBuff);
                             messageLength1 = Messages.GetMessageLength(buff);
@@ -414,10 +340,10 @@ public class Client {
                             fromServer1[2] = messageLengthBuff[2];
                             fromServer1[3] = messageLengthBuff[3];
 
-                        } else if (messageLength1 != -1 && in1.available() > 0) {
+                        } else if (messageLength1 != -1 && InputStreamlist.get(1).available() > 0) {
                             // read to the end of the message, or until the end of the input stream buffer
-                            int bytesToRead = Math.min(in1.available(), messageLength1 + 5 - bytesReadSoFar1);
-                            int bytesReadNow = in1.read(fromServer1, bytesReadSoFar1, bytesToRead);
+                            int bytesToRead = Math.min(InputStreamlist.get(1).available(), messageLength1 + 5 - bytesReadSoFar1);
+                            int bytesReadNow = InputStreamlist.get(1).read(fromServer1, bytesReadSoFar1, bytesToRead);
                             pp.logger.log("Reading " + bytesReadNow + " bytes");
                             bytesReadSoFar1 += bytesReadNow;
                             buff = ByteBuffer.wrap(fromServer1);
@@ -460,10 +386,10 @@ public class Client {
 
                     }
                     if (!in2handshaked) {
-                        while (in2.available() > 0) {
+                        while (InputStreamlist.get(2).available() > 0) {
 
-                            fromServer2 = new byte[in2.available()];
-                            in2.read(fromServer2);
+                            fromServer2 = new byte[InputStreamlist.get(2).available()];
+                            InputStreamlist.get(2).read(fromServer2);
                             buff = ByteBuffer.wrap(fromServer2);
 
 
@@ -474,10 +400,10 @@ public class Client {
                             }
                         }
                     }
-                    while (in2handshaked && ((messageLength2 == -1 && in2.available() >= 4) || (messageLength2 != -1 && in2.available() > 0))) {
-                        if (messageLength2 == -1 && in2.available() >= 4) {
+                    while (in2handshaked && ((messageLength2 == -1 && InputStreamlist.get(2).available() >= 4) || (messageLength2 != -1 && InputStreamlist.get(2).available() > 0))) {
+                        if (messageLength2 == -1 && InputStreamlist.get(2).available() >= 4) {
                             byte[] messageLengthBuff = new byte[4];
-                            bytesReadSoFar2 = in2.read(messageLengthBuff, 0, 4);// only read in 4 bytes
+                            bytesReadSoFar2 = InputStreamlist.get(2).read(messageLengthBuff, 0, 4);// only read in 4 bytes
 
                             buff = ByteBuffer.wrap(messageLengthBuff);
                             messageLength2 = Messages.GetMessageLength(buff);
@@ -487,11 +413,11 @@ public class Client {
                             fromServer2[2] = messageLengthBuff[2];
                             fromServer2[3] = messageLengthBuff[3];
 
-                        } else if (messageLength2 != -1 && in2.available() > 0) {
+                        } else if (messageLength2 != -1 && InputStreamlist.get(2).available() > 0) {
                             // read to the end of the message, or until the end of the input stream buffer
-                            int bytesToRead = Math.min(in2.available(), messageLength2 + 5 - bytesReadSoFar2);
+                            int bytesToRead = Math.min(InputStreamlist.get(2).available(), messageLength2 + 5 - bytesReadSoFar2);
                             connectedToPeerId = originalId;
-                            int bytesReadNow = in2.read(fromServer2, bytesReadSoFar2, bytesToRead);
+                            int bytesReadNow = InputStreamlist.get(2).read(fromServer2, bytesReadSoFar2, bytesToRead);
                             pp.logger.log("Reading " + bytesReadNow + " bytes");
                             bytesReadSoFar2 += bytesReadNow;
                             buff = ByteBuffer.wrap(fromServer2);
@@ -532,9 +458,9 @@ public class Client {
 
                     }
                     if (!in3handshaked) {
-                        while (in3.available() > 0) {
-                            fromServer3 = new byte[in3.available()];
-                            in3.read(fromServer3);
+                        while (InputStreamlist.get(3).available() > 0) {
+                            fromServer3 = new byte[InputStreamlist.get(3).available()];
+                            InputStreamlist.get(3).read(fromServer3);
                             buff = ByteBuffer.wrap(fromServer3);
 
 
@@ -545,10 +471,10 @@ public class Client {
                             }
                         }
                     }
-                    while (in3handshaked && ((messageLength3 == -1 && in3.available() >= 4) || (messageLength3 != -1 && in3.available() > 0))) {
-                        if (messageLength3 == -1 && in3.available() >= 4) {
+                    while (in3handshaked && ((messageLength3 == -1 && InputStreamlist.get(3).available() >= 4) || (messageLength3 != -1 && InputStreamlist.get(3).available() > 0))) {
+                        if (messageLength3 == -1 && InputStreamlist.get(3).available() >= 4) {
                             byte[] messageLengthBuff = new byte[4];
-                            bytesReadSoFar3 = in3.read(messageLengthBuff, 0, 4);// only read in 4 bytes
+                            bytesReadSoFar3 = InputStreamlist.get(3).read(messageLengthBuff, 0, 4);// only read in 4 bytes
 
                             buff = ByteBuffer.wrap(messageLengthBuff);
                             messageLength3 = Messages.GetMessageLength(buff);
@@ -558,11 +484,11 @@ public class Client {
                             fromServer3[2] = messageLengthBuff[2];
                             fromServer3[3] = messageLengthBuff[3];
 
-                        } else if (messageLength3 != -1 && in3.available() > 0) {
+                        } else if (messageLength3 != -1 && InputStreamlist.get(3).available() > 0) {
                             // read to the end of the message, or until the end of the input stream buffer
-                            int bytesToRead = Math.min(in3.available(), messageLength3 + 5 - bytesReadSoFar3);
+                            int bytesToRead = Math.min(InputStreamlist.get(3).available(), messageLength3 + 5 - bytesReadSoFar3);
                             connectedToPeerId = originalId;
-                            int bytesReadNow = in3.read(fromServer3, bytesReadSoFar3, bytesToRead);
+                            int bytesReadNow = InputStreamlist.get(3).read(fromServer3, bytesReadSoFar3, bytesToRead);
                             pp.logger.log("Reading " + bytesReadNow + " bytes");
                             bytesReadSoFar3 += bytesReadNow;
                             buff = ByteBuffer.wrap(fromServer3);
@@ -616,52 +542,13 @@ public class Client {
         } finally {
             // Close connections
             try {
-                in.close();
-                out.close();
-
-                in1.close();
-                out1.close();
-
-                in2.close();
-                out2.close();
-
-                in3.close();
-                out3.close();
-
-                in4.close();
-                out4.close();
-
-                in5.close();
-                out5.close();
-
-                in6.close();
-                out6.close();
-
-                in7.close();
-                out7.close();
-
-                in8.close();
-                out8.close();
-
-                in9.close();
-                out9.close();
-
-                in10.close();
-                out10.close();
-
-                requestSocket.close();
-                nextSock.close();
-                nextSock2.close();
-                nextSock3.close();
-                nextSock4.close();
-                nextSock5.close();
-                nextSock6.close();
-                nextSock7.close();
-                nextSock8.close();
-                nextSock9.close();
-                nextSock10.close();
-
-
+                for(int i = 0; i < pp.allPeers.size(); i++){
+            
+                    OutputStreamlist.get(i).close();
+                    InputStreamlist.get(i).close();
+                    socketlist.get(i).close();
+        
+                    }
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
@@ -672,9 +559,9 @@ public class Client {
     void sendMessageBB(ByteBuffer msg) {
         try {
             // stream write the message
-            out.write(msg.array());
-            out.flush();
-
+			System.out.println(" Getting number 0 sendMessageBB");
+            OutputStreamlist.get(0).write(msg.array());
+            OutputStreamlist.get(0).flush();
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
@@ -683,9 +570,12 @@ public class Client {
     void sendMessage1(ByteBuffer msg) {
         try {
             // stream write the message
-            out1.write(msg.array());
-            out1.flush();
-
+			System.out.println(" Getting number 0 sendMessage1");
+            OutputStreamlist.get(1).write(msg.array());
+            OutputStreamlist.get(1).flush();
+            
+            //out1.write(msg.array());
+            //out1.flush();
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
@@ -694,9 +584,12 @@ public class Client {
     void sendMessage2(ByteBuffer msg) {
         try {
             // stream write the message
-            out2.write(msg.array());
-            out2.flush();
-
+			System.out.println(" Getting number 0 sendMessage2");
+            OutputStreamlist.get(2).write(msg.array());
+            OutputStreamlist.get(2).flush();
+            
+            //out2.write(msg.array());
+            //out2.flush();
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
@@ -705,9 +598,12 @@ public class Client {
     void sendMessage3(ByteBuffer msg) {
         try {
             // stream write the message
-            out3.write(msg.array());
-            out3.flush();
-
+            
+            OutputStreamlist.get(3).write(msg.array());
+            OutputStreamlist.get(3).flush();
+            
+            //out3.write(msg.array());
+            //out3.flush();
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
