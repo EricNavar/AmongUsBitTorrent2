@@ -26,17 +26,21 @@ public class Server {
     }
 
     public void startServer() throws Exception {
-        ServerSocket listener = new ServerSocket(pp.allPeers.get(0).getPeerPort());
-        ServerSocket second = new ServerSocket(pp.allPeers.get(1).getPeerPort());
-        ServerSocket third = new ServerSocket(pp.allPeers.get(2).getPeerPort());
-        ServerSocket fourth = new ServerSocket(pp.allPeers.get(3).getPeerPort());
-        ServerSocket fifth = new ServerSocket(pp.allPeers.get(4).getPeerPort());
-        ServerSocket sixth = new ServerSocket(pp.allPeers.get(5).getPeerPort());
-        ServerSocket seventh = new ServerSocket(pp.allPeers.get(6).getPeerPort());
-        ServerSocket eighth = new ServerSocket(pp.allPeers.get(7).getPeerPort());
-        ServerSocket ninth = new ServerSocket(pp.allPeers.get(8).getPeerPort());
-        ServerSocket tenth = new ServerSocket(pp.allPeers.get(9).getPeerPort());
-        ServerSocket eleventh = new ServerSocket(pp.allPeers.get(10).getPeerPort());
+        Vector<ServerSocket> serverSocketlist = new Vector<ServerSocket>();
+		for (int i = 0; (i < pp.allPeers.size()); i++) {
+            serverSocketlist.add(new ServerSocket(pp.allPeers.get(i).getPeerPort()));
+        }
+        //ServerSocket listener = new ServerSocket(pp.allPeers.get(0).getPeerPort());
+        //ServerSocket second = new ServerSocket(pp.allPeers.get(1).getPeerPort());
+        //ServerSocket third = new ServerSocket(pp.allPeers.get(2).getPeerPort());
+        //ServerSocket fourth = new ServerSocket(pp.allPeers.get(3).getPeerPort());
+        //ServerSocket fifth = new ServerSocket(pp.allPeers.get(4).getPeerPort());
+        //ServerSocket sixth = new ServerSocket(pp.allPeers.get(5).getPeerPort());
+        //ServerSocket seventh = new ServerSocket(pp.allPeers.get(6).getPeerPort());
+        //ServerSocket eighth = new ServerSocket(pp.allPeers.get(7).getPeerPort());
+        //ServerSocket ninth = new ServerSocket(pp.allPeers.get(8).getPeerPort());
+        //ServerSocket tenth = new ServerSocket(pp.allPeers.get(9).getPeerPort());
+        //ServerSocket eleventh = new ServerSocket(pp.allPeers.get(10).getPeerPort());
 
         System.out.println("The server is running.");
         int clientNum = 1;
@@ -52,24 +56,34 @@ public class Server {
         try {
             while (true) {
 
-                Handler h = new Handler(listener.accept(), second.accept(), third.accept(), fourth.accept(), fifth.accept(), sixth.accept(), seventh.accept(), eighth.accept(), ninth.accept(), tenth.accept(),  eleventh.accept(), clientNum);
-                h.start();
-                handlers.add(h);
-                System.out.println("Client " + clientNum + " is connected!");
-                clientNum++;
+		        for (int i = 0; (i < pp.allPeers.size()); i++) {
+                    Handler h = new Handler(serverSocketlist.get(i).accept(), clientNum);
+                    h.start();
+                    handlers.add(h);
+                    System.out.println("Client " + clientNum + " is connected!");
+                    clientNum++;
+                }
+                //Handler h = new Handler(listener.accept(), second.accept(), third.accept(), fourth.accept(), fifth.accept(), sixth.accept(), seventh.accept(), eighth.accept(), ninth.accept(), tenth.accept(),  eleventh.accept(), clientNum);
+                //h.start();
+                //handlers.add(h);
+                //System.out.println("Client " + clientNum + " is connected!");
+                //clientNum++;
             }
         } finally {
-            listener.close();
-            second.close();
-            third.close();
-            fourth.close();
-            fifth.close();
-            sixth.close();
-            seventh.close();
-            eighth.close();
-            ninth.close();
-            tenth.close();
-            eleventh.close();
+		    for (int i = 0; (i < pp.allPeers.size()); i++) {
+                serverSocketlist.get(i).close();
+            }
+            //listener.close();
+            //second.close();
+            //third.close();
+            //fourth.close();
+            //fifth.close();
+            //sixth.close();
+            //seventh.close();
+            //eighth.close();
+            //ninth.close();
+            //tenth.close();
+            //eleventh.close();
 
         }
     }

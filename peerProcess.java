@@ -165,7 +165,7 @@ class peerProcess {
     public void startTCPConnection(StartRemotePeers srp, int peerId) throws Exception {
         // start server
         System.out.println("Attempting to create server socket."); // debug message
-        if (peerId != 1001) { // if client
+        if (peerId != 1000) { // if client
             System.out.println("Attempting to connect as a client to the port...");
             client = new Client(this);
             client.setPeerID(peerId);

@@ -81,7 +81,7 @@ public class FileHandling {
 				file.createNewFile();
 			}
 			// if peer is the server, write contents of file to buffer
-			if (this.peerID == 1001) {
+			if (this.peerID == 1000) {
 				ReadFileIn(fileNameWithPath);
 			}
 			// if peer is a client, empty the contents of the file
