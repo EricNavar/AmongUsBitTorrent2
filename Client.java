@@ -5,11 +5,14 @@ import java.io.*;
 import java.util.*;
 import java.util.Timer;
 import java.util.TimerTask;
-
+import java.math.BigInteger; 
+import java.security.MessageDigest; 
+import java.security.NoSuchAlgorithmException; 
+ 
 import java.nio.*;
 import java.io.IOException;
 // idea of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
-
+ 
 public class Client {
 
     Vector<ServerSocket> socketlist;
@@ -46,9 +49,22 @@ public class Client {
 					//break;
 				} else {
                     Socket nextSock;
-			        System.out.println(" I am " + pp.getPeerId() + " Attempting to connect to localhost " + pp.allPeers.get(i).getPeerId() + " which is on port " + pp.allPeers.get(i).getPeerPort());
-                    socketlist.add(new ServerSocket(pp.allPeers.get(i).getPeerPort()));
-			        System.out.println("Created a server socket " + pp.allPeers.get(i).getPeerId() + " and peer port " + pp.allPeers.get(i).getPeerPort());
+					int PeerPortToUse = 0;
+					String MyString;
+					MyString = String.valueOf(pp.allPeers.get(i).getPeerPort()) + String.valueOf(pp.getPeerId());
+            System.out.println(" Here 1 " + MyString);
+					CFG NewSha = new CFG();
+					MyString = NewSha.getSHA(MyString);
+            System.out.println(" Here 2 " + MyString);
+					MyString = MyString.substring(0,4);
+            System.out.println(" Here 3 " + MyString);
+					PeerPortToUse = Integer.parseInt(MyString);
+            System.out.println(" Here 3 " + PeerPortToUse);
+			        System.out.println(" I am " + pp.getPeerId() + " Attempting to connect to localhost " + pp.allPeers.get(i).getPeerId() + " which is on port " + PeerPortToUse);
+					ServerSocket NewSocket;
+					NewSocket = new ServerSocket(PeerPortToUse);
+                    socketlist.add(NewSocket);
+			        System.out.println("Created a server socket " + pp.allPeers.get(i).getPeerId() + " and peer port " + PeerPortToUse);
                     pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
 				}
             }
