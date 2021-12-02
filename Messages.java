@@ -28,7 +28,7 @@ public class Messages {
     // ==============================================================
     // ====================== MESSAGE CREATORS ======================
     // ==============================================================
-    public static ByteBuffer createHandshakeMessage(int peerId) {
+    public synchronized static ByteBuffer createHandshakeMessage(int peerId) {
         // This code is the best
         ByteBuffer MessageAssembly = ByteBuffer.allocate(32); // Handshake Messages are 32 byte payload messages
         String HeaderInformation = "P2PFILESHARINGPROJ";
@@ -53,14 +53,14 @@ public class Messages {
     // message contains no body, length set to 1 because of above statement "does
     // not include length" but guessing it does
     // include the message type as part of the message.
-    public static ByteBuffer createChokeMessage() {
+    public synchronized static ByteBuffer createChokeMessage() {
         ByteBuffer MessageAssembly = ByteBuffer.allocate(5); // Message is 5 bytes
         MessageAssembly.putInt(1); // length is equal to 1
         MessageAssembly.put(encodeType(MessageType.CHOKE.ordinal()));
         return MessageAssembly;
     }
 
-    public static ByteBuffer createUnchokeMessage() {
+    public synchronized static ByteBuffer createUnchokeMessage() {
         ByteBuffer MessageAssembly = ByteBuffer.allocate(5); // Message is 5 bytes
         MessageAssembly.putInt(1); // length is equal to 1
         MessageAssembly.put(encodeType(MessageType.UNCHOKE.ordinal()));
@@ -70,7 +70,7 @@ public class Messages {
     // message contains no body, length set to 1 because of above statement "does
     // not include length" but guessing it does
     // include the message type as part of the message.
-    public static ByteBuffer createInterestedMessage() {
+    public synchronized static ByteBuffer createInterestedMessage() {
         ByteBuffer MessageAssembly = ByteBuffer.allocate(5); // Message is 5 bytes
         MessageAssembly.putInt(1); // length is equal to 1
         MessageAssembly.put(encodeType(MessageType.INTERESTED.ordinal()));
@@ -80,7 +80,7 @@ public class Messages {
     // message contains no body, length set to 1 because of above statement "does
     // not include length" but guessing it does
     // include the message type as part of the message.
-    public static ByteBuffer createNotInterestedMessage() {
+    public synchronized static ByteBuffer createNotInterestedMessage() {
         System.out.println("Sending not interested message");
         ByteBuffer MessageAssembly = ByteBuffer.allocate(5); // Message is 5 bytes
         MessageAssembly.putInt(1); // length is equal to 1
@@ -91,7 +91,7 @@ public class Messages {
     // message contains no body, length set to 1 because of above statement "does
     // not include length" but guessing it does
     // include the message type as part of the message.
-    public static ByteBuffer createHaveMessage(int index) {
+    public synchronized static ByteBuffer createHaveMessage(int index) {
         ByteBuffer MessageAssembly = ByteBuffer.allocate(9); // Message is 9 bytes
         MessageAssembly.putInt(5); // length is equal to 5
         MessageAssembly.put(encodeType(MessageType.BITFIELD.ordinal()));
@@ -100,7 +100,7 @@ public class Messages {
     }
 
     // exracts the payload length of this message
-    public static int ExtractPayloadLength(ByteBuffer Message) {
+    public synchronized static int ExtractPayloadLength(ByteBuffer Message) {
         return (int) (Message.array()[4]);
     }
 
@@ -118,7 +118,7 @@ public class Messages {
     // are set to zero. Peers that don’t have anything yet may skip a ‘bitfield’
     // message
     //
-    public static ByteBuffer createBitfieldMessage(Vector<Boolean> bitfield) {
+    public synchronized static ByteBuffer createBitfieldMessage(Vector<Boolean> bitfield) {
         // This may work weird if the bitfield size is not divisible by 8
         int lengthBytes = (int) (Math.ceil(((float) bitfield.size()) / 8.0f)); // odd bitfields are a problem so ceiling
                                                                                // to increase to max size...
@@ -142,7 +142,7 @@ public class Messages {
         return MessageAssembly;
     }
 
-    public static ByteBuffer createRequestMessage(int index) {
+    public synchronized static ByteBuffer createRequestMessage(int index) {
         ByteBuffer MessageAssembly = ByteBuffer.allocate(9); // Message is 9 bytes
         MessageAssembly.putInt(5); // length is equal to 5
         MessageAssembly.put(encodeType(MessageType.REQUEST.ordinal()));
@@ -150,7 +150,7 @@ public class Messages {
         return MessageAssembly;
     }
 
-    public static ByteBuffer createPieceMessage(ByteBuffer payload, int PieceNumber, int PieceLength) {
+    public synchronized static ByteBuffer createPieceMessage(ByteBuffer payload, int PieceNumber, int PieceLength) {
         ByteBuffer MessageAssembly = ByteBuffer.allocate(PieceLength + 9); // length of string + 5 bits at the start of each message + 4 bits for the message index
         // length is equal to 1 (message type) + 4 (piece index size) + piece size (bytes)
         MessageAssembly.putInt(PieceLength + 4); // the payload of the message contains the 4-byte index and then the piece
@@ -184,7 +184,7 @@ public class Messages {
      * "not interested" message.
      */
 
-    public static String ParseString(ByteBuffer IncomingBuffer, int startLocation, int length) {
+    public synchronized static String ParseString(ByteBuffer IncomingBuffer, int startLocation, int length) {
         StringBuilder result = new StringBuilder();
         for (int x = startLocation; x < (startLocation + length); ++x) {
             result.append(String.format("%c", IncomingBuffer.array()[x]));
@@ -192,7 +192,7 @@ public class Messages {
         return result.toString();
     }
 
-    public static int ParseInteger(ByteBuffer IncomingBuffer, int startLocation) {
+    public synchronized static int ParseInteger(ByteBuffer IncomingBuffer, int startLocation) {
         try {
             return (((IncomingBuffer.array()[startLocation] & 0x0FF) << 24)
                     | ((IncomingBuffer.array()[startLocation + 1] & 0x0FF) << 16) |
@@ -205,7 +205,7 @@ public class Messages {
         }
     }
 
-    public static byte ParseByte(ByteBuffer IncomingBuffer, int location) {
+    public synchronized static byte ParseByte(ByteBuffer IncomingBuffer, int location) {
         try {
             return (byte) (IncomingBuffer.array()[location] & 0x0FF);
         }
@@ -214,36 +214,36 @@ public class Messages {
         }
     }
 
-    public static int GetMessageLength(ByteBuffer IncomingBuffer) {
+    public synchronized static int GetMessageLength(ByteBuffer IncomingBuffer) {
         return ParseInteger(IncomingBuffer, 0);
     }
 
-    public static int GetMessageType(ByteBuffer IncomingBuffer) {
+    public synchronized static int GetMessageType(ByteBuffer IncomingBuffer) {
         return (int) (ParseByte(IncomingBuffer, 4));
     }
 
-    public static int GetHandshakePeerID(ByteBuffer IncomingBuffer) {
+    public synchronized static int GetHandshakePeerID(ByteBuffer IncomingBuffer) {
         return ParseInteger(IncomingBuffer, 28);
     }
 
-    public static String GetHandshakeString(ByteBuffer IncomingBuffer) {
+    public synchronized static String GetHandshakeString(ByteBuffer IncomingBuffer) {
         return ParseString(IncomingBuffer, 0, 18);
     }
 
-    public static int GetHavePieceNumber(ByteBuffer IncomingBuffer) {
+    public synchronized static int GetHavePieceNumber(ByteBuffer IncomingBuffer) {
         return (int) (ParseInteger(IncomingBuffer, 5));
     }
 
-    public static int GetPieceMessageNumber(ByteBuffer IncomingBuffer) {
+    public synchronized static int GetPieceMessageNumber(ByteBuffer IncomingBuffer) {
         int result = (int) (ParseInteger(IncomingBuffer, 5));
         return result;
     }
 
-    public static int GetRequestMessageIndex(ByteBuffer IncomingBuffer) {
+    public synchronized static int GetRequestMessageIndex(ByteBuffer IncomingBuffer) {
         return (int) (ParseInteger(IncomingBuffer, 5));
     }
 
-    public static int handleHandshakeMessage(ByteBuffer IncomingBuffer) {
+    public synchronized static int handleHandshakeMessage(ByteBuffer IncomingBuffer) {
         // The peerID is 4 bytes, located at
         int handshakeFrom = GetHandshakePeerID(IncomingBuffer);
         //System.out.println("Received a Handshake Message from peer " + handshakeFrom);
@@ -460,7 +460,7 @@ public class Messages {
     // Whenever a peer receives a piece completely, it checks the bitfields of
     // its neighbors and decides whether it should send ‘not interested’ messages to
     // some neighbors.
-    public static void updateInterestedStatus(peerProcess pp) {
+    public synchronized static void updateInterestedStatus(peerProcess pp) {
         for (int neighborId : pp.preferredNeighbors) {
             RemotePeerInfo preferredNeighbor = pp.getRemotePeerInfo(neighborId);
             if (preferredNeighbor != null && !pp.checkInterested(preferredNeighbor.getBitfield())) {
@@ -479,12 +479,12 @@ public class Messages {
     }
 
     // returns the peerId of the sender if it's a handshake message.
-    public static int decodeMessage(ByteBuffer IncomingMessage, peerProcess pp, int sender) {
+    public synchronized static int decodeMessage(ByteBuffer IncomingMessage, peerProcess pp, int sender) {
         return decodeMessage(pp, IncomingMessage, sender);
     }
 
     // returns the peerId of the sender if it's a handshake message.
-    public static int decodeMessage(peerProcess pp, ByteBuffer IncomingMessage, int senderPeer) {
+    public synchronized static int decodeMessage(peerProcess pp, ByteBuffer IncomingMessage, int senderPeer) {
         String handshakeHeader = "P2PFILESHARINGPROJ";
         // if the message starts with the handShake header, then it's a handshake
         // message
@@ -541,7 +541,7 @@ public class Messages {
         return -1;
     }
 
-    public static String HexPrint(ByteBuffer bytes) {
+    public synchronized static String HexPrint(ByteBuffer bytes) {
         // modifed from idea at https://mkyong.com/java/java-how-to-convert-bytes-to-hex/ By mkyong
         StringBuilder result = new StringBuilder();
         for (int x = 0; x < bytes.remaining(); ++x) {
