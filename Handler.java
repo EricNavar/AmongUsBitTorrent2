@@ -19,6 +19,10 @@ public class Handler extends Thread {
 		byte[]  dataFromPeer; // data incoming from peer
     
 
+        public synchronized void DebugLog( String MyMessage) {
+			pp.logger.log("DEBUG " + MyMessage);
+		}
+		
         public Handler(Socket connection, int peerConnected, peerProcess pp) {
            		this.connection = connection;
 	    		this.peerConnected = peerConnected;
@@ -38,7 +42,7 @@ public class Handler extends Thread {
         public void run() {
  		try{
 			String MyMessage = "Running Handler connected to peer " + this.peerConnected;
-            pp.logger.log(MyMessage);
+            DebugLog(MyMessage);
 			//initialize Input and Output streams
 			out = new ObjectOutputStream(connection.getOutputStream());
 			out.flush();
@@ -56,9 +60,24 @@ public class Handler extends Thread {
 					//sendMessage(MESSAGE);
 					
                  // create handshake message 
-                 ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.getPeerId());
+				 MyMessage = "Peparing Handshake Message";
+                 DebugLog(MyMessage);
+                 ByteBuffer messageToSend;
+				 MyMessage = "Peparing Handshake Message 2";
+                 DebugLog(MyMessage);
+				 int peerIDToSend;
+				 MyMessage = "Peparing Handshake Message 3";
+                 DebugLog(MyMessage);
+				 peerIDToSend = this.peerConnected; // pp.getPeerId();
+				 MyMessage = "Peparing Handshake Message 4";
+                 DebugLog(MyMessage);
+				 messageToSend = Messages.createHandshakeMessage(peerIDToSend);
+				 MyMessage = "Sending Handshake Message  5";
+                 DebugLog(MyMessage);
                  // send handshake message 
-                 sendMessage(messageToSend);
+                 sendMessage(messageToSend, out);
+				 MyMessage = "Sending Handshake Message  6";
+                 DebugLog(MyMessage);
                  // wait for incoming handshake message 
 				 WaitForInput(in);
                  // get incoming message 
@@ -98,12 +117,11 @@ public class Handler extends Thread {
 	} // run
 	
     // send a message to the output stream
-    synchronized void sendMessage(ByteBuffer msg) {
+    synchronized void sendMessage(ByteBuffer msg, ObjectOutputStream outputLocation) {
         try {
             // stream write the message
-			System.out.println(" Getting number 0 sendMessageBB " + msg.array());
-            out.write(msg.array());
-            out.flush();
+            outputLocation.write(msg.array());
+            outputLocation.flush();
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
