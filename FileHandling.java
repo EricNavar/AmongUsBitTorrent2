@@ -67,7 +67,7 @@ public class FileHandling {
 	// directory exists, create the directory.
 	// If this is a client, it needs to empty the contents of the file, if this is a
 	// server, it needs to read in all the contents of the file and load a buffer.
-	public void openFile() {
+	public synchronized void openFile() {
 		try {
 
 			fileNameWithPath = ".\\peer_" + peerID + "\\" + fileName;
@@ -94,7 +94,7 @@ public class FileHandling {
 	}
 
 	// this can be called before shutting down if there are things that need to be done like closing files
-	public void Shutdown() {
+	public synchronized void Shutdown() {
 		System.out.println("Shutting down the FileHandler for peer ID " + peerID);
 		System.exit(0);
 	}
@@ -111,7 +111,7 @@ public class FileHandling {
 	// than the buffersize of bytes in the piece.
 
 	// TODO: this function is not right at the moment. It's writing the
-	public boolean WriteFileOut(String FileNameInput) {
+	public synchronized boolean WriteFileOut(String FileNameInput) {
 		// Might fail if for some reason it didn't have totalPieces as needed.
 		int x;
 		int pieceLength;
@@ -153,7 +153,7 @@ public class FileHandling {
 	}
 
 	// this always returns true i guess
-	public boolean ReadFileIn(String FileNameInput) {
+	public synchronized boolean ReadFileIn(String FileNameInput) {
 		// Might fail if for some reason it didn't have totalPieces as needed.
 
 		int x;
@@ -189,7 +189,7 @@ public class FileHandling {
 
 	// creates a new ByteBuffer and copies the contents of the piece pieceNumber
 	// into it
-	public ByteBuffer MakeCopyPieceByteBuffer(int pieceNumber) {
+	public synchronized ByteBuffer MakeCopyPieceByteBuffer(int pieceNumber) {
 
 		// allocate the buffer for this piece
 		ByteBuffer newByteBuffer = ByteBuffer.allocate(pieceSize);
@@ -215,7 +215,7 @@ public class FileHandling {
 	// note these pieces are ByteBuffers because the jpg file is a binary file
 	// and not a string file. So the transfer of the data must be binary data
 	// transfers.
-	public boolean ReceivedAPiece(int pieceNumber, ByteBuffer incomingPiece, int PieceLength) {
+	public synchronized boolean ReceivedAPiece(int pieceNumber, ByteBuffer incomingPiece, int PieceLength) {
 
 		// allocate the buffer for this piece
 		ByteBuffer newByteBuffer = ByteBuffer.allocate(pieceSize);
@@ -240,7 +240,7 @@ public class FileHandling {
 	// checks to see if all peers have been received.
 	// if all expected peers have been accounted for, this returns true
 	// if they have not, it returns false.
-	public boolean CheckForAllPieces() {
+	public synchronized boolean CheckForAllPieces() {
 
 		int x;
 		// iterates overa all expected pieces
@@ -257,7 +257,7 @@ public class FileHandling {
 
 	// Check to see if this piece number is present
 	// Return true if present, false otherwise
-	public boolean CheckForPieceNumber(int pieceNumber) {
+	public synchronized boolean CheckForPieceNumber(int pieceNumber) {
 
 		// if the get of the value is a null then this value does not exist in map hash
 		// table
@@ -273,7 +273,7 @@ public class FileHandling {
 	// Loads a local buffer in this object with the data of piece number
 	// might be helpful to find problems in the pieces in the hash table
 	// retrieves the value from the hash table.
-	public boolean loadLocalByteBufferPieceNumber(int pieceNumber) {
+	public synchronized boolean loadLocalByteBufferPieceNumber(int pieceNumber) {
 
 		ByteBuffer CopyOfBufferPtr;
 		CopyOfBufferPtr = EntireFile.get(Integer.valueOf(pieceNumber));
@@ -296,7 +296,7 @@ public class FileHandling {
 	// above method.
 	// This can help with moving the data around and might be useful in tranmit /
 	// receive binary files to the port
-	public ByteBuffer getCurrentLocalByteBuffer() {
+	public synchronized ByteBuffer getCurrentLocalByteBuffer() {
 		// Might fail if for some reason it didn't have totalPieces as needed.
 
 		return localByteBuffer;
@@ -305,13 +305,13 @@ public class FileHandling {
 	// gets the current local byte buffer size of this piece
 	// this can help with moving the data around and might be useful in tranmit /
 	// receive binary files to the port
-	public int getCurrentLocalByteBufferPieceSize() {
+	public synchronized int getCurrentLocalByteBufferPieceSize() {
 		// Might fail if for some reason it didn't have totalPieces as needed.
 
 		return localByteBufferPieceSize;
 	}
 
-	public boolean printLocalBuffer(int length) {
+	public synchronized boolean printLocalBuffer(int length) {
 		// Prints out the local buffer
 
 		for (int x = 0; (x < pieceSize) && (x < length); ++x) {
@@ -330,7 +330,7 @@ public class FileHandling {
 		return true;
 	}
 
-	public int GetPieceSize(int pieceNumber) {
+	public synchronized int GetPieceSize(int pieceNumber) {
 		// Prints out the local buffer
 		return PieceLengths.get(Integer.valueOf(pieceNumber));
 	}
