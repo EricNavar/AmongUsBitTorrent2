@@ -30,8 +30,7 @@ class peerProcess {
     protected int peerId;
     // if this process has the entire file
     protected boolean hasFile;
-    // random port number we will use
-    final protected int port = 12602;
+
     protected Vector<RemotePeerInfo> peerInfoVector;
     protected Vector<RemotePeerInfo> allPeers = new Vector<RemotePeerInfo>(0);
 
@@ -47,6 +46,7 @@ class peerProcess {
     Messages message;
     FileHandling FileObject;
     int optimisticallyUnchokedPeer;
+    int port;
 
     public void incrementCollectedPieces() {
         collectedPieces++;
@@ -108,6 +108,10 @@ class peerProcess {
             fileName = fileLines.get(3).split(" ")[1];
             fileSize = Integer.valueOf(fileLines.get(4).split(" ")[1]);
             pieceSize = Integer.valueOf(fileLines.get(5).split(" ")[1]);
+
+
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -117,6 +121,8 @@ class peerProcess {
         hasFile = false;
         preferredNeighbors = new Vector<Integer>(numberOfPreferredNeighbors);
         optimisticallyUnchokedPeer = -1;
+
+
     }
 
     public boolean hasFile() {
@@ -316,7 +322,17 @@ class peerProcess {
         }
         peerProcess pp = new peerProcess(peerId);
 
+
         StartRemotePeers srp = new StartRemotePeers(pp);
+        for(int i =0; i < pp.allPeers.size(); i++)
+        {
+            if(pp.peerId == pp.allPeers.get(i).getPeerId())
+            {
+                pp.port = pp.allPeers.get(i).getPeerPort();
+                break;
+            }
+        }
+
         // srp.Start(peerId);
         // if PeerInfo.cfg lists the current peerId as having the file
         for (int i = 0; i < pp.bitfield.size(); i++) {
