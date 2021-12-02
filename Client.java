@@ -168,9 +168,10 @@ public class Client {
         try {
             // create a socket to connect to the server
             System.out.println(" peerID " + this.peerID + " fist one is " + pp.allPeers.get(0).getPeerId());
-            for (int i = 0; ((pp.allPeers.get(i).getPeerId()) < this.peerID); i++) {
+            //for (int i = 0; ((pp.allPeers.get(i).getPeerId()) <= this.peerID); i++) {
+            for (int i = 0; (i < pp.allPeers.size()-1); i++) {
             Socket nextSock;
-			System.out.println(" I am " + pp.getPeerId() + " Attempting to connect to localhost " + pp.allPeers.get(i).getPeerId() + " which is on port " + pp.peerInfoVector.get(i).getPeerPort());
+			System.out.println(" I am " + pp.getPeerId() + " Attempting to connect to localhost " + pp.allPeers.get(i).getPeerId() + " which is on port " + pp.allPeers.get(i).getPeerPort());
             socketlist.add(new Socket("localhost",  pp.allPeers.get(i).getPeerPort()));
 			System.out.println("Connected to localhost " + pp.allPeers.get(i).getPeerId() + " and peer port " + pp.allPeers.get(i).getPeerPort());
             pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
@@ -186,7 +187,8 @@ public class Client {
 				System.out.println(" Flushing at " + i);
 				OutputStreamlist.get(i).flush();
 				System.out.println(" Input at " + i);
-                InputStreamlist.add(new ObjectInputStream(socketlist.get(i).getInputStream()));
+				ObjectInputStream TempOStream = new ObjectInputStream(socketlist.get(i).getInputStream());
+                InputStreamlist.add(TempOStream);
 				System.out.println(" Starting at " + i);
 				System.out.println(" Getting number " + i);
                 }
