@@ -49,12 +49,17 @@ public class Client {
 					//break;
 				} else {
                     Socket nextSock;
-					int PeerPortToUse;
+					int PeerPortToUse = 0;
 					String MyString;
 					MyString = String.valueOf(pp.allPeers.get(i).getPeerPort()) + String.valueOf(pp.getPeerId());
+            System.out.println(" Here 1 " + MyString);
 					CFG NewSha = new CFG();
 					MyString = NewSha.getSHA(MyString);
+            System.out.println(" Here 2 " + MyString);
+					MyString = MyString.substring(0,4);
+            System.out.println(" Here 3 " + MyString);
 					PeerPortToUse = Integer.parseInt(MyString);
+            System.out.println(" Here 3 " + PeerPortToUse);
 			        System.out.println(" I am " + pp.getPeerId() + " Attempting to connect to localhost " + pp.allPeers.get(i).getPeerId() + " which is on port " + PeerPortToUse);
 					ServerSocket NewSocket;
 					NewSocket = new ServerSocket(PeerPortToUse);
