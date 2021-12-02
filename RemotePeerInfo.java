@@ -57,69 +57,69 @@ public class RemotePeerInfo {
 		}
 	}
 
-	public int getPeerId() {
+	public synchronized int getPeerId() {
 		return peerId;
 	}
 
-	public int getPeerPort() {
+	public synchronized int getPeerPort() {
 		return peerPort;
 	}
 
-	public boolean hasFile() {
+	public synchronized boolean hasFile() {
 		return hasFile;
 	}
 
-	public String getPeerAddress() {
+	public synchronized String getPeerAddress() {
 		return peerAddress;
 	}
 
-	public void setBitfield(Vector<Boolean> bitfield) {
+	public synchronized void setBitfield(Vector<Boolean> bitfield) {
 		this.bitfield = bitfield;
 	}
 
-	public Vector<Boolean> getBitfield() {
+	public synchronized Vector<Boolean> getBitfield() {
 		return bitfield;
 	}
 
-	public boolean isChoked() {
+	public synchronized boolean isChoked() {
 		return choked;
 	}
 
-	public void setChoked(boolean choked) {
+	public synchronized void setChoked(boolean choked) {
 		this.choked = choked;
 	}
 
-	public void setMessagesToSend(Vector<ByteBuffer> messagesToSend) {
+	public synchronized void setMessagesToSend(Vector<ByteBuffer> messagesToSend) {
 		this.messagesToSend = messagesToSend;
 	}
 
-	public Vector<ByteBuffer> getMessagesToSend() {
+	public synchronized Vector<ByteBuffer> getMessagesToSend() {
 		return this.messagesToSend;
 	}
 
-	public boolean isInterested() {
+	public synchronized boolean isInterested() {
 		return interested;
 	}
 
-	public void setInterested(boolean interested) {
+	public synchronized void setInterested(boolean interested) {
 		this.interested = interested;
 	}
 
-	public int getPiecesTransmitted() {
+	public synchronized int getPiecesTransmitted() {
 		return piecesTransmitted;
 	}
 
-	public void resetPiecesTransmitted() {
+	public synchronized void resetPiecesTransmitted() {
 		piecesTransmitted = 0;
 	}
 
-	public void incrementPiecesTransmitted() {
+	public synchronized void incrementPiecesTransmitted() {
 		piecesTransmitted++;
 	}
 
 	// gets the index of a random piece that is missing.
 	// Return -1 if no pieces are missing.
-	public int selectRandomMissingPiece() {
+	public synchronized int selectRandomMissingPiece() {
 		if (hasFile) { // if this peer has everything it needs, this will return -1
 			return -1;
 		}
