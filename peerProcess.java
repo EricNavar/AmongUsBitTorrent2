@@ -91,6 +91,28 @@ class peerProcess {
         return FileObject;
     }
 
+    public int GetIndexNumber() {
+        for(int i =0; i < this.allPeers.size(); i++)
+        {
+            if(this.peerId == this.allPeers.get(i).getPeerId())
+            {
+                return i;
+            }
+        }
+        return -1;
+	}
+
+    public int GetPeerIndexNumber(int peerNumber) {
+        for(int i =0; i < this.allPeers.size(); i++)
+        {
+            if(peerNumber == this.allPeers.get(i).getPeerId())
+            {
+                return i;
+            }
+        }
+        return -1;
+	}
+
     public int getCollectedPieces() {
         return collectedPieces;
     }
