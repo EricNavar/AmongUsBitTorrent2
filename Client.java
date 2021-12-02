@@ -34,7 +34,6 @@ public class Client {
         InputStreamlist  = new Vector<ObjectInputStream>();
         OutputStreamlist = new Vector<ObjectOutputStream>();
     }
-	
 
     void run() {
 
@@ -53,11 +52,13 @@ public class Client {
                     pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
 				}
             }
+		int clientNum = 1;
+	
             for (int i = 0; (i < pp.allPeers.size()); i++) {
 			    if (pp.getPeerId() == pp.allPeers.get(i).getPeerId() ) {
 					//break;
 				} else {
-					Socket GetIt = socketlist.get(i).accept();
+					Socket GetIt = new Handler(socketlist.get(i).accept(), pp.allPeers.get(i).getPeerId());
 					System.out.println("Trying to accept socket " + i + " as " + GetIt);
 				}
             }
