@@ -422,7 +422,7 @@ public class Messages {
         if (!pp.FileObject.CheckForAllPieces()) {
 
             StringBuilder filenameWrite = new StringBuilder();
-            filenameWrite.append(String.format(".\\peer_%04d\\thefile", pp.peerId));
+            filenameWrite.append(String.format("./peer_%04d/thefile", pp.peerId));
 
             pp.FileObject.WriteFileOut(filenameWrite.toString());
 
