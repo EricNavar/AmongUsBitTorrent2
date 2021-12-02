@@ -11,15 +11,19 @@ public class Handler extends Thread {
         private ObjectInputStream in;	//stream read from the socket
         private ObjectOutputStream out;    //stream write to the socket
 		private int peerConnected;		//The index number of the client
+		private peerProcess pp;
 
-        public Handler(Socket connection, int peerConnected) {
+        public Handler(Socket connection, int peerConnected, peerProcess pp) {
            		this.connection = connection;
 	    		this.peerConnected = peerConnected;
+				this.pp = pp;
+                pp.logger.log("Connected to client number ");
         }
 
         public void run() {
  		try{
-			System.out.println("Connected to client number " + peerConnected);
+			
+            pp.logger.log("Connected to client number ");
 			//initialize Input and Output streams
 			out = new ObjectOutputStream(connection.getOutputStream());
 			out.flush();

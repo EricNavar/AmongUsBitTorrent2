@@ -56,11 +56,16 @@ public class Client {
 				System.out.println(" I am " + pp.getPeerId() + " Index Number " + pp.GetIndexNumber() + " Attempting to connect to localhost " + pp.allPeers.get(i).getPeerId() + " which is on port " + PeerPortToUse);
 					Socket NewSocket;
 					NewSocket = new Socket("localhost", PeerPortToUse);
+					Handler MyHandler = new Handler(NewSocket, pp.allPeers.get(i).getPeerId(), pp);
                     socketlist.add(NewSocket);
 			        System.out.println("Created a initiator socket with peer " + pp.allPeers.get(i).getPeerId() + " on their port " + PeerPortToUse);
                     pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
 				}
             }
+			// @ERIC_N  These next three lines truncate off the process from making the remaining connections.  Just won't happen... safe for Ubuntu not for CISE
+			if (pp.getPeerId() >= 1002) {
+				while(true);
+			}
 			System.out.println(" Done with Lower peer connections ");
 			System.out.println(" Done with Higher peer connections ");
 			boolean start = false;
@@ -76,7 +81,7 @@ public class Client {
 					NewSocket = new ServerSocket(PeerPortToUse);
 					System.out.println("Trying to accept socket of allpeeres(" + i + ") known as peerID " + pp.allPeers.get(i).getPeerId());
 					Socket GetIt = NewSocket.accept();
-					Handler MyHandler = new Handler(GetIt, pp.allPeers.get(i).getPeerId());
+					Handler MyHandler = new Handler(GetIt, pp.allPeers.get(i).getPeerId(), pp);
                     socketServerlist.add(NewSocket);
 			        System.out.println("Created a server socket " + pp.allPeers.get(i).getPeerId() + " and peer port " + PeerPortToUse);
                     pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
@@ -96,9 +101,7 @@ public class Client {
 //					Handler MyHandler = new Handler(GetIt, pp.allPeers.get(i).getPeerId());
 //					System.out.println("Managed to accept socket " + i + " as " + MyHandler);
 //				}
- //           }
-			
-			System.out.println("A4 " + pp.getPortNumber());
+//           }
 			/*
             for (int i = 0; i < pp.allPeers.size(); i++) {
                 //ObjectOutputStream out; // stream write to the socket
