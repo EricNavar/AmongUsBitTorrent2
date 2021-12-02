@@ -11,6 +11,9 @@ import java.nio.file.Path;
 
 import java.nio.*;
 
+import java.io.*;
+import java.util.*;
+
 //TODO: 1002 is receiving too much data. It goes on forever and peer_1002 gets bigger than peer_1001/thefile
 //TODO: question: Do we have to consider the case where 1002 runs before 1001? The graders may expect it.
 //TODO: the last 5 pieces are not being downloaded. 1002 is requesting them and 1001 is sending them, but 1001 receives them and thinks they are piece 0.
@@ -122,7 +125,7 @@ class peerProcess {
         preferredNeighbors = new Vector<Integer>(numberOfPreferredNeighbors);
         optimisticallyUnchokedPeer = -1;
 
-
+        getConfiguration();
     }
 
     public boolean hasFile() {
@@ -162,7 +165,7 @@ class peerProcess {
         return peerId;
     }
 
-    public void startTCPConnection(StartRemotePeers srp, int peerId) throws Exception {
+    public void startTCPConnection(int peerId) throws Exception {
         // start server
         System.out.println("Attempting to create server socket."); // debug message
         if (peerId != 1000) { // if client
@@ -316,6 +319,30 @@ class peerProcess {
         return true;
     }
 
+    public void getConfiguration() {
+		String st;
+		peerInfoVector = new Vector<RemotePeerInfo>();
+		try {
+			BufferedReader in = new BufferedReader(new FileReader("PeerInfo.cfg"));
+			while ((st = in.readLine()) != null) {
+
+				String[] tokens = st.split("\\s+");
+				// don't include this process in the vector of remote peers so that it can't
+				// be selected as a preferred neighbor
+				allPeers.add(new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3]));
+
+				if (Integer.parseInt(tokens[0]) == peerId && tokens[3].equals("1")) {
+                    hasFile = true;
+                }
+                peerInfoVector.add(new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3]));
+			}
+
+			in.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
     public static void main(String[] args) {
         int peerId = GetProcessId(args);
         if (peerId == -1) {
@@ -323,8 +350,6 @@ class peerProcess {
         }
         peerProcess pp = new peerProcess(peerId);
 
-
-        StartRemotePeers srp = new StartRemotePeers(pp);
         for(int i =0; i < pp.allPeers.size(); i++)
         {
             if(pp.peerId == pp.allPeers.get(i).getPeerId())
@@ -334,14 +359,13 @@ class peerProcess {
             }
         }
 
-        // srp.Start(peerId);
         // if PeerInfo.cfg lists the current peerId as having the file
         for (int i = 0; i < pp.bitfield.size(); i++) {
             pp.bitfield.set(i, pp.hasFile);
         }
 
         try {
-            pp.startTCPConnection(srp, peerId);
+            pp.startTCPConnection(peerId);
         } catch (Exception e) {
             System.out.println(e);
         }
