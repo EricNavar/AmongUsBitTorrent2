@@ -64,9 +64,10 @@ public class Client {
 			    if (pp.getPeerId() == pp.allPeers.get(i).getPeerId() ) {
 					//break;
 				} else {
+					System.out.println("Trying to accept socket of allpeeres(" + i + ") known as peerID " + pp.allPeers.get(i).getPeerId());
 					Socket GetIt = socketlist.get(i).accept();
 					Handler MyHandler = new Handler(GetIt, pp.allPeers.get(i).getPeerId());
-					System.out.println("Trying to accept socket " + i + " as " + MyHandler);
+					System.out.println("Managed to accept socket " + i + " as " + MyHandler);
 				}
             }
 			
