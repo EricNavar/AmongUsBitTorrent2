@@ -318,11 +318,11 @@ public class Messages {
                                                            // If the receiver of this message does has the piece
                                                            // that the sender has, then send a not_interested message.
                                                            // Else, send an interested message.
-        if (pp.getCurrBitfield().get(index)) { // if this message is already in possession, skip getting it again
-            pp.client.sendMessageBB(createNotInterestedMessage());
-        } else { // else ask for the message
-            pp.client.sendMessageBB(createInterestedMessage());
-        }
+        //if (pp.getCurrBitfield().get(index)) { // if this message is already in possession, skip getting it again
+        //    pp.client.sendMessage(createNotInterestedMessage());
+        //} else { // else ask for the message
+        //    pp.client.sendMessage(createInterestedMessage());
+        //}
     }
 
     // type 5

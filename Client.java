@@ -34,6 +34,7 @@ public class Client {
         InputStreamlist  = new Vector<ObjectInputStream>();
         OutputStreamlist = new Vector<ObjectOutputStream>();
     }
+	
 
     void run() {
 
@@ -101,7 +102,7 @@ public class Client {
     }
 
     // send a message to the output stream
-    void sendMessageBB(ByteBuffer msg, int streamID) {
+    void sendMessage(ByteBuffer msg, int streamID) {
         try {
             // stream write the message
 			System.out.println(" Getting number 0 sendMessageBB " + msg.array());

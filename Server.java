@@ -57,9 +57,9 @@ public class Server {
             while (true) {
 
 		        for (int i = 0; (i < pp.allPeers.size()); i++) {
-                    Handler h = new Handler(serverSocketlist.get(i).accept(), clientNum);
-                    h.start();
-                    handlers.add(h);
+                    //Handler h = new Handler(serverSocketlist.get(i).accept(), clientNum);
+                    //h.start();
+                    //handlers.add(h);
                     System.out.println("Client " + clientNum + " is connected!");
                     clientNum++;
                 }
