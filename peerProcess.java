@@ -51,7 +51,7 @@ class peerProcess {
     int optimisticallyUnchokedPeer;
     int port;
 
-    public void incrementCollectedPieces() {
+    public synchronized void incrementCollectedPieces() {
         collectedPieces++;
         boolean hasFileFlag = true;
         for (Boolean b : bitfield) {
@@ -63,35 +63,35 @@ class peerProcess {
         hasFile = hasFileFlag;
     }
 
-    public int getPortNumber() {
+    public synchronized int getPortNumber() {
         return port;
     }
 
-    public int getTotalPieces() {
+    public synchronized int getTotalPieces() {
         return totalPieces;
     }
 
-    public int getPeerId() {
+    public synchronized int getPeerId() {
         return peerId;
     }
 
-    public Vector<Boolean> getCurrBitfield() {
+    public synchronized Vector<Boolean> getCurrBitfield() {
         return bitfield;
     }
 
-    public Vector<Integer> getInterested() {
+    public synchronized Vector<Integer> getInterested() {
         return interested;
     }
 
-    public void setInterested(Vector<Integer> interest) {
+    public synchronized void setInterested(Vector<Integer> interest) {
         interested = interest;
     }
 
-    public FileHandling getFileObject() {
+    public synchronized FileHandling getFileObject() {
         return FileObject;
     }
 
-    public int GetIndexNumber() {
+    public synchronized int GetIndexNumber() {
         for(int i =0; i < this.allPeers.size(); i++)
         {
             if(this.peerId == this.allPeers.get(i).getPeerId())
@@ -102,7 +102,7 @@ class peerProcess {
         return -1;
 	}
 
-    public int GetPeerIndexNumber(int peerNumber) {
+    public synchronized int GetPeerIndexNumber(int peerNumber) {
         for(int i =0; i < this.allPeers.size(); i++)
         {
             if(peerNumber == this.allPeers.get(i).getPeerId())
@@ -113,11 +113,11 @@ class peerProcess {
         return -1;
 	}
 
-    public int getCollectedPieces() {
+    public synchronized int getCollectedPieces() {
         return collectedPieces;
     }
 
-    public peerProcess(int peerId) {
+    public  peerProcess(int peerId) {
         this.peerId = peerId;
         logger = new Logger(peerId);
         int numberOfPreferredNeighbors = 5; // set 5 as default
@@ -150,16 +150,16 @@ class peerProcess {
         getConfiguration();
     }
 
-    public boolean hasFile() {
+    public synchronized boolean hasFile() {
         return hasFile;
     }
 
-    public void setHasFile(boolean hasFile) {
+    public synchronized void setHasFile(boolean hasFile) {
         this.hasFile = hasFile;
     }
 
     // finds the peer's handle to be able to get that peer's detailed information
-    public RemotePeerInfo getRemotePeerInfo(int peerId) { // searches through a list of peers to find the one with the
+    public synchronized RemotePeerInfo getRemotePeerInfo(int peerId) { // searches through a list of peers to find the one with the
                                                           // matching ID
         for (RemotePeerInfo rfi : peerInfoVector) { // iterates over the set of rfi peers
             if (rfi.getPeerId() == peerId) { // if the rfi's peerID matches, then return the rfi handle
@@ -169,7 +169,7 @@ class peerProcess {
         return null;
     }
 
-    private static int GetProcessId(String[] args) {
+    private synchronized static int GetProcessId(String[] args) {
         if (args.length == 0) {
             System.out.println("Process number must be provided.");
             return -1;
@@ -187,7 +187,7 @@ class peerProcess {
         return peerId;
     }
 
-    public void startTCPConnection(int peerId) throws Exception {
+    public synchronized void startTCPConnection(int peerId) throws Exception {
         // start server
         System.out.println("Attempting to create server socket."); // debug message
         if (peerId != 1000) { // if client
@@ -205,7 +205,7 @@ class peerProcess {
 
     // Calculate the peers sending the most data. The optimistically unchoked
     // neighbor is calculated at a different interval in Common.cfg
-    public void calculatePreferredNeighbors() {
+    public synchronized void calculatePreferredNeighbors() {
         Vector<Integer> newPreferredNeighbors = new Vector<Integer>(preferredNeighbors.size());
         // Sort the vector of peers
         sortPeerInfoVector();
@@ -233,7 +233,7 @@ class peerProcess {
     // this chooses which peer to optimisically unchoke. The peerInfoVector is
     // sorted by pieces transmitted, so choose any peer other than the first 4
     // https://www.educative.io/edpresso/how-to-generate-random-numbers-in-java
-    public void chooseOptimisticallyUnchokedPeer() {
+    public synchronized void chooseOptimisticallyUnchokedPeer() {
         // this is the vector of peers to consider. It's the peers that are in
         // interested but not already in preferredNeighbors
         Vector<Integer> toConsider = new Vector<Integer>();
@@ -258,7 +258,7 @@ class peerProcess {
 
     // returns true if the given id belongs to either a preffered peer or an
     // optimistically unchoked peer
-    public boolean isNeighbor(int id) {
+    public synchronized boolean isNeighbor(int id) {
         if (id == optimisticUnchokingInterval) {
             return true;
         }
@@ -290,7 +290,7 @@ class peerProcess {
         });
     }
 
-    private void resetPeerInfoPiecesTransmitted() {
+    private synchronized void resetPeerInfoPiecesTransmitted() {
         for (RemotePeerInfo rpi : peerInfoVector) {
             rpi.resetPiecesTransmitted();
         }
@@ -298,7 +298,7 @@ class peerProcess {
 
     // Takes in the bitfield of another process and determines if it is interested.
     // This method is used after accepting a piece.
-    public boolean checkInterested(Vector<Boolean> otherBitfield) {
+    public synchronized boolean checkInterested(Vector<Boolean> otherBitfield) {
         for (int i = 0; i < otherBitfield.size(); i++) {
             if (!bitfield.get(i) && otherBitfield.get(i)) {
                 return true;
@@ -317,7 +317,7 @@ class peerProcess {
         return s.toString();
     }
 
-    public int randomMissingPiece() {
+    public synchronized int randomMissingPiece() {
         Vector<Integer> missingPieces = new Vector<Integer>(); // Create a temporary vector to hold missing piece values
         for (int i = 0; i < bitfield.size(); i++) { // walk the entire bitfield vector
             if (!bitfield.get(i)) { // look for bitfields that are not true yet, so missing...
@@ -332,7 +332,7 @@ class peerProcess {
         return askForPiece;
     }
 
-    public boolean doAllProcessesHaveTheFile() {
+    public synchronized boolean doAllProcessesHaveTheFile() {
         for (RemotePeerInfo peer: peerInfoVector) {
             if (!peer.hasFile()) {
                 return false;
@@ -341,7 +341,7 @@ class peerProcess {
         return true;
     }
 
-    public void getConfiguration() {
+    public synchronized void getConfiguration() {
 		String st;
 		peerInfoVector = new Vector<RemotePeerInfo>();
 		try {
@@ -365,7 +365,7 @@ class peerProcess {
 		}
 	}
 
-    public static void main(String[] args) {
+    public synchronized static void main(String[] args) {
         int peerId = GetProcessId(args);
         if (peerId == -1) {
             return;
