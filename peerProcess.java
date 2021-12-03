@@ -71,7 +71,7 @@ class peerProcess {
         return totalPieces;
     }
 
-    public synchronized int getPeerId() {
+    public int getPeerId() {
         return peerId;
     }
 

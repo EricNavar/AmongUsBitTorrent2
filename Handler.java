@@ -63,24 +63,18 @@ public class Handler extends Thread {
 				 MyMessage = "Peparing Handshake Message";
                  DebugLog(MyMessage);
                  ByteBuffer messageToSend;
-				 MyMessage = "Peparing Handshake Message 2";
-                 DebugLog(MyMessage);
 				 int peerIDToSend;
-				 MyMessage = "Peparing Handshake Message 3";
-                 DebugLog(MyMessage);
-				 peerIDToSend = this.peerConnected; // pp.getPeerId();
-				 MyMessage = "Peparing Handshake Message 4";
-                 DebugLog(MyMessage);
-				 messageToSend = Messages.createHandshakeMessage(peerIDToSend);
-				 MyMessage = "Sending Handshake Message  5";
-                 DebugLog(MyMessage);
+				 peerIDToSend = pp.getPeerId();
+				 messageToSend = Messages.createHandshakeMessage(pp.getPeerId());
                  // send handshake message 
                  sendMessage(messageToSend, out);
-				 MyMessage = "Sending Handshake Message  6";
+				 MyMessage = "Sending Handshake Message";
                  DebugLog(MyMessage);
                  // wait for incoming handshake message 
 				 WaitForInput(in);
                  // get incoming message 
+				 MyMessage = "Message Received";
+                 DebugLog(MyMessage);
                  dataFromPeer = new byte[in.available()];
                  in.read(dataFromPeer);
                  ByteBuffer buff = ByteBuffer.wrap(dataFromPeer);
@@ -88,7 +82,6 @@ public class Handler extends Thread {
 
                  // receive handshake message from server
                  this.connectedToPeerIdIncoming = Messages.decodeMessage(buff, pp, -1);
-                 pp.logger.onConnectingTo(this.connectedToPeerIdIncoming);
                  //System.out.println("I am peer " + pp.getPeerId() + " and I am connected to " + connectedToPeerIdIncoming);
                  this.originalId = this.connectedToPeerIdIncoming;
 
