@@ -141,10 +141,11 @@ class peerProcess {
         bitfield.setSize(totalPieces);
         FileObject = new FileHandling(this.peerId, totalPieces, pieceSize, fileName);
         hasFile = false;
-        getConfiguration();
 
         preferredNeighbors = new Vector<Integer>(numberOfPreferredNeighbors);
         optimisticallyUnchokedPeer = -1;
+        getConfiguration();
+
 
     }
 
