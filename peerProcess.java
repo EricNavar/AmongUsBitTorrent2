@@ -50,6 +50,8 @@ class peerProcess {
     FileHandling FileObject;
     int optimisticallyUnchokedPeer;
     int port;
+    boolean chokingTimerFlag;
+    boolean optimisticTimerFlag;
 
     public void incrementCollectedPieces() {
         collectedPieces++;
@@ -146,7 +148,8 @@ class peerProcess {
         optimisticallyUnchokedPeer = -1;
         getConfiguration();
 
-
+        chokingTimerFlag = false;
+        optimisticTimerFlag = false;
     }
 
     public boolean hasFile() {
@@ -236,7 +239,6 @@ class peerProcess {
         // this is the vector of peers to consider. It's the peers that are in
         // interested but not already in preferredNeighbors
         Vector<Integer> toConsider = new Vector<Integer>();
-        // logger.log(interested.toString());
         for (Integer i : interested) {
             if (!preferredNeighbors.contains(i)) {
                 toConsider.add(i);
@@ -246,13 +248,10 @@ class peerProcess {
             optimisticallyUnchokedPeer = -1;
             return;
         }
-        int max = interested.size();
-        int randomPeerIndex = (int) Math.floor(Math.random() * (max - 1));
-        if (randomPeerIndex > interested.size() - 1)
-            randomPeerIndex = interested.size() - 1;
+        Random rn = new Random();
+        int randomPeerIndex = rn.nextInt(interested.size());
         optimisticallyUnchokedPeer = interested.get(randomPeerIndex);
         logger.onChangeOfOptimisticallyUnchokedNeighbor(optimisticallyUnchokedPeer);
-        logger.log("optimistically unchoked peer: " + optimisticUnchokingInterval);
     }
 
     // returns true if the given id belongs to either a preffered peer or an
@@ -364,6 +363,73 @@ class peerProcess {
 		}
 	}
 
+    public void onChokingTimeout() {
+        System.out.println("onChokingTimeout()");
+        try {
+            calculatePreferredNeighbors();
+            messagesToSend.clear();
+            // choke unchosen peers, unchoke chosen peers
+            for (int i = 0; i < peerInfoVector.size(); i++) {
+                RemotePeerInfo rpi = peerInfoVector.get(i);
+                if (!isNeighbor(rpi.getPeerId()) && !rpi.isChoked()) { 
+                    System.out.println("Setting " + rpi.getPeerId() + "to be a preferred neighbor");
+                    messagesToSend.add(Messages.createChokeMessage());
+                    rpi.setChoked(true);
+                    //sendMessageBB(messagesToSend.get(i));
+                }
+                else if (isNeighbor(rpi.getPeerId()) && rpi.isChoked()) {
+                    System.out.println("Choking " + rpi.getPeerId());
+                    messagesToSend.add(Messages.createChokeMessage());
+                    rpi.setChoked(false);
+                    //sendMessageBB(messagesToSend.get(i));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Timer for unchoking the neighbors who send the most data. Optimistically
+    // unchoked neighbors is unchoked
+    // in the runOptimisticallyUnchokedTimer()
+    private void runUnchokingTimer() {
+        // Every 5 seconds, recalculate the preferred neighbors
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            public void run() {
+                chokingTimerFlag = !chokingTimerFlag;
+            }
+        }, 0, unchokingInterval * 1000);
+    }
+
+    public void onOptimisticTimeout() {
+        System.out.println("onOptimisticTimeout()");
+        try {
+            chooseOptimisticallyUnchokedPeer();
+            if (optimisticallyUnchokedPeer == -1) {
+                return;
+            }
+            RemotePeerInfo rpi = getRemotePeerInfo(optimisticallyUnchokedPeer);
+            messagesToSend.clear();
+            messagesToSend.add(Messages.createUnchokeMessage());
+            System.out.println("Optimistically unchoking " + rpi.getPeerId());
+            rpi.setChoked(false);
+            //sendMessageBB(messagesToSend.get(0));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void runOptimisticallyUnchokedTimer() {
+        // Every 10 seconds, recalculate the preferred neighbors
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            public void run() {
+                optimisticTimerFlag = !optimisticTimerFlag;
+            }
+        }, 0, optimisticUnchokingInterval * 1000);
+    }
+
     public static void main(String[] args) {
         int peerId = GetProcessId(args);
         if (peerId == -1) {
@@ -386,6 +452,8 @@ class peerProcess {
                 pp.bitfield.set(i, pp.hasFile);
             }
 
+        pp.runUnchokingTimer();
+        pp.runOptimisticallyUnchokedTimer();
 
         try {
             pp.startTCPConnection(peerId);
