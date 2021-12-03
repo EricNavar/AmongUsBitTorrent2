@@ -54,11 +54,12 @@ public class Handler extends Thread {
 			try{
 				int x = 0;
                 while (inStream.available() <= 0) {
-					SleepTimer(1000);  // 1 second so we sleep for 1000 msec... which is 1 second
+					SleepTimer(1);  // 1 second so we sleep for 1000 msec... which is 1 second
 					x++;               // inc the counter
 					if (x > TimeOut) { // exceeeded threshold
 						return false;
 					}
+					checkTimers();
 				}
 			}
 		    catch(IOException ioException){
@@ -68,7 +69,7 @@ public class Handler extends Thread {
 		}
 
 		public void checkTimers() {
-			System.out.println("Check timers");
+			//System.out.println("Check timers: " + this.chokingTimerFlag + " " + pp.chokingTimerFlag + " " + this.optimisticTimerFlag + " " + pp.optimisticTimerFlag);
 			if (this.chokingTimerFlag == pp.chokingTimerFlag) {
 				pp.onChokingTimeout();
 				this.chokingTimerFlag = !this.chokingTimerFlag;
