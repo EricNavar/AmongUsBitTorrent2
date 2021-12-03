@@ -70,13 +70,13 @@ public class Handler extends Thread {
 
         public synchronized void sendChokeUnchokedMyselfOnly() {
 			for(int i = 0; i < pp.UnChokingNeighbors.size(); ++i) {
-				if (pp.UnChokingNeighbors.get(i) == pp.getPeerId()) {
+				if (pp.UnChokingNeighbors.get(i) == connectedToPeerIdIncoming) {
 					pp.UnChokingNeighbors.remove(i);
                   pp.messagesToSend.add(Messages.createUnchokeMessage());  
 				}
 			}
 			for(int i = 0; i < pp.ChokingNeighbors.size(); ++i) {
-				if (pp.ChokingNeighbors.get(i) == pp.getPeerId()) {
+				if (pp.ChokingNeighbors.get(i) == connectedToPeerIdIncoming) {
 					pp.ChokingNeighbors.remove(i);
                   pp.messagesToSend.add(Messages.createChokeMessage());  
 				}
