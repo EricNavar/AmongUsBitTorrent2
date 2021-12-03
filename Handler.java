@@ -100,7 +100,7 @@ public class Handler extends Thread {
 							break;
 						case 2: // Send a Bitfield
 							// create bitfield message 
-							messageToSend = Messages.createBitfieldMessage(pp.getCurrBitfield());
+							messageToSend = Messages.createBitfieldMessage(pp.bitfield);
 							// send handshake message 
 							sendMessage(messageToSend, out);
 							CurrentState++;

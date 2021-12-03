@@ -351,7 +351,9 @@ public class Messages {
                     return;
                 }
                 // sets the index i to true of the peer that they have this piece
-                rpi.getBitfield().set(i, bitvalue == 1);
+                if(rpi.getBitfield().get(i) == true){}
+                else
+                    rpi.getBitfield().set(i, bitvalue == 1);
             }
         }
         pp.logger.log( "Received bitfield from " + senderPeer + ": " + pp.printBitfield(rpi.getBitfield()));

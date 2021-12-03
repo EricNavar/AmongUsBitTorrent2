@@ -54,6 +54,7 @@ public class RemotePeerInfo {
 		bitfield.setSize(totalPieces);
 		for (int i = 0; i < bitfield.size(); i++) {
 			bitfield.set(i, this.hasFile);
+
 		}
 	}
 
