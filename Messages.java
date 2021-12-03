@@ -256,11 +256,11 @@ public class Messages {
     }
 
     // type 0
-    public static void handleChokeMessage(peerProcess pp, int senderPeer) {
+    public synchronized static void handleChokeMessage(peerProcess pp, int senderPeer) {
         RemotePeerInfo sender = pp.getRemotePeerInfo(senderPeer);
 
         if (sender == null) {
-            //System.out.println("remote peer with id " + senderPeer + " info not found");
+            if (Handler.DEBUG_MODE()) System.out.println("remote peer with id " + senderPeer + " info not found");
             return;
         }
 
@@ -268,12 +268,12 @@ public class Messages {
     }
 
     // type 1
-    public static void handleUnchokeMessage(peerProcess pp, int senderPeer) {
+    public synchronized static void handleUnchokeMessage(peerProcess pp, int senderPeer) {
 
 
         RemotePeerInfo sender = pp.getRemotePeerInfo(senderPeer);
         if (sender == null) {
-            //System.out.println("remote peer with id " + senderPeer + " info not found");
+            if (Handler.DEBUG_MODE()) System.out.println("remote peer with id " + senderPeer + " info not found");
             return;
         }
 
