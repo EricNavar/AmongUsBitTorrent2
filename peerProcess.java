@@ -381,12 +381,11 @@ class peerProcess {
         }
 
         // if PeerInfo.cfg lists the current peerId as having the file
-        if (pp.hasFile) {
 
             for (int i = 0; i < pp.bitfield.size(); i++) {
-                pp.bitfield.set(i, true);
+                pp.bitfield.set(i, pp.hasFile);
             }
-        }
+
 
         try {
             pp.startTCPConnection(peerId);
