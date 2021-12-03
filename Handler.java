@@ -91,6 +91,7 @@ public class Handler extends Thread {
                         System.out.println(ex);
 				 }
 				 finally {}
+				 break;
 				}
 		}
 		catch(IOException ioException){
