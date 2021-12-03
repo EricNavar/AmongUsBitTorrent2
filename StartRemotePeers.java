@@ -48,11 +48,10 @@ public class StartRemotePeers {
 				RemotePeerInfo pInfo = (RemotePeerInfo) remotePeerInfos.elementAt(i);
 
 				System.out.println("Start remote peer " + pInfo.getPeerId() + " at " + pInfo.getPeerAddress());
-
-				Process proc = Runtime.getRuntime().exec("ssh ericnavar@storm.cise.ufl.edu");
-				Runtime.getRuntime().exec("ssh " + pInfo.getPeerAddress());
-				Runtime.getRuntime().exec("cd AmongUsBitTorrent2");
-				Runtime.getRuntime().exec("java peerProcess " + pInfo.getPeerId());
+				Runtime rt = Runtime.getRuntime();
+				Process proc = rt.exec("ssh ericnavar@storm.cise.ufl.edu");
+				rt.exec("ssh ericnavar@" + pInfo.getPeerAddress());
+				rt.exec("java peerProcess " + pInfo.getPeerId());
 			}
 			System.out.println("Starting all remote peers has done.");
 
