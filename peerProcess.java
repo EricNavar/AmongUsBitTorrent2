@@ -207,12 +207,13 @@ class peerProcess {
 
     // Calculate the peers sending the most data. The optimistically unchoked
     // neighbor is calculated at a different interval in Common.cfg
-    public void calculatePreferredNeighbors() {
+    public synchronized void calculatePreferredNeighbors() {
         Vector<Integer> newPreferredNeighbors = new Vector<Integer>(preferredNeighbors.size());
         // Sort the vector of peers
         sortPeerInfoVector();
         // The first 4 peers are the peers that have transmitted the most.
         // Add their peerId to the list of preferred vectors
+		//if (Handler.DEBUG_MODE()) System.out.println(" Calculating Preferred Neighbors and intersted<> are " + interested);
         for (int i = 0; i < peerInfoVector.size(); i++) {
             // if tie, randomly choose among tied processes
             if (interested.size() > 0) {
@@ -235,7 +236,7 @@ class peerProcess {
     // this chooses which peer to optimisically unchoke. The peerInfoVector is
     // sorted by pieces transmitted, so choose any peer other than the first 4
     // https://www.educative.io/edpresso/how-to-generate-random-numbers-in-java
-    public void chooseOptimisticallyUnchokedPeer() {
+    public synchronized void chooseOptimisticallyUnchokedPeer() {
         // this is the vector of peers to consider. It's the peers that are in
         // interested but not already in preferredNeighbors
         Vector<Integer> toConsider = new Vector<Integer>();
@@ -256,7 +257,7 @@ class peerProcess {
 
     // returns true if the given id belongs to either a preffered peer or an
     // optimistically unchoked peer
-    public boolean isNeighbor(int id) {
+    public synchronized boolean isNeighbor(int id) {
         if (id == optimisticUnchokingInterval) {
             return true;
         }
@@ -268,7 +269,7 @@ class peerProcess {
         return false;
     }
 
-    private void sortPeerInfoVector() {
+    private synchronized void sortPeerInfoVector() {
 
         Collections.sort(peerInfoVector, (o1, o2) -> {
             // We want the Vector to be in decreasing order, so we're comparing it backwards
@@ -288,7 +289,7 @@ class peerProcess {
         });
     }
 
-    private void resetPeerInfoPiecesTransmitted() {
+    private synchronized void resetPeerInfoPiecesTransmitted() {
         for (RemotePeerInfo rpi : peerInfoVector) {
             rpi.resetPiecesTransmitted();
         }

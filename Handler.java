@@ -54,11 +54,11 @@ public class Handler extends Thread {
 			try{
 				int x = 0;
                 while (inStream.available() <= 0) {
-					SleepTimer(1);  // 1 second so we sleep for 1000 msec... which is 1 second
-					x++;               // inc the counter
-					if (x > TimeOut) { // exceeeded threshold
-						return false;
-					}
+					//SleepTimer(1);  // 1 second so we sleep for 1000 msec... which is 1 second
+					//x++;               // inc the counter
+					//if (x > TimeOut) { // exceeeded threshold
+					//	return false;
+					//}
 					checkTimers();
 				}
 			}
