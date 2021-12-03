@@ -189,18 +189,18 @@ class peerProcess {
 
     public void startTCPConnection(int peerId) throws Exception {
         // start server
-        System.out.println("Attempting to create server socket."); // debug message
-        if (peerId != 1000) { // if client
+        //System.out.println("Attempting to create server socket."); // debug message
+        //if (peerId != 1000) { // if client
             System.out.println("Attempting to connect as a client to the port...");
             client = new Client(this);
             client.setPeerID(peerId);
             client.run();
-        } else { // if server
-            System.out.println("Starting a listener at the port and try to handshake with other processes...");
-            server = new Server(this);
-            System.out.println("Step 1...");
-            server.startServer();
-        }
+        //} else { // if server
+        //    System.out.println("Starting a listener at the port and try to handshake with other processes...");
+        //    server = new Client(this);
+        //    System.out.println("Step 1...");
+        //    server.startServer();
+        //}
     }
 
     // Calculate the peers sending the most data. The optimistically unchoked
