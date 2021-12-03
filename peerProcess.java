@@ -219,7 +219,7 @@ class peerProcess {
         sortPeerInfoVector();
         // The first 4 peers are the peers that have transmitted the most.
         // Add their peerId to the list of preferred vectors
-		if (Handler.DEBUG_MODE()) System.out.println(" Calculating Preferred Neighbors and intersted<> are " + interested);
+		if (Handler.DEBUG_MODE()) System.out.println(" Intersted Neighbors are " + interested);
         for (int i = 0; i < peerInfoVector.size(); i++) {
             // if tie, randomly choose among tied processes
             if (interested.size() > 0) {
@@ -231,6 +231,7 @@ class peerProcess {
             }
         }
         preferredNeighbors = newPreferredNeighbors;
+		if (Handler.DEBUG_MODE()) System.out.println(" Preferred Neighbors and " + preferredNeighbors);
 
         // after recalculating the preferred neighbors, reset the value of the
         // transmitted data of all remote peers
@@ -381,14 +382,14 @@ class peerProcess {
             for (int i = 0; i < peerInfoVector.size(); i++) {
                 RemotePeerInfo rpi = peerInfoVector.get(i);
                 if (!isNeighbor(rpi.getPeerId()) && !rpi.isChoked()) { 
-                    System.out.println("Unchoking " + rpi.getPeerId());
+                    if (Handler.DEBUG_MODE()) System.out.println("Unchoking " + rpi.getPeerId());
                     //messagesToSend.add(Messages.createUnchokeMessage());  
 					this.UnChokingNeighbors.add(rpi.getPeerId());  // add this peer to be unchoked later
                     rpi.setChoked(true);
                     //sendMessageBB(messagesToSend.get(i));
                 }
                 else if (isNeighbor(rpi.getPeerId()) && rpi.isChoked()) {
-                    System.out.println("Choking " + rpi.getPeerId());
+                    if (Handler.DEBUG_MODE()) System.out.println("Choking " + rpi.getPeerId());
 					this.ChokingNeighbors.add(rpi.getPeerId());            // add this peer to be choked later
                     //messagesToSend.add(Messages.createChokeMessage());
                     rpi.setChoked(false);
