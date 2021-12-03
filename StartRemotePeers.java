@@ -49,7 +49,8 @@ public class StartRemotePeers {
 
 				System.out.println("Start remote peer " + pInfo.getPeerId() + " at " + pInfo.getPeerAddress());
 
-				Runtime.getRuntime().exec("ssh " + pInfo.getPeerAddress() + " cd " + path + "; java peerProcess " + pInfo.getPeerId());
+				Process proc = Runtime.getRuntime().exec("ssh " + pInfo.getPeerAddress());
+				Runtime.getRuntime().exec("cd AmongUsBitTorrent2");
 				Runtime.getRuntime().exec("java peerProcess " + pInfo.getPeerId());
 			}
 			System.out.println("Starting all remote peers has done.");
