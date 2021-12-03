@@ -382,7 +382,7 @@ class peerProcess {
             // choke unchosen peers, unchoke chosen peers
             for (int i = 0; i < peerInfoVector.size(); i++) {
                 RemotePeerInfo rpi = peerInfoVector.get(i);
-				if (Handler.DEBUG_MODE()) System.out.println(" i = " + i + " peer id = " + rpi.getPeerId() + " !isNeighbor(rpi.getPeerId()) = " + !isNeighbor(rpi.getPeerId()) + " !rpi.isChoked() = " + !rpi.isChoked());
+				//if (Handler.DEBUG_MODE()) System.out.println(" i = " + i + " peer id = " + rpi.getPeerId() + " !isNeighbor(rpi.getPeerId()) = " + !isNeighbor(rpi.getPeerId()) + " !rpi.isChoked() = " + !rpi.isChoked());
                 if (!isNeighbor(rpi.getPeerId()) && !rpi.isChoked()) { 
                     this.ChokingNeighbors.add(rpi.getPeerId());  
 					if (Handler.DEBUG_MODE()) System.out.println("Choking " + rpi.getPeerId() + " ChokingNeighbors = " + this.ChokingNeighbors);

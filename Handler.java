@@ -68,14 +68,16 @@ public class Handler extends Thread {
 			return true;
 		}
 
-        public void sendChokeUnchokedMyselfOnly() {
+        public synchronized void sendChokeUnchokedMyselfOnly() {
 			for(int i = 0; i < pp.UnChokingNeighbors.size(); ++i) {
 				if (pp.UnChokingNeighbors.get(i) == pp.getPeerId()) {
+					pp.UnChokingNeighbors.remove(i);
                   pp.messagesToSend.add(Messages.createUnchokeMessage());  
 				}
 			}
 			for(int i = 0; i < pp.ChokingNeighbors.size(); ++i) {
 				if (pp.ChokingNeighbors.get(i) == pp.getPeerId()) {
+					pp.ChokingNeighbors.remove(i);
                   pp.messagesToSend.add(Messages.createChokeMessage());  
 				}
 			}
@@ -93,10 +95,12 @@ public class Handler extends Thread {
 		public void checkTimers() {
 			//System.out.println("Check timers: " + this.chokingTimerFlag + " " + pp.chokingTimerFlag + " " + this.optimisticTimerFlag + " " + pp.optimisticTimerFlag);
 			if (this.chokingTimerFlag == pp.chokingTimerFlag) {
+			    //System.out.println("Check timers: " + this.chokingTimerFlag + " " + pp.chokingTimerFlag + " " + this.optimisticTimerFlag + " " + pp.optimisticTimerFlag);
 				sendChokeUnchokedMyselfOnly();
 				this.chokingTimerFlag = !this.chokingTimerFlag;
 			}
 			if (this.optimisticTimerFlag == pp.optimisticTimerFlag) {
+			    //System.out.println("Check timers: " + this.chokingTimerFlag + " " + pp.chokingTimerFlag + " " + this.optimisticTimerFlag + " " + pp.optimisticTimerFlag);
 				sendChokeUnchokedMyselfOnly();
 				this.optimisticTimerFlag = !this.optimisticTimerFlag;
 			}
