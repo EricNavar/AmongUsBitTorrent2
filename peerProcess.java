@@ -134,9 +134,6 @@ class peerProcess {
             fileSize = Integer.valueOf(fileLines.get(4).split(" ")[1]);
             pieceSize = Integer.valueOf(fileLines.get(5).split(" ")[1]);
 
-
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -144,10 +141,12 @@ class peerProcess {
         bitfield.setSize(totalPieces);
         FileObject = new FileHandling(this.peerId, totalPieces, pieceSize, fileName);
         hasFile = false;
+
         preferredNeighbors = new Vector<Integer>(numberOfPreferredNeighbors);
         optimisticallyUnchokedPeer = -1;
-
         getConfiguration();
+
+
     }
 
     public boolean hasFile() {
@@ -382,8 +381,11 @@ class peerProcess {
         }
 
         // if PeerInfo.cfg lists the current peerId as having the file
-        for (int i = 0; i < pp.bitfield.size(); i++) {
-            pp.bitfield.set(i, pp.hasFile);
+        if (pp.hasFile) {
+
+            for (int i = 0; i < pp.bitfield.size(); i++) {
+                pp.bitfield.set(i, true);
+            }
         }
 
         try {
