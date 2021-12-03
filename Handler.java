@@ -30,8 +30,12 @@ public class Handler extends Thread {
 			finally {}
 		}
 
+        public static boolean DEBUG_MODE() {
+			return true;
+		}
+
         public synchronized void DebugLog( String MyMessage) {
-			pp.logger.log("DEBUG " + MyMessage);
+			if (this.DEBUG_MODE()) pp.logger.log("DEBUG " + MyMessage);
 		}
 		
         public Handler(Socket connection, int peerConnected, peerProcess pp) {
@@ -99,10 +103,8 @@ public class Handler extends Thread {
 							}
 							break;
 						case 2: // Send a Bitfield
-							// create bitfield message 
-							messageToSend = Messages.createBitfieldMessage(pp.getCurrBitfield());
-							// send handshake message 
-							sendMessage(messageToSend, out);
+							messageToSend = Messages.createBitfieldMessage(pp.getCurrBitfield());  // create bitfield message 
+							sendMessage(messageToSend, out);                                       // send handshake message 
 							CurrentState++;
 						case 3: // Receive a Bitfield Or Some Other message (noe gurantee what the message was/is)
 							// wait for incoming Bitfield message 
@@ -132,7 +134,13 @@ public class Handler extends Thread {
 											//handleHaveMessage(pp, peerConnected, IncomingMessage);
 										break;
 									case 5: // MessageType.BITFIELD.ordinal():
-											Messages.handleBitfieldMessage(IncomingMessage, pp, peerConnected, messageLength);
+											boolean nowInterested = Messages.handleBitfieldMessage(IncomingMessage, pp, peerConnected, messageLength);
+											if (nowInterested) {
+												messageToSend = Messages.createInterestedMessage();
+											} else {
+												messageToSend = Messages.createNotInterestedMessage();
+											}
+											sendMessage(messageToSend, out); // send iinterst message 	
 										break;
 									case 6: // MessageType.REQUEST.ordinal():
 											//handleRequestMessage(pp, peerConnected, IncomingMessage);

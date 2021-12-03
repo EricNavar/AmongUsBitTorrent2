@@ -71,6 +71,7 @@ public class Messages {
     // not include length" but guessing it does
     // include the message type as part of the message.
     public  static ByteBuffer createInterestedMessage() {
+        if (Handler.DEBUG_MODE()) System.out.println("Sending interested message");
         ByteBuffer MessageAssembly = ByteBuffer.allocate(5); // Message is 5 bytes
         MessageAssembly.putInt(1); // length is equal to 1
         MessageAssembly.put(encodeType(MessageType.INTERESTED.ordinal()));
@@ -81,7 +82,7 @@ public class Messages {
     // not include length" but guessing it does
     // include the message type as part of the message.
     public  static ByteBuffer createNotInterestedMessage() {
-        System.out.println("Sending not interested message");
+        if (Handler.DEBUG_MODE()) System.out.println("Sending not interested message");
         ByteBuffer MessageAssembly = ByteBuffer.allocate(5); // Message is 5 bytes
         MessageAssembly.putInt(1); // length is equal to 1
         MessageAssembly.put(encodeType(MessageType.NOT_INTERESTED.ordinal()));
@@ -326,12 +327,12 @@ public class Messages {
     }
 
     // type 5
-    public synchronized static void handleBitfieldMessage(ByteBuffer IncomingMessage, peerProcess pp, int senderPeer, int length) {
+    public synchronized static boolean handleBitfieldMessage(ByteBuffer IncomingMessage, peerProcess pp, int senderPeer, int length) {
         // if the payload is empty, then the sender has no pieces.
         boolean nowInterested = false;
         RemotePeerInfo rpi = pp.getRemotePeerInfo(senderPeer);
         if (length == 0) {
-            return;
+            return false;
         } else {
             for (int i = 0; i < pp.getTotalPieces(); i++) {
                 int x = i / 8;
@@ -348,7 +349,7 @@ public class Messages {
                 }
                 if (rpi == null) {
                    // System.out.println("ERROR: could not find peer info with id " + senderPeer);
-                    return;
+                    return false;
                 }
                 // sets the index i to true of the peer that they have this piece
                 if(rpi.getBitfield().get(i) == true){}
@@ -357,21 +358,9 @@ public class Messages {
             }
         }
         pp.logger.log( "Received bitfield from " + senderPeer + ": " + pp.printBitfield(rpi.getBitfield()));
-        //System.out.println("The interest of " + pp.getPeerId() + " in " + senderPeer + " is set to " + nowInterested);
+        if (Handler.DEBUG_MODE()) pp.logger.log("DEBUG The interest of " + pp.getPeerId() + " in " + senderPeer + " is set to " + nowInterested);
 
-        if (nowInterested) {
-            pp.messagesToSend.add(Messages.createInterestedMessage());
-        } else {
-            pp.messagesToSend.add(Messages.createNotInterestedMessage());
-
-        }
-
-        // if all the processes have the file, then exit
-        if (pp.doAllProcessesHaveTheFile()) {
-            pp.getFileObject().Shutdown();
-        }
-
-        return;
+        return nowInterested;
     }
 
     // type 6

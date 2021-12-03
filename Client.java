@@ -48,19 +48,19 @@ public class Client {
             System.out.println(" peerID " + this.peerID + " fist one is " + pp.allPeers.get(0).getPeerId());
  //           for (int i = 0; pp.getPeerId() != pp.allPeers.get(i).getPeerId(); i++) {
             for (int i = 0; i<1; i++) {
-			    System.out.println(" i = " + i);
+			    if (Handler.DEBUG_MODE()) System.out.println(" i = " + i);
 			    if (pp.getPeerId() == pp.allPeers.get(i).getPeerId() ) {
 					//break;
 				} else {
                     Socket nextSock;
 					int  PeerPortToUse =  pp.allPeers.get(pp.GetPeerIndexNumber(pp.getPeerId())).getPeerPort();
-				System.out.println(" I am " + pp.getPeerId() + " Index Number " + pp.GetIndexNumber() + " Attempting to connect to localhost " + pp.allPeers.get(i).getPeerId() + " which is on port " + PeerPortToUse);
+				    if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Index Number " + pp.GetIndexNumber() + " Attempting to connect to localhost " + pp.allPeers.get(i).getPeerId() + " which is on port " + PeerPortToUse);
 					Socket NewSocket;
 					NewSocket = new Socket("localhost", PeerPortToUse);
 					Handler MyHandler = new Handler(NewSocket, pp.allPeers.get(i).getPeerId(), pp);
 					MyHandler.start();
                     socketlist.add(NewSocket);
-			        System.out.println("Created a initiator socket with peer " + pp.allPeers.get(i).getPeerId() + " on their port " + PeerPortToUse);
+			        if (Handler.DEBUG_MODE()) System.out.println("Created a initiator socket with peer " + pp.allPeers.get(i).getPeerId() + " on their port " + PeerPortToUse);
                     pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
 				}
             }
@@ -68,8 +68,8 @@ public class Client {
 			if (pp.getPeerId() >= 1002) {
 				while(true);
 			}
-			System.out.println(" Done with Lower peer connections ");
-			System.out.println(" Done with Higher peer connections ");
+			if (Handler.DEBUG_MODE()) System.out.println(" Done with Lower peer connections ");
+			if (Handler.DEBUG_MODE()) System.out.println(" Done with Higher peer connections ");
 			boolean start = false;
             for (int i =  0 ; i < pp.allPeers.size(); i++) {
 			    if (pp.getPeerId() == pp.allPeers.get(i).getPeerId() ) {
@@ -78,15 +78,15 @@ public class Client {
 					if (start) {
                     Socket nextSock;
 					int  PeerPortToUse = pp.allPeers.get(i).getPeerPort();
-			        System.out.println(" I am " + pp.getPeerId() + " Attempting to set up connection to " + pp.allPeers.get(i).getPeerId() + " which is on port " + PeerPortToUse);
+			        if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Attempting to set up connection to " + pp.allPeers.get(i).getPeerId() + " which is on port " + PeerPortToUse);
 					ServerSocket NewSocket;
 					NewSocket = new ServerSocket(PeerPortToUse);
-					System.out.println("Trying to accept socket of allpeeres(" + i + ") known as peerID " + pp.allPeers.get(i).getPeerId());
+					if (Handler.DEBUG_MODE()) System.out.println("Trying to accept socket of allpeeres(" + i + ") known as peerID " + pp.allPeers.get(i).getPeerId());
 					Socket GetIt = NewSocket.accept();
 					Handler MyHandler = new Handler(GetIt, pp.allPeers.get(i).getPeerId(), pp);
 					MyHandler.start();
                     socketServerlist.add(NewSocket);
-			        System.out.println("Created a server socket " + pp.allPeers.get(i).getPeerId() + " and peer port " + PeerPortToUse);
+			        if (Handler.DEBUG_MODE()) System.out.println("Created a server socket " + pp.allPeers.get(i).getPeerId() + " and peer port " + PeerPortToUse);
                     pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
 					}
 				}
