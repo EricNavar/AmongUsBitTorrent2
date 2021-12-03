@@ -71,6 +71,7 @@ public class Messages {
     // not include length" but guessing it does
     // include the message type as part of the message.
     public  static ByteBuffer createInterestedMessage() {
+        if (Handler.DEBUG_MODE()) System.out.println("Sending interested message");
         ByteBuffer MessageAssembly = ByteBuffer.allocate(5); // Message is 5 bytes
         MessageAssembly.putInt(1); // length is equal to 1
         MessageAssembly.put(encodeType(MessageType.INTERESTED.ordinal()));
@@ -81,7 +82,7 @@ public class Messages {
     // not include length" but guessing it does
     // include the message type as part of the message.
     public  static ByteBuffer createNotInterestedMessage() {
-        System.out.println("Sending not interested message");
+        if (Handler.DEBUG_MODE()) System.out.println("Sending not interested message");
         ByteBuffer MessageAssembly = ByteBuffer.allocate(5); // Message is 5 bytes
         MessageAssembly.putInt(1); // length is equal to 1
         MessageAssembly.put(encodeType(MessageType.NOT_INTERESTED.ordinal()));
@@ -284,8 +285,8 @@ public class Messages {
     }
 
     // type 2
-    private static void handleInterestedMessage(peerProcess pp, int senderPeer) {
-        //System.out.println("Peer " + senderPeer + " is interested");
+    public synchronized static void handleInterestedMessage(peerProcess pp, int senderPeer) {
+        if (Handler.DEBUG_MODE()) System.out.println("Peer " + senderPeer + " is interested");
         Vector<Integer> interest = pp.getInterested();
         interest.add(senderPeer);
         pp.setInterested(interest);
@@ -294,9 +295,9 @@ public class Messages {
     }
 
     // type 3
-    private static void handleNotInterestedMessage(peerProcess pp, int senderPeer) {
-        //System.out.println("Peer " + senderPeer + " is NOT interested");
-        Vector<Integer> interest = pp.getInterested();
+    public synchronized static void handleNotInterestedMessage(peerProcess pp, int senderPeer) {
+        if (Handler.DEBUG_MODE()) System.out.println("Peer " + senderPeer + " is NOT interested");
+       Vector<Integer> interest = pp.getInterested();
         for (int i = 0; i < interest.size(); i++) {
             if (interest.get(i) == senderPeer)
                 interest.remove(i);
@@ -326,12 +327,12 @@ public class Messages {
     }
 
     // type 5
-    private static void handleBitfieldMessage(ByteBuffer IncomingMessage, peerProcess pp, int senderPeer, int length) {
+    public synchronized static boolean handleBitfieldMessage(ByteBuffer IncomingMessage, peerProcess pp, int senderPeer, int length) {
         // if the payload is empty, then the sender has no pieces.
         boolean nowInterested = false;
         RemotePeerInfo rpi = pp.getRemotePeerInfo(senderPeer);
         if (length == 0) {
-            return;
+            return false;
         } else {
             for (int i = 0; i < pp.getTotalPieces(); i++) {
                 int x = i / 8;
@@ -348,28 +349,18 @@ public class Messages {
                 }
                 if (rpi == null) {
                    // System.out.println("ERROR: could not find peer info with id " + senderPeer);
-                    return;
+                    return false;
                 }
                 // sets the index i to true of the peer that they have this piece
-                rpi.getBitfield().set(i, bitvalue == 1);
+                if(rpi.getBitfield().get(i) == true){}
+                else
+                    rpi.getBitfield().set(i, bitvalue == 1);
             }
         }
         pp.logger.log( "Received bitfield from " + senderPeer + ": " + pp.printBitfield(rpi.getBitfield()));
-        //System.out.println("The interest of " + pp.getPeerId() + " in " + senderPeer + " is set to " + nowInterested);
+        if (Handler.DEBUG_MODE()) pp.logger.log("DEBUG The interest of " + pp.getPeerId() + " in " + senderPeer + " is set to " + nowInterested);
 
-        if (nowInterested) {
-            pp.messagesToSend.add(Messages.createInterestedMessage());
-        } else {
-            pp.messagesToSend.add(Messages.createNotInterestedMessage());
-
-        }
-
-        // if all the processes have the file, then exit
-        if (pp.doAllProcessesHaveTheFile()) {
-            pp.getFileObject().Shutdown();
-        }
-
-        return;
+        return nowInterested;
     }
 
     // type 6
@@ -489,39 +480,7 @@ public class Messages {
          */
         int length = GetMessageLength(IncomingMessage);
         int type = GetMessageType(IncomingMessage);
-
-        // The logic for handling the message types are here
-        if (type == MessageType.CHOKE.ordinal()) {
-            // type 0
-            handleChokeMessage(pp, senderPeer);
-        } else if (type == MessageType.UNCHOKE.ordinal()) {
-            // type 1
-            handleUnchokeMessage(pp, senderPeer);
-        } else if (type == MessageType.INTERESTED.ordinal()) {
-            // type 2
-            handleInterestedMessage(pp, senderPeer);
-        } else if (type == MessageType.NOT_INTERESTED.ordinal()) {
-            // type 3
-            handleNotInterestedMessage(pp, senderPeer);
-        } else if (type == MessageType.HAVE.ordinal()) {
-            // type 4
-            handleHaveMessage(pp, senderPeer, IncomingMessage);
-        } else if (type == MessageType.BITFIELD.ordinal()) {
-            // type 5
-            handleBitfieldMessage(IncomingMessage, pp, senderPeer, length);
-        } else if (type == MessageType.REQUEST.ordinal()) {
-            // type 6
-            handleRequestMessage(pp, senderPeer, IncomingMessage);
-        } else if (type == MessageType.PIECE.ordinal()) {
-            // type 7
-            //pp.logger.log("handlePieceMessage(). length of mesage is " + length);
-            handlePieceMessage(pp, senderPeer, length, IncomingMessage);
-        } else {
-            //System.out.println("Invalid message of type " + ParseByte(IncomingMessage, 4));
-            //System.out.println(StandardCharsets.UTF_8.decode(IncomingMessage).toString());
-        }
-
-        return -1;
+        return type;
     }
     public synchronized static int decodeHandshakeMessage(peerProcess pp, ByteBuffer IncomingMessage, int senderPeer) {
         String handshakeHeader = "P2PFILESHARINGPROJ";

@@ -30,8 +30,12 @@ public class Handler extends Thread {
 			finally {}
 		}
 
+        public static boolean DEBUG_MODE() {
+			return true;
+		}
+
         public synchronized void DebugLog( String MyMessage) {
-			pp.logger.log("DEBUG " + MyMessage);
+			if (this.DEBUG_MODE()) pp.logger.log("DEBUG " + MyMessage);
 		}
 		
         public Handler(Socket connection, int peerConnected, peerProcess pp) {
@@ -99,24 +103,56 @@ public class Handler extends Thread {
 							}
 							break;
 						case 2: // Send a Bitfield
-							// create bitfield message 
-							messageToSend = Messages.createBitfieldMessage(pp.getCurrBitfield());
-							// send handshake message 
-							sendMessage(messageToSend, out);
+							messageToSend = Messages.createBitfieldMessage(pp.getCurrBitfield());  // create bitfield message 
+							sendMessage(messageToSend, out);                                       // send handshake message 
 							CurrentState++;
 						case 3: // Receive a Bitfield Or Some Other message (noe gurantee what the message was/is)
 							// wait for incoming Bitfield message 
 							if (WaitForInput(in, 100) == false) {  // see if this was successful
 								CurrentState = 0; // try sending again... it timed out
-							} else { // get incoming message 
+							} else { // get Generic incoming message 
 								dataFromPeer = new byte[in.available()];
 								in.read(dataFromPeer);
-								ByteBuffer buff = ByteBuffer.wrap(dataFromPeer);
-								int bitfieldMsg = Messages.decodeMessage(pp, buff, peerConnected);
-								// received a handshake message from peer
-								this.connectedToPeerIdIncoming = Messages.decodeMessage(pp, buff, -1);
+								ByteBuffer IncomingMessage = ByteBuffer.wrap(dataFromPeer);
+								int messageDecode = Messages.decodeMessage(pp, IncomingMessage, peerConnected);
+								int messageLength = Messages.GetMessageLength(IncomingMessage);
+								//   Decoding in this order (hard coded for now) enum MessageType {CHOKE, UNCHOKE, INTERESTED, NOT_INTERESTED, HAVE, BITFIELD, REQUEST, PIECE }
+								switch(messageDecode) {
+									case 0: // MessageType.CHOKE.ordinal():
+											//handleChokeMessage(pp, peerConnected);
+											break;
+									case 1: // MessageType.UNCHOKE.ordinal():
+											//handleUnchokeMessage(pp, peerConnected);
+											break;
+									case 2: // MessageType.INTERESTED.ordinal():
+											Messages.handleInterestedMessage(pp, peerConnected);
+											break;
+									case 3: // MessageType.NOT_INTERESTED.ordinal():
+											Messages.handleNotInterestedMessage(pp, peerConnected);
+											break;
+									case 4: // MessageType.HAVE.ordinal():
+											//handleHaveMessage(pp, peerConnected, IncomingMessage);
+											break;
+									case 5: // MessageType.BITFIELD.ordinal():
+											boolean nowInterested = Messages.handleBitfieldMessage(IncomingMessage, pp, peerConnected, messageLength);
+											if (nowInterested) {
+												messageToSend = Messages.createInterestedMessage();
+											} else {
+												messageToSend = Messages.createNotInterestedMessage();
+											}
+											sendMessage(messageToSend, out); // send iinterst message 	
+											break;
+									case 6: // MessageType.REQUEST.ordinal():
+											//handleRequestMessage(pp, peerConnected, IncomingMessage);
+											break;
+									case 7: // MessageType.PIECE.ordinal():
+											//handlePieceMessage(pp, peerConnected, messageLength, IncomingMessage);
+											break;
+									default: 
+											// TODO Handle Illegal Messages and send alerts, reset if necessary
+											break;
+								}
 								this.originalId = this.connectedToPeerIdIncoming;
-								CurrentState++;
 							}
 							break;
 
