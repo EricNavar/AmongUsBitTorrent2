@@ -243,7 +243,7 @@ class peerProcess {
     // this chooses which peer to optimisically unchoke. The peerInfoVector is
     // sorted by pieces transmitted, so choose any peer other than the first 4
     // https://www.educative.io/edpresso/how-to-generate-random-numbers-in-java
-    public synchronized void chooseOptimisticallyUnchokedPeer() {
+    public synchronized int chooseOptimisticallyUnchokedPeer() {
         // this is the vector of peers to consider. It's the peers that are in
         // interested but not already in preferredNeighbors
         Vector<Integer> toConsider = new Vector<Integer>();
@@ -254,12 +254,13 @@ class peerProcess {
         }
         if (toConsider.size() == 0) {
             optimisticallyUnchokedPeer = -1;
-            return;
+            return optimisticallyUnchokedPeer;
         }
         Random rn = new Random();
         int randomPeerIndex = rn.nextInt(interested.size());
         optimisticallyUnchokedPeer = interested.get(randomPeerIndex);
         logger.onChangeOfOptimisticallyUnchokedNeighbor(optimisticallyUnchokedPeer);
+		return optimisticallyUnchokedPeer;
     }
 
     // returns true if the given id belongs to either a preffered peer or an
@@ -416,15 +417,15 @@ class peerProcess {
     public synchronized void onOptimisticTimeout() {
         if (Handler.DEBUG_MODE()) System.out.println("onOptimisticTimeout()");
         try {
-            chooseOptimisticallyUnchokedPeer();
-            if (optimisticallyUnchokedPeer == -1) {
+            int getPeerUnchoke = chooseOptimisticallyUnchokedPeer();
+            if (getPeerUnchoke == -1) {
                 return;
             }
-            RemotePeerInfo rpi = getRemotePeerInfo(optimisticallyUnchokedPeer);
+            RemotePeerInfo rpi = getRemotePeerInfo(getPeerUnchoke);
             messagesToSend.clear();
             //messagesToSend.add(Messages.createUnchokeMessage());
-			this.UnChokingNeighbors.add(rpi.getPeerId());                       // add this peer to be unchoked later
-            if (Handler.DEBUG_MODE()) System.out.println("Optimistically unchoking " + rpi.getPeerId() + " UnChokingNeighbors = " + this.UnChokingNeighbors);
+			this.UnChokingNeighbors.add(getPeerUnchoke);                       // add this peer to be unchoked later
+            if (Handler.DEBUG_MODE()) System.out.println("Optimistically unchoking " + getPeerUnchoke + " UnChokingNeighbors = " + this.UnChokingNeighbors);
             rpi.setChoked(false);
             //sendMessageBB(messagesToSend.get(0));
             optimisticTimerFlag = !optimisticTimerFlag;

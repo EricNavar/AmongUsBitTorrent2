@@ -79,7 +79,7 @@ public class Handler extends Thread {
                   pp.messagesToSend.add(Messages.createChokeMessage());  
 				}
 			}
-			if (this.DEBUG_MODE()) System.out.println(" Peer ID " + pp.getPeerId() + " Choking " + pp.ChokingNeighbors.size() + " and unchoking " + pp.UnChokingNeighbors.size());
+			if (this.DEBUG_MODE()) System.out.println(" Peer ID " + pp.getPeerId() + " connected to " + peerConnected + " Choking " + pp.ChokingNeighbors.size() + " and unchoking " + pp.UnChokingNeighbors.size());
 			ByteBuffer aNewMessageToSend;  
 			while (pp.messagesToSend.size() > 0) {
 				aNewMessageToSend = pp.messagesToSend.get(0);
