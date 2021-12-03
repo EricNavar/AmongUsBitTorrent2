@@ -137,10 +137,10 @@ public class Handler extends Thread {
 								//   Decoding in this order (hard coded for now) enum MessageType {CHOKE, UNCHOKE, INTERESTED, NOT_INTERESTED, HAVE, BITFIELD, REQUEST, PIECE }
 								switch(messageDecode) {
 									case 0: // MessageType.CHOKE.ordinal():
-											//handleChokeMessage(pp, peerConnected);
+									Messages.handleChokeMessage(pp, peerConnected);
 											break;
 									case 1: // MessageType.UNCHOKE.ordinal():
-											//handleUnchokeMessage(pp, peerConnected);
+											Messages.handleUnchokeMessage(pp, peerConnected);
 											break;
 									case 2: // MessageType.INTERESTED.ordinal():
 											Messages.handleInterestedMessage(pp, peerConnected);

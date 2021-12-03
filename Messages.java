@@ -256,7 +256,7 @@ public class Messages {
     }
 
     // type 0
-    private static void handleChokeMessage(peerProcess pp, int senderPeer) {
+    public static void handleChokeMessage(peerProcess pp, int senderPeer) {
         RemotePeerInfo sender = pp.getRemotePeerInfo(senderPeer);
 
         if (sender == null) {
@@ -268,7 +268,7 @@ public class Messages {
     }
 
     // type 1
-    private static void handleUnchokeMessage(peerProcess pp, int senderPeer) {
+    public static void handleUnchokeMessage(peerProcess pp, int senderPeer) {
 
 
         RemotePeerInfo sender = pp.getRemotePeerInfo(senderPeer);
@@ -281,7 +281,7 @@ public class Messages {
         // DONE: request a random piece that the sender has and the receiver doesn't
 
         pp.pieceMessages.add(createRequestMessage(pp.randomMissingPiece()));
-        // ask for this piece
+        // ask for this pieces
     }
 
     // type 2
