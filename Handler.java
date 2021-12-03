@@ -146,12 +146,10 @@ public class Handler extends Thread {
 								//   Decoding in this order (hard coded for now) enum MessageType {CHOKE, UNCHOKE, INTERESTED, NOT_INTERESTED, HAVE, BITFIELD, REQUEST, PIECE }
 								switch(messageDecode) {
 									case 0: // MessageType.CHOKE.ordinal():
-									Messages.handleChokeMessage(pp, peerConnected);
+											Messages.handleChokeMessage(pp, peerConnected);
 											break;
 									case 1: // MessageType.UNCHOKE.ordinal():
-											     Messages.handleUnchokeMessage(pp, peerConnected);
- sendMessage(Messages.createRequestMessage(pp.randomMissingPiece()), out);
-
+											Messages.handleUnchokeMessage(pp, peerConnected);
 											break;
 									case 2: // MessageType.INTERESTED.ordinal():
 											Messages.handleInterestedMessage(pp, peerConnected);
@@ -172,9 +170,7 @@ public class Handler extends Thread {
 											sendMessage(newMessageToSend, out); // send iinterst message 	
 											break;
 									case 6: // MessageType.REQUEST.ordinal():
-											ByteBuffer pieceMsg = Messages.handleRequestMessage(pp, peerConnected, IncomingMessage);
-if(pieceMsg != null)
-sendMessage(pieceMsg, out);
+											//handleRequestMessage(pp, peerConnected, IncomingMessage);
 											break;
 									case 7: // MessageType.PIECE.ordinal():
 											//handlePieceMessage(pp, peerConnected, messageLength, IncomingMessage);
