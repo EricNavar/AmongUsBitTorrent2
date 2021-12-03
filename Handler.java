@@ -90,7 +90,7 @@ public class Handler extends Thread {
 								in.read(dataFromPeer);
 								ByteBuffer buff = ByteBuffer.wrap(dataFromPeer);
 								// received a handshake message from peer
-								this.connectedToPeerIdIncoming = Messages.decodeMessage(buff, pp, -1);
+								this.connectedToPeerIdIncoming = Messages.decodeHandshakeMessage(pp, buff, -1);
 								// TODO Test if this is a good HANDSHAKE Message and handle the issue
 								//      Compare this.connectedToPeerIdIncoming to this.peerConnected
 								//      If an error doesn't say what to do but maybe we go back to state 0 after 10 seconds?
@@ -114,7 +114,7 @@ public class Handler extends Thread {
 								ByteBuffer buff = ByteBuffer.wrap(dataFromPeer);
 								int bitfieldMsg = Messages.decodeMessage(pp, buff, peerConnected);
 								// received a handshake message from peer
-								this.connectedToPeerIdIncoming = Messages.decodeMessage(buff, pp, -1);
+								this.connectedToPeerIdIncoming = Messages.decodeMessage(pp, buff, -1);
 								this.originalId = this.connectedToPeerIdIncoming;
 								CurrentState++;
 							}

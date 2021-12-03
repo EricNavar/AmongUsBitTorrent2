@@ -479,24 +479,7 @@ public class Messages {
     }
 
     // returns the peerId of the sender if it's a handshake message.
-    public  static int decodeMessage(ByteBuffer IncomingMessage, peerProcess pp, int sender) {
-        return decodeMessage(pp, IncomingMessage, sender);
-    }
-
-    // returns the peerId of the sender if it's a handshake message.
     public synchronized static int decodeMessage(peerProcess pp, ByteBuffer IncomingMessage, int senderPeer) {
-        String handshakeHeader = "P2PFILESHARINGPROJ";
-        // if the message starts with the handShake header, then it's a handshake
-        // message
-
-        if (IncomingMessage.remaining() == 32) {
-            if (GetHandshakeString(IncomingMessage).equals(handshakeHeader)) {
-                senderPeer = handleHandshakeMessage(IncomingMessage);
-                pp.logger.onConnectingTo(senderPeer);
-                return senderPeer;
-            }
-        }
-
         /*
          * if it's not a handshake message then it's an actual message. This is the
          * format:
@@ -540,7 +523,21 @@ public class Messages {
 
         return -1;
     }
+    public synchronized static int decodeHandshakeMessage(peerProcess pp, ByteBuffer IncomingMessage, int senderPeer) {
+        String handshakeHeader = "P2PFILESHARINGPROJ";
+        // if the message starts with the handShake header, then it's a handshake
+        // message
 
+        if (IncomingMessage.remaining() == 32) {
+            if (GetHandshakeString(IncomingMessage).equals(handshakeHeader)) {
+                senderPeer = handleHandshakeMessage(IncomingMessage);
+                pp.logger.onConnectingTo(senderPeer);
+                return senderPeer;
+            }
+        }
+        return -1;
+    }
+	
     public  static String HexPrint(ByteBuffer bytes) {
         // modifed from idea at https://mkyong.com/java/java-how-to-convert-bytes-to-hex/ By mkyong
         StringBuilder result = new StringBuilder();

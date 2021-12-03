@@ -251,7 +251,7 @@ public class Server {
 
                 ByteBuffer buff = ByteBuffer.wrap(message);
 
-                connectedFrom = Messages.decodeMessage(buff, pp, -1);
+                connectedFrom = Messages.decodeMessage(pp, buff, -1);
                 pp.logger.onConnectingFrom(connectedFrom);
                 ByteBuffer messageToSend = Messages.createHandshakeMessage(pp.peerId);
                 sendMessageBB(messageToSend);
@@ -269,7 +269,7 @@ public class Server {
 
                 ByteBuffer buff2 = ByteBuffer.wrap(message2);
 
-                int bitfieldRes = Messages.decodeMessage(buff2, pp, connectedFrom);
+                int bitfieldRes = Messages.decodeMessage(pp, buff2, connectedFrom);
 
                 ByteBuffer bitfieldMessage = Messages.createBitfieldMessage(pp.bitfield);
                 sendMessageBB(bitfieldMessage);
@@ -282,7 +282,7 @@ public class Server {
 
                 buff = ByteBuffer.wrap(message);
 
-                int interestedRes = Messages.decodeMessage(buff, pp, connectedFrom);
+                int interestedRes = Messages.decodeMessage(pp, buff, connectedFrom);
 
                 // send interested/not interested
                 for (int i = 0; i < pp.messagesToSend.size(); i++) {
@@ -699,7 +699,7 @@ public class Server {
 
                     buff = ByteBuffer.wrap(message);
 
-                    int chokeRes = Messages.decodeMessage(buff, pp, connectedFrom);
+                    int chokeRes = Messages.decodeMessage(pp, buff, connectedFrom);
                     for (int i = 0; i < pp.messagesToSend.size(); i++) {
                         sendMessageBB(pp.messagesToSend.get(i));
                     }
@@ -711,7 +711,7 @@ public class Server {
 
                         buff = ByteBuffer.wrap(message);
 
-                        chokeRes = Messages.decodeMessage(buff, pp, connectedFrom);
+                        chokeRes = Messages.decodeMessage(pp, buff, connectedFrom);
                         for (int i = 0; i < pp.messagesToSend.size(); i++) {
                             sendMessageBB(pp.messagesToSend.get(i));
                         }
