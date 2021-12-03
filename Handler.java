@@ -8,19 +8,19 @@ import java.lang.Thread;
 
 
 public class Handler extends Thread {
-        private String message;    //message received from the client
-		private String MESSAGE;    //uppercase message send to the client
-		private Socket connection;
-        private ObjectInputStream in;	//stream read from the socket
-        private ObjectOutputStream out;    //stream write to the socket
-		private int peerConnected;		//The index number of the client
-		private peerProcess pp;
-        private int connectedToPeerIdIncoming;
-		private int originalId;
-		byte[]  dataFromPeer; // data incoming from peer
-		int CurrentState;
-		boolean chokingTimerFlag;
-		boolean optimisticTimerFlag;
+        volatile private String message;    //message received from the client
+		volatile private String MESSAGE;    //uppercase message send to the client
+		volatile private Socket connection;
+        volatile private ObjectInputStream in;	//stream read from the socket
+        volatile private ObjectOutputStream out;    //stream write to the socket
+		volatile private int peerConnected;		//The index number of the client
+		volatile public  peerProcess pp;
+        volatile private int connectedToPeerIdIncoming;
+		volatile private int originalId;
+		volatile byte[]  dataFromPeer; // data incoming from peer
+		volatile int CurrentState;
+		volatile boolean chokingTimerFlag;
+		volatile boolean optimisticTimerFlag;
    
    
 		public void SleepTimer( int timeperiod ) {
@@ -69,30 +69,33 @@ public class Handler extends Thread {
 		}
 
         public synchronized void sendChokeUnchokedMyselfOnly() {
+			int keepi = -1;
+			ByteBuffer aNewMessageToSend;
 			for(int i = 0; i < pp.UnChokingNeighbors.size(); ++i) {
 				if (pp.UnChokingNeighbors.get(i) == connectedToPeerIdIncoming) {
-					pp.UnChokingNeighbors.remove(i);
-                  pp.messagesToSend.add(Messages.createUnchokeMessage());  
+				  keepi = i;
+				  aNewMessageToSend = Messages.createUnchokeMessage();
+                  sendMessage(aNewMessageToSend, out);  
+    			if (this.DEBUG_MODE()) System.out.println(" Peer ID " + pp.getPeerId() + " connected to " + peerConnected + " UnChoking message sent " + aNewMessageToSend + " keepi = " + keepi + " UnChokingNeighbors " + pp.UnChokingNeighbors);
+				}
+				if (keepi != -1) {
+					pp.UnChokingNeighbors.remove(keepi);
 				}
 			}
 			for(int i = 0; i < pp.ChokingNeighbors.size(); ++i) {
 				if (pp.ChokingNeighbors.get(i) == connectedToPeerIdIncoming) {
-					pp.ChokingNeighbors.remove(i);
-                  pp.messagesToSend.add(Messages.createChokeMessage());  
+					keepi = i;
+					aNewMessageToSend = Messages.createChokeMessage();
+					sendMessage(aNewMessageToSend, out);  
+					if (this.DEBUG_MODE()) System.out.println(" Peer ID " + pp.getPeerId() + " connected to " + peerConnected + " Choking message sent " + aNewMessageToSend);
 				}
-			}
-			if (this.DEBUG_MODE()) System.out.println(" Peer ID " + pp.getPeerId() + " connected to " + peerConnected + " Choking " + pp.ChokingNeighbors.size() + " and unchoking " + pp.UnChokingNeighbors.size());
-			ByteBuffer aNewMessageToSend;  
-			while (pp.messagesToSend.size() > 0) {
-				aNewMessageToSend = pp.messagesToSend.get(0);
-				sendMessage(aNewMessageToSend, out);
-    			String MyMessage = " Sending Choke/Unchoke " + pp.messagesToSend.size() + " in pp.messagesToSend with " + aNewMessageToSend.array();
-	    		if (this.DEBUG_MODE()) pp.logger.log("DEBUG " + MyMessage);
-				pp.messagesToSend.remove(0);
-			}
+				if (keepi != -1) {
+					pp.ChokingNeighbors.remove(i);
+				}
+			} 
 		}
 
-		public void checkTimers() {
+		public synchronized void checkTimers() {
 			//System.out.println("Check timers: " + this.chokingTimerFlag + " " + pp.chokingTimerFlag + " " + this.optimisticTimerFlag + " " + pp.optimisticTimerFlag);
 			if (this.chokingTimerFlag == pp.chokingTimerFlag) {
 			    //System.out.println("Check timers: " + this.chokingTimerFlag + " " + pp.chokingTimerFlag + " " + this.optimisticTimerFlag + " " + pp.optimisticTimerFlag);
@@ -161,6 +164,7 @@ public class Handler extends Thread {
 								int messageDecode = Messages.decodeMessage(pp, IncomingMessage, peerConnected);
 								int messageLength = Messages.GetMessageLength(IncomingMessage);
 								//   Decoding in this order (hard coded for now) enum MessageType {CHOKE, UNCHOKE, INTERESTED, NOT_INTERESTED, HAVE, BITFIELD, REQUEST, PIECE }
+								if (this.DEBUG_MODE()) System.out.println(" Message Received  " + messageDecode + " " + messageLength + " " + IncomingMessage);
 								switch(messageDecode) {
 									case 0: // MessageType.CHOKE.ordinal():
 											Messages.handleChokeMessage(pp, peerConnected);

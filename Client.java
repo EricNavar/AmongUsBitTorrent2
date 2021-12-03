@@ -15,18 +15,18 @@ import java.io.IOException;
  
 public class Client {
 
-    Vector<Socket> socketlist;
-	Vector<ServerSocket> socketServerlist;
-    Vector<ObjectInputStream> InputStreamlist;
-    Vector<ObjectOutputStream> OutputStreamlist;
+    volatile Vector<Socket> socketlist;
+	volatile Vector<ServerSocket> socketServerlist;
+    volatile Vector<ObjectInputStream> InputStreamlist;
+    volatile Vector<ObjectOutputStream> OutputStreamlist;
 
-    int peerID;
+    volatile int peerID;
 
     // String bitfieldHandshake;
     // FileHandling handler;
 
     // int socket;
-    peerProcess pp;
+    volatile peerProcess pp;
 
     void setPeerID(int t_peerID) {
         peerID = t_peerID;
