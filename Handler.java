@@ -109,7 +109,7 @@ public class Handler extends Thread {
 						case 3: // Receive a Bitfield Or Some Other message (noe gurantee what the message was/is)
 							// wait for incoming Bitfield message 
 							if (WaitForInput(in, 100) == false) {  // see if this was successful
-								CurrentState = 0; // try sending again... it timed out
+								CurrentState = 3; // try waiting again
 							} else { // get Generic incoming message 
 								dataFromPeer = new byte[in.available()];
 								in.read(dataFromPeer);
