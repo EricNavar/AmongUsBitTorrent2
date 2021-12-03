@@ -49,7 +49,7 @@ class Logger {
     }
 
     public synchronized void onChangeOfOptimisticallyUnchokedNeighbor(int optimisticallyUnchockedNeighbor_ID) {
-        log(getDate() + ": Peer " + this.peerID + " has the optimistically unchoked neighbor "
+        log(getDate() + ": Peer " + this.peerID + " has optimistically unchoked neighbor "
                 + optimisticallyUnchockedNeighbor_ID + ".");
     }
 
