@@ -373,14 +373,14 @@ class peerProcess {
             for (int i = 0; i < peerInfoVector.size(); i++) {
                 RemotePeerInfo rpi = peerInfoVector.get(i);
                 if (!isNeighbor(rpi.getPeerId()) && !rpi.isChoked()) { 
-                    System.out.println("Setting " + rpi.getPeerId() + "to be a preferred neighbor");
+                    if (Handler.DEBUG_MODE()) System.out.println("Setting " + rpi.getPeerId() + "to be a choked neighbor");
                     messagesToSend.add(Messages.createChokeMessage());
                     rpi.setChoked(true);
                     //sendMessageBB(messagesToSend.get(i));
                 }
                 else if (isNeighbor(rpi.getPeerId()) && rpi.isChoked()) {
-                    System.out.println("Choking " + rpi.getPeerId());
-                    messagesToSend.add(Messages.createChokeMessage());
+                    if (Handler.DEBUG_MODE()) System.out.println("Choking " + rpi.getPeerId() + "to be a unchoked neighbor");
+                    messagesToSend.add(Messages.createUnchokeMessage());
                     rpi.setChoked(false);
                     //sendMessageBB(messagesToSend.get(i));
                 }
