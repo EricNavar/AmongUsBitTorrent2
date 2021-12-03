@@ -19,6 +19,8 @@ public class Handler extends Thread {
 		private int originalId;
 		byte[]  dataFromPeer; // data incoming from peer
 		int CurrentState;
+		boolean chokingTimerFlag;
+		boolean optimisticTimerFlag;
    
    
 		public void SleepTimer( int timeperiod ) {
@@ -43,6 +45,8 @@ public class Handler extends Thread {
 	    		this.peerConnected = peerConnected;
 				this.pp = pp;
 				this.CurrentState = 0;
+				this.chokingTimerFlag = true;
+				this.optimisticTimerFlag = true;
                 pp.logger.log("Connected to client number Handler Constructor Message");
         }
 		
@@ -50,17 +54,30 @@ public class Handler extends Thread {
 			try{
 				int x = 0;
                 while (inStream.available() <= 0) {
-					SleepTimer(1000);  // 1 second so we sleep for 1000 msec... which is 1 second
+					SleepTimer(1);  // 1 second so we sleep for 1000 msec... which is 1 second
 					x++;               // inc the counter
 					if (x > TimeOut) { // exceeeded threshold
 						return false;
 					}
+					checkTimers();
 				}
 			}
 		    catch(IOException ioException){
 		    	System.out.println("Disconnect with Client " + peerConnected);
 		    } // try / catch / finally
 			return true;
+		}
+
+		public void checkTimers() {
+			//System.out.println("Check timers: " + this.chokingTimerFlag + " " + pp.chokingTimerFlag + " " + this.optimisticTimerFlag + " " + pp.optimisticTimerFlag);
+			if (this.chokingTimerFlag == pp.chokingTimerFlag) {
+				pp.onChokingTimeout();
+				this.chokingTimerFlag = !this.chokingTimerFlag;
+			}
+			if (this.optimisticTimerFlag == pp.optimisticTimerFlag) {
+				pp.onOptimisticTimeout();
+				this.optimisticTimerFlag = !this.optimisticTimerFlag;
+			}
 		}
 
         public void run() {
@@ -75,6 +92,7 @@ public class Handler extends Thread {
 			//try{
 				while(true)
 				{
+					checkTimers();
 					switch (CurrentState) {
 						case 0: // Send Handshake
 							// create handshake message 
