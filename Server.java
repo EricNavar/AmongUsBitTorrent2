@@ -691,29 +691,18 @@ public class Server {
 
                     buff = ByteBuffer.wrap(message);
 
-                    int chokeRes = Messages.decodeMessage(buff, pp, connectedFrom);
+                   int chokeRes = Messages.decodeMessage(buff, pp, connectedFrom);
                     for (int i = 0; i < pp.messagesToSend.size(); i++) {
                         sendMessageBB(pp.messagesToSend.get(i));
                     }
+                    pp.messagesToSend.clear();
 
-                    while (in.available() > 0) {
-                        message = new byte[in.available()];
-
-                        in.read(message);
-
-                        buff = ByteBuffer.wrap(message);
-
-                        chokeRes = Messages.decodeMessage(buff, pp, connectedFrom);
-                        for (int i = 0; i < pp.messagesToSend.size(); i++) {
-                            sendMessageBB(pp.messagesToSend.get(i));
-                        }
-                        for (int i = 0; i < pp.pieceMessages.size(); i++) {
-                            pp.logger.log("Sending piece message");
-                            sendMessageBB(pp.pieceMessages.get(i));
-                        }
-                        pp.pieceMessages.clear();
-
+                    for (int i = 0; i < pp.pieceMessages.size(); i++) {
+                        pp.logger.log("Sending piece message");
+                        sendMessageBB(pp.pieceMessages.get(i));
                     }
+                    pp.pieceMessages.clear();
+                   
 
                 }
             }
