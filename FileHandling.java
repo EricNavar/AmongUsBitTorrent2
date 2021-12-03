@@ -18,7 +18,6 @@ import java.util.*;
 //import java.io.FileWriter;
 import java.io.FileOutputStream;
 import java.io.FileInputStream;
-import java.awt.Desktop;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
@@ -73,10 +72,8 @@ public class FileHandling {
 			fileNameWithPath = "./peer_" + peerID + "/" + fileName;
 			File file = new File(fileNameWithPath);
 
-			Desktop desktop = Desktop.getDesktop();
-
 			if (file.exists()) { // checks file exists or not
-				desktop.open(file); // opens the specified file
+				FileInputStream fis=new FileInputStream(file); // opens the specified file
 			} else { // create file
 				file.createNewFile();
 			}
