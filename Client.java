@@ -46,7 +46,8 @@ public class Client {
             // create a socket to connect to the server
 			System.out.println(" pp.getPeerID() " + pp.getPeerId() + " pp.allPeers.get(i).getPeerId() " + pp.allPeers.get(0).getPeerId());
             System.out.println(" peerID " + this.peerID + " fist one is " + pp.allPeers.get(0).getPeerId());
-            for (int i = 0; pp.getPeerId() != pp.allPeers.get(i).getPeerId(); i++) {
+ //           for (int i = 0; pp.getPeerId() != pp.allPeers.get(i).getPeerId(); i++) {
+            for (int i = 0; i<1; i++) {
 			    System.out.println(" i = " + i);
 			    if (pp.getPeerId() == pp.allPeers.get(i).getPeerId() ) {
 					//break;
