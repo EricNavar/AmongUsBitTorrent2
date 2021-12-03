@@ -280,7 +280,7 @@ public class Messages {
         pp.logger.onUnchoking(senderPeer);
         // DONE: request a random piece that the sender has and the receiver doesn't
 
-        pp.pieceMessages.add(createRequestMessage(pp.randomMissingPiece()));
+
         // ask for this pieces
     }
 
@@ -364,9 +364,10 @@ public class Messages {
     }
 
     // type 6
-    private static void handleRequestMessage(peerProcess pp, int senderPeer, ByteBuffer IncomingMessage) {
+    public static ByteBuffer handleRequestMessage(peerProcess pp, int senderPeer, ByteBuffer IncomingMessage) {
         // a peer (senderPeer) has requested (payload) index message
         FileHandling f = pp.getFileObject(); // if the receiver of the message has the piece, then send the piece
+
 
         // parse out the requested item into an integer to look up in the map structure
         int index = GetRequestMessageIndex(IncomingMessage);
@@ -384,10 +385,11 @@ public class Messages {
 
             //pp.logger.log("Creating piece message. Piece size = " + ThePieceLength + ", Piece message size = " + GetMessageLength(toSend));
 		    pp.logger.log("Send piece " + GetPieceMessageNumber(toSend) + "."); //debug log. Remove this later.
-            pp.pieceMessages.add(toSend); // send the piece
+            return toSend; // send the piece
         } else {
             System.out.println("Some questionable character/actor identified as " + senderPeer + " asked for piece "
                     + index + " but this peer known as " + pp.peerId + " does not have it...");
+return null;
         }
     }
 

@@ -140,7 +140,9 @@ public class Handler extends Thread {
 									Messages.handleChokeMessage(pp, peerConnected);
 											break;
 									case 1: // MessageType.UNCHOKE.ordinal():
-											Messages.handleUnchokeMessage(pp, peerConnected);
+											     Messages.handleUnchokeMessage(pp, peerConnected);
+ sendMessage(Messages.createRequestMessage(pp.randomMissingPiece());
+
 											break;
 									case 2: // MessageType.INTERESTED.ordinal():
 											Messages.handleInterestedMessage(pp, peerConnected);
@@ -161,7 +163,9 @@ public class Handler extends Thread {
 											sendMessage(messageToSend, out); // send iinterst message 	
 											break;
 									case 6: // MessageType.REQUEST.ordinal():
-											//handleRequestMessage(pp, peerConnected, IncomingMessage);
+											ByteBuffer pieceMsg = Messages.handleRequestMessage(pp, peerConnected, IncomingMessage);
+if(pieceMsg != null)
+sendMessage(pieceMsg);
 											break;
 									case 7: // MessageType.PIECE.ordinal():
 											//handlePieceMessage(pp, peerConnected, messageLength, IncomingMessage);
