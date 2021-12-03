@@ -219,7 +219,7 @@ class peerProcess {
         sortPeerInfoVector();
         // The first 4 peers are the peers that have transmitted the most.
         // Add their peerId to the list of preferred vectors
-		if (Handler.DEBUG_MODE()) System.out.println(" Intersted Neighbors are " + interested);
+		//if (Handler.DEBUG_MODE()) System.out.println(" Intersted Neighbors are " + interested);
         for (int i = 0; i < peerInfoVector.size(); i++) {
             // if tie, randomly choose among tied processes
             if (interested.size() > 0) {

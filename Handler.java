@@ -76,7 +76,7 @@ public class Handler extends Thread {
 				  keepi = i;
 				  aNewMessageToSend = Messages.createUnchokeMessage();
                   sendMessage(aNewMessageToSend, out);  
-    			if (this.DEBUG_MODE()) System.out.println(" Peer ID " + pp.getPeerId() + " connected to " + peerConnected + " UnChoking message sent " + aNewMessageToSend + " keepi = " + keepi + " UnChokingNeighbors " + pp.UnChokingNeighbors);
+    			  if (this.DEBUG_MODE()) System.out.println(" Peer ID " + pp.getPeerId() + " connected to " + peerConnected + " UnChoking message sent " + aNewMessageToSend + " keepi = " + keepi + " UnChokingNeighbors " + pp.UnChokingNeighbors);
 				}
 				if (keepi != -1) {
 					pp.UnChokingNeighbors.remove(keepi);
@@ -96,16 +96,20 @@ public class Handler extends Thread {
 		}
 
 		public synchronized void checkTimers() {
+			boolean doUnchoke = false;
 			//System.out.println("Check timers: " + this.chokingTimerFlag + " " + pp.chokingTimerFlag + " " + this.optimisticTimerFlag + " " + pp.optimisticTimerFlag);
 			if (this.chokingTimerFlag == pp.chokingTimerFlag) {
 			    //System.out.println("Check timers: " + this.chokingTimerFlag + " " + pp.chokingTimerFlag + " " + this.optimisticTimerFlag + " " + pp.optimisticTimerFlag);
-				sendChokeUnchokedMyselfOnly();
+				doUnchoke = true;
 				this.chokingTimerFlag = !this.chokingTimerFlag;
 			}
 			if (this.optimisticTimerFlag == pp.optimisticTimerFlag) {
 			    //System.out.println("Check timers: " + this.chokingTimerFlag + " " + pp.chokingTimerFlag + " " + this.optimisticTimerFlag + " " + pp.optimisticTimerFlag);
-				sendChokeUnchokedMyselfOnly();
+				doUnchoke = true;
 				this.optimisticTimerFlag = !this.optimisticTimerFlag;
+			}
+			if (doUnchoke) {
+				sendChokeUnchokedMyselfOnly();
 			}
 		}
 
