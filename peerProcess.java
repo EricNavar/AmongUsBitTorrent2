@@ -190,7 +190,7 @@ class peerProcess {
         // start server
         //System.out.println("Attempting to create server socket."); // debug message
         //if (peerId != 1000) { // if client
-            System.out.println("Attempting to connect as a client to the port...");
+            System.out.println("Attempting to connect as a peer to the port...");
             client = new Client(this);
             client.setPeerID(peerId);
             client.run();
