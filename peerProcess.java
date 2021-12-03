@@ -41,6 +41,8 @@ class peerProcess {
     Vector<Boolean> bitfield = new Vector<Boolean>(0);
     Vector<Integer> preferredNeighbors;
     Vector<Integer> interested = new Vector<Integer>(0);
+	Vector<Integer> ChokingNeighbors = new Vector<Integer>();
+	Vector<Integer> UnChokingNeighbors = new Vector<Integer>();
     Vector<ByteBuffer> messagesToSend = new Vector<ByteBuffer>(0);
     Vector<ByteBuffer> pieceMessages = new Vector<ByteBuffer>(0);
     public Logger logger;
@@ -52,6 +54,8 @@ class peerProcess {
     int port;
     boolean chokingTimerFlag;
     boolean optimisticTimerFlag;
+    boolean chokingComputeCompleteTimerFlag;
+    boolean optimisticComputeCompleteTimerFlag;
 
     public void incrementCollectedPieces() {
         collectedPieces++;
@@ -150,6 +154,8 @@ class peerProcess {
 
         chokingTimerFlag = false;
         optimisticTimerFlag = false;
+        chokingComputeCompleteTimerFlag = false;
+        optimisticComputeCompleteTimerFlag  = false;
     }
 
     public boolean hasFile() {
@@ -369,22 +375,27 @@ class peerProcess {
         try {
             calculatePreferredNeighbors();
             messagesToSend.clear();
+			this.ChokingNeighbors.clear();   // clear list of choked neighbors
+			this.UnChokingNeighbors.clear(); // clear list of unchoked neighbors
             // choke unchosen peers, unchoke chosen peers
             for (int i = 0; i < peerInfoVector.size(); i++) {
                 RemotePeerInfo rpi = peerInfoVector.get(i);
                 if (!isNeighbor(rpi.getPeerId()) && !rpi.isChoked()) { 
-                    System.out.println("Setting " + rpi.getPeerId() + "to be a preferred neighbor");
-                    messagesToSend.add(Messages.createChokeMessage());
+                    System.out.println("Unchoking " + rpi.getPeerId());
+                    //messagesToSend.add(Messages.createUnchokeMessage());  
+					this.UnChokingNeighbors.add(rpi.getPeerId());  // add this peer to be unchoked later
                     rpi.setChoked(true);
                     //sendMessageBB(messagesToSend.get(i));
                 }
                 else if (isNeighbor(rpi.getPeerId()) && rpi.isChoked()) {
                     System.out.println("Choking " + rpi.getPeerId());
-                    messagesToSend.add(Messages.createChokeMessage());
+					this.ChokingNeighbors.add(rpi.getPeerId());            // add this peer to be choked later
+                    //messagesToSend.add(Messages.createChokeMessage());
                     rpi.setChoked(false);
                     //sendMessageBB(messagesToSend.get(i));
                 }
             }
+			chokingTimerFlag = !chokingTimerFlag;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -398,7 +409,8 @@ class peerProcess {
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             public void run() {
-                chokingTimerFlag = !chokingTimerFlag;
+                //chokingTimerFlag = !chokingTimerFlag;
+				onChokingTimeout();
             }
         }, 0, unchokingInterval * 1000);
     }
@@ -412,10 +424,12 @@ class peerProcess {
             }
             RemotePeerInfo rpi = getRemotePeerInfo(optimisticallyUnchokedPeer);
             messagesToSend.clear();
-            messagesToSend.add(Messages.createUnchokeMessage());
+            //messagesToSend.add(Messages.createUnchokeMessage());
             System.out.println("Optimistically unchoking " + rpi.getPeerId());
+			this.UnChokingNeighbors.add(rpi.getPeerId());                       // add this peer to be unchoked later
             rpi.setChoked(false);
             //sendMessageBB(messagesToSend.get(0));
+            optimisticTimerFlag = !optimisticTimerFlag;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -426,7 +440,7 @@ class peerProcess {
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             public void run() {
-                optimisticTimerFlag = !optimisticTimerFlag;
+				onOptimisticTimeout();
             }
         }, 0, optimisticUnchokingInterval * 1000);
     }

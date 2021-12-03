@@ -68,24 +68,37 @@ public class Handler extends Thread {
 			return true;
 		}
 
-		public void checkTimers() {
-			//System.out.println("Check timers: " + this.chokingTimerFlag + " " + pp.chokingTimerFlag + " " + this.optimisticTimerFlag + " " + pp.optimisticTimerFlag);
-			if (this.chokingTimerFlag == pp.chokingTimerFlag) {
-				pp.onChokingTimeout();
-				this.chokingTimerFlag = !this.chokingTimerFlag;
+        public void sendChokeUnchokedMyselfOnly() {
+			for(int i = 0; i < pp.UnChokingNeighbors.size(); ++i) {
+				if (pp.UnChokingNeighbors.get(i) == pp.getPeerId()) {
+                  pp.messagesToSend.add(Messages.createUnchokeMessage());  
+				}
 			}
-			if (this.optimisticTimerFlag == pp.optimisticTimerFlag) {
-				pp.onOptimisticTimeout();
-				this.optimisticTimerFlag = !this.optimisticTimerFlag;
+			for(int i = 0; i < pp.ChokingNeighbors.size(); ++i) {
+				if (pp.ChokingNeighbors.get(i) == pp.getPeerId()) {
+                  pp.messagesToSend.add(Messages.createChokeMessage());  
+				}
 			}
-			//System.out.println("Check timers: " + this.chokingTimerFlag + " " + pp.chokingTimerFlag + " " + this.optimisticTimerFlag + " " + pp.optimisticTimerFlag);
+			if (this.DEBUG_MODE()) System.out.println(" Peer ID " + pp.getPeerId() + " Choking " + pp.ChokingNeighbors.size() + " and unchoking " + pp.UnChokingNeighbors.size());
 			ByteBuffer aNewMessageToSend;  
 			while (pp.messagesToSend.size() > 0) {
 				aNewMessageToSend = pp.messagesToSend.get(0);
 				sendMessage(aNewMessageToSend, out);
-    			//String MyMessage = " Sending Choke/Unchoke " + pp.messagesToSend.size() + " in pp.messagesToSend with " + aNewMessageToSend.array();
-	    		//if (this.DEBUG_MODE()) pp.logger.log("DEBUG " + MyMessage);
+    			String MyMessage = " Sending Choke/Unchoke " + pp.messagesToSend.size() + " in pp.messagesToSend with " + aNewMessageToSend.array();
+	    		if (this.DEBUG_MODE()) pp.logger.log("DEBUG " + MyMessage);
 				pp.messagesToSend.remove(0);
+			}
+		}
+
+		public void checkTimers() {
+			//System.out.println("Check timers: " + this.chokingTimerFlag + " " + pp.chokingTimerFlag + " " + this.optimisticTimerFlag + " " + pp.optimisticTimerFlag);
+			if (this.chokingTimerFlag == pp.chokingTimerFlag) {
+				sendChokeUnchokedMyselfOnly();
+				this.chokingTimerFlag = !this.chokingTimerFlag;
+			}
+			if (this.optimisticTimerFlag == pp.optimisticTimerFlag) {
+				sendChokeUnchokedMyselfOnly();
+				this.optimisticTimerFlag = !this.optimisticTimerFlag;
 			}
 		}
 
