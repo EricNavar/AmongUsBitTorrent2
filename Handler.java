@@ -132,7 +132,7 @@ public class Handler extends Thread {
 											//handleHaveMessage(pp, peerConnected, IncomingMessage);
 										break;
 									case 5: // MessageType.BITFIELD.ordinal():
-											//handleBitfieldMessage(IncomingMessage, pp, peerConnected, messageLength);
+											Messages.handleBitfieldMessage(IncomingMessage, pp, peerConnected, messageLength);
 										break;
 									case 6: // MessageType.REQUEST.ordinal():
 											//handleRequestMessage(pp, peerConnected, IncomingMessage);

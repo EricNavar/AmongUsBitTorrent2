@@ -326,7 +326,7 @@ public class Messages {
     }
 
     // type 5
-    private static void handleBitfieldMessage(ByteBuffer IncomingMessage, peerProcess pp, int senderPeer, int length) {
+    public synchronized static void handleBitfieldMessage(ByteBuffer IncomingMessage, peerProcess pp, int senderPeer, int length) {
         // if the payload is empty, then the sender has no pieces.
         boolean nowInterested = false;
         RemotePeerInfo rpi = pp.getRemotePeerInfo(senderPeer);
@@ -491,39 +491,7 @@ public class Messages {
          */
         int length = GetMessageLength(IncomingMessage);
         int type = GetMessageType(IncomingMessage);
-
-        // The logic for handling the message types are here
-        if (type == MessageType.CHOKE.ordinal()) {
-            // type 0
-            handleChokeMessage(pp, senderPeer);
-        } else if (type == MessageType.UNCHOKE.ordinal()) {
-            // type 1
-            handleUnchokeMessage(pp, senderPeer);
-        } else if (type == MessageType.INTERESTED.ordinal()) {
-            // type 2
-            handleInterestedMessage(pp, senderPeer);
-        } else if (type == MessageType.NOT_INTERESTED.ordinal()) {
-            // type 3
-            handleNotInterestedMessage(pp, senderPeer);
-        } else if (type == MessageType.HAVE.ordinal()) {
-            // type 4
-            handleHaveMessage(pp, senderPeer, IncomingMessage);
-        } else if (type == MessageType.BITFIELD.ordinal()) {
-            // type 5
-            handleBitfieldMessage(IncomingMessage, pp, senderPeer, length);
-        } else if (type == MessageType.REQUEST.ordinal()) {
-            // type 6
-            handleRequestMessage(pp, senderPeer, IncomingMessage);
-        } else if (type == MessageType.PIECE.ordinal()) {
-            // type 7
-            //pp.logger.log("handlePieceMessage(). length of mesage is " + length);
-            handlePieceMessage(pp, senderPeer, length, IncomingMessage);
-        } else {
-            //System.out.println("Invalid message of type " + ParseByte(IncomingMessage, 4));
-            //System.out.println(StandardCharsets.UTF_8.decode(IncomingMessage).toString());
-        }
-
-        return -1;
+        return type;
     }
     public synchronized static int decodeHandshakeMessage(peerProcess pp, ByteBuffer IncomingMessage, int senderPeer) {
         String handshakeHeader = "P2PFILESHARINGPROJ";
