@@ -119,20 +119,20 @@ public class Handler extends Thread {
 								//   Decoding in this order (hard coded for now) enum MessageType {CHOKE, UNCHOKE, INTERESTED, NOT_INTERESTED, HAVE, BITFIELD, REQUEST, PIECE }
 								switch(messageDecode) {
 									case 0: // MessageType.CHOKE.ordinal():
-										//handleChokeMessage(pp, peerConnected);
-										break;
+											//handleChokeMessage(pp, peerConnected);
+											break;
 									case 1: // MessageType.UNCHOKE.ordinal():
-										//handleUnchokeMessage(pp, peerConnected);
-										break;
+											//handleUnchokeMessage(pp, peerConnected);
+											break;
 									case 2: // MessageType.INTERESTED.ordinal():
-										Messages.handleInterestedMessage(pp, peerConnected);
-										break;
+											Messages.handleInterestedMessage(pp, peerConnected);
+											break;
 									case 3: // MessageType.NOT_INTERESTED.ordinal():
-							Messages.handleNotInterestedMessage(pp, peerConnected);
-										break;
+											Messages.handleNotInterestedMessage(pp, peerConnected);
+											break;
 									case 4: // MessageType.HAVE.ordinal():
 											//handleHaveMessage(pp, peerConnected, IncomingMessage);
-										break;
+											break;
 									case 5: // MessageType.BITFIELD.ordinal():
 											boolean nowInterested = Messages.handleBitfieldMessage(IncomingMessage, pp, peerConnected, messageLength);
 											if (nowInterested) {
@@ -141,19 +141,18 @@ public class Handler extends Thread {
 												messageToSend = Messages.createNotInterestedMessage();
 											}
 											sendMessage(messageToSend, out); // send iinterst message 	
-										break;
+											break;
 									case 6: // MessageType.REQUEST.ordinal():
 											//handleRequestMessage(pp, peerConnected, IncomingMessage);
-										break;
+											break;
 									case 7: // MessageType.PIECE.ordinal():
 											//handlePieceMessage(pp, peerConnected, messageLength, IncomingMessage);
-										break;
+											break;
 									default: 
-										// TODO Handle Illegal Messages and send alerts, reset if necessary
-										break;
+											// TODO Handle Illegal Messages and send alerts, reset if necessary
+											break;
 								}
 								this.originalId = this.connectedToPeerIdIncoming;
-								CurrentState++;
 							}
 							break;
 
