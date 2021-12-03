@@ -6,6 +6,7 @@ import java.util.*;
 import java.io.*;
 import java.lang.Thread;
 
+
 public class Handler extends Thread {
         private String message;    //message received from the client
 		private String MESSAGE;    //uppercase message send to the client
@@ -17,7 +18,16 @@ public class Handler extends Thread {
         private int connectedToPeerIdIncoming;
 		private int originalId;
 		byte[]  dataFromPeer; // data incoming from peer
+		int CurrentState;
     
+		public void SleepTimer( int timeperiod ) {
+			try {
+				Thread.sleep(timeperiod);
+			} catch (Exception ex) {
+				System.out.println(ex);
+			}
+			finally {}
+		}
 
         public synchronized void DebugLog( String MyMessage) {
 			pp.logger.log("DEBUG " + MyMessage);
@@ -27,16 +37,25 @@ public class Handler extends Thread {
            		this.connection = connection;
 	    		this.peerConnected = peerConnected;
 				this.pp = pp;
+				this.CurrentState = 0;
                 pp.logger.log("Connected to client number Handler Constructor Message");
         }
 		
-		public void WaitForInput(ObjectInputStream inStream) {                // busy wait for input
+		public boolean WaitForInput(ObjectInputStream inStream, int TimeOut) {   // busy wait for input
 			try{
-                while (inStream.available() <= 0) {}
+				int x = 0;
+                while (inStream.available() <= 0) {
+					SleepTimer(1000);  // 1 second so we sleep for 1000 msec... which is 1 second
+					x++;               // inc the counter
+					if (x > TimeOut) { // exceeeded threshold
+						return false;
+					}
+				}
 			}
 		    catch(IOException ioException){
 		    	System.out.println("Disconnect with Client " + peerConnected);
 		    } // try / catch / finally
+			return true;
 		}
 
         public void run() {
@@ -50,48 +69,47 @@ public class Handler extends Thread {
 			//try{
 				while(true)
 				{
-					//receive the message sent from the client
-					//message = (String)in.readObject();
-					//show the message to the user
-					//System.out.println("Receive message: " + message + " from client " + peerConnected);
-					//Capitalize all letters in the message
-					//MESSAGE = message.toUpperCase();
-					//send MESSAGE back to the client
-					//sendMessage(MESSAGE);
-					
-                 // create handshake message 
-				 MyMessage = "Peparing Handshake Message";
-                 DebugLog(MyMessage);
-                 ByteBuffer messageToSend;
-				 int peerIDToSend;
-				 peerIDToSend = pp.getPeerId();
-				 messageToSend = Messages.createHandshakeMessage(pp.getPeerId());
-                 // send handshake message 
-                 sendMessage(messageToSend, out);
-				 MyMessage = "Sending Handshake Message";
-                 DebugLog(MyMessage);
-                 // wait for incoming handshake message 
-				 WaitForInput(in);
-                 // get incoming message 
-				 MyMessage = "Message Received";
-                 DebugLog(MyMessage);
-                 dataFromPeer = new byte[in.available()];
-                 in.read(dataFromPeer);
-                 ByteBuffer buff = ByteBuffer.wrap(dataFromPeer);
-                 // System.out.println("Receive message"); // debug message
-
-                 // receive handshake message from server
-                 this.connectedToPeerIdIncoming = Messages.decodeMessage(buff, pp, -1);
-                 //System.out.println("I am peer " + pp.getPeerId() + " and I am connected to " + connectedToPeerIdIncoming);
-                 this.originalId = this.connectedToPeerIdIncoming;
-
-				 try {
-					 Thread.sleep(10000);
-				 } catch (Exception ex) {
-                        System.out.println(ex);
-				 }
-				 finally {}
-				 break;
+					switch (CurrentState) {
+						case 0: // Send Handshake
+							// create handshake message 
+							ByteBuffer messageToSend;
+							int peerIDToSend;
+							peerIDToSend = pp.getPeerId();
+							messageToSend = Messages.createHandshakeMessage(pp.getPeerId());
+							// send handshake message 
+							sendMessage(messageToSend, out);
+							CurrentState++;
+							break;
+						case 1: // Receive a Handshake
+							// wait for incoming handshake message 
+							if (WaitForInput(in, 100) == false) {  // see if this was successful
+								CurrentState = 0; // try sending again... it timed out
+							} else { // get incoming message 
+								dataFromPeer = new byte[in.available()];
+								in.read(dataFromPeer);
+								ByteBuffer buff = ByteBuffer.wrap(dataFromPeer);
+								// received a handshake message from peer
+								this.connectedToPeerIdIncoming = Messages.decodeMessage(buff, pp, -1);
+								this.originalId = this.connectedToPeerIdIncoming;
+								CurrentState++;
+							}
+							break;
+						case 2: // Send a Bitfield
+							// wait for incoming handshake message 
+							if (WaitForInput(in, 100) == false) {  // see if this was successful
+								CurrentState = 0; // try sending again... it timed out
+							} else { // get incoming message 
+								dataFromPeer = new byte[in.available()];
+								in.read(dataFromPeer);
+								ByteBuffer buff = ByteBuffer.wrap(dataFromPeer);
+								// received a handshake message from peer
+								this.connectedToPeerIdIncoming = Messages.decodeMessage(buff, pp, -1);
+								this.originalId = this.connectedToPeerIdIncoming;
+								CurrentState++;
+							}
+						 default: 
+							break;
+				}
 				}
 		}
 		catch(IOException ioException){

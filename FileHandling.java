@@ -94,7 +94,7 @@ public class FileHandling {
 	}
 
 	// this can be called before shutting down if there are things that need to be done like closing files
-	public synchronized void Shutdown() {
+	public void Shutdown() {
 		System.out.println("Shutting down the FileHandler for peer ID " + peerID);
 		System.exit(0);
 	}
@@ -153,7 +153,7 @@ public class FileHandling {
 	}
 
 	// this always returns true i guess
-	public synchronized boolean ReadFileIn(String FileNameInput) {
+	public boolean ReadFileIn(String FileNameInput) {
 		// Might fail if for some reason it didn't have totalPieces as needed.
 
 		int x;
@@ -257,7 +257,7 @@ public class FileHandling {
 
 	// Check to see if this piece number is present
 	// Return true if present, false otherwise
-	public synchronized boolean CheckForPieceNumber(int pieceNumber) {
+	public boolean CheckForPieceNumber(int pieceNumber) {
 
 		// if the get of the value is a null then this value does not exist in map hash
 		// table
@@ -296,7 +296,7 @@ public class FileHandling {
 	// above method.
 	// This can help with moving the data around and might be useful in tranmit /
 	// receive binary files to the port
-	public synchronized ByteBuffer getCurrentLocalByteBuffer() {
+	public ByteBuffer getCurrentLocalByteBuffer() {
 		// Might fail if for some reason it didn't have totalPieces as needed.
 
 		return localByteBuffer;
@@ -305,13 +305,13 @@ public class FileHandling {
 	// gets the current local byte buffer size of this piece
 	// this can help with moving the data around and might be useful in tranmit /
 	// receive binary files to the port
-	public synchronized int getCurrentLocalByteBufferPieceSize() {
+	public int getCurrentLocalByteBufferPieceSize() {
 		// Might fail if for some reason it didn't have totalPieces as needed.
 
 		return localByteBufferPieceSize;
 	}
 
-	public synchronized boolean printLocalBuffer(int length) {
+	public boolean printLocalBuffer(int length) {
 		// Prints out the local buffer
 
 		for (int x = 0; (x < pieceSize) && (x < length); ++x) {
@@ -330,7 +330,7 @@ public class FileHandling {
 		return true;
 	}
 
-	public synchronized int GetPieceSize(int pieceNumber) {
+	public int GetPieceSize(int pieceNumber) {
 		// Prints out the local buffer
 		return PieceLengths.get(Integer.valueOf(pieceNumber));
 	}
