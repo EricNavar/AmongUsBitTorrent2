@@ -201,16 +201,27 @@ public class Handler extends Thread {
 		} // try / catch
 		catch(IOException ioException){
 			System.out.println("Disconnect with Client " + peerConnected);
+			ioException.printStackTrace();
+		}
+		catch (IndexOutOfBoundsException e) {
+			e.printStackTrace();
 		} // try / catch / finally
 		finally{
 			//Close connections
 			try{
-				in.close();
-				out.close();
-				connection.close();
+				if (in != null) {
+					in.close();
+				}
+				if (out != null) {
+					out.close();
+				}
+				if (connection != null) {
+					connection.close();
+				}
 			}
 			catch(IOException ioException){
 				System.out.println("Disconnect with Client " + peerConnected);
+				ioException.printStackTrace();
 			}
 		} // try / catch / finally
 	} // run

@@ -46,10 +46,11 @@ public class Client {
             // create a socket to connect to the server
 			System.out.println(" pp.getPeerID() " + pp.getPeerId() + " pp.allPeers.get(i).getPeerId() " + pp.allPeers.get(0).getPeerId());
             System.out.println(" peerID " + this.peerID + " fist one is " + pp.allPeers.get(0).getPeerId());
- //           for (int i = 0; pp.getPeerId() != pp.allPeers.get(i).getPeerId(); i++) {
-            for (int i = 0; i<1; i++) {
+            // open to peers with a lower ID
+            for (int i = 0; pp.getPeerId() != pp.allPeers.get(i).getPeerId(); i++) {
+            //for (int i = 0; i<1; i++) {
 			    if (Handler.DEBUG_MODE()) System.out.println(" i = " + i);
-			    if (pp.getPeerId() == pp.allPeers.get(i).getPeerId() ) {
+			    if (pp.getPeerId() == pp.allPeers.get(i).getPeerId() ) { // this condition will never be true
 					//break;
 				} else {
                     Socket nextSock;
@@ -69,8 +70,8 @@ public class Client {
 				while(true);
 			}
 			if (Handler.DEBUG_MODE()) System.out.println(" Done with Lower peer connections ");
-			if (Handler.DEBUG_MODE()) System.out.println(" Done with Higher peer connections ");
 			boolean start = false;
+            // talk to peers with a higher ID
             for (int i =  0 ; i < pp.allPeers.size(); i++) {
 			    if (pp.getPeerId() == pp.allPeers.get(i).getPeerId() ) {
 					start = true;
@@ -91,6 +92,7 @@ public class Client {
 					}
 				}
             }
+			if (Handler.DEBUG_MODE()) System.out.println(" Done with Higher peer connections ");
 		    
 //			int clientNum = 1;
 //	
@@ -127,18 +129,21 @@ public class Client {
             unknownHost.printStackTrace();
         } catch (IOException ioException) {
             ioException.printStackTrace();
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
         } finally {
             // Close connections
             try {
-                for(int i = 0; i < pp.allPeers.size()-1; i++){
+                for(int i = 0; i < pp.allPeers.size()-1 && i < socketlist.size(); i++){
             
                     //OutputStreamlist.get(i).close();
                     //InputStreamlist.get(i).close();
                     socketlist.get(i).close();
-        
-                    }
+                }
             } catch (IOException ioException) {
                 ioException.printStackTrace();
+            } catch (IndexOutOfBoundsException e) {
+                e.printStackTrace();
             }
         }
     }
