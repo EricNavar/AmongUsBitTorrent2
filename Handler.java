@@ -79,13 +79,13 @@ public class Handler extends Thread {
 				this.optimisticTimerFlag = !this.optimisticTimerFlag;
 			}
 			//System.out.println("Check timers: " + this.chokingTimerFlag + " " + pp.chokingTimerFlag + " " + this.optimisticTimerFlag + " " + pp.optimisticTimerFlag);
-			//String MyMessage = " Loaded up messages to send form CheckTimers " + pp.messagesToSend.size() + " in pp.messagesToSend ";
-			//if (this.DEBUG_MODE()) pp.logger.log("DEBUG " + MyMessage);
 			ByteBuffer aNewMessageToSend;  
 			while (pp.messagesToSend.size() > 0) {
 				aNewMessageToSend = pp.messagesToSend.get(0);
-				pp.messagesToSend.remove(0);
 				sendMessage(aNewMessageToSend, out);
+    			//String MyMessage = " Sending Choke/Unchoke " + pp.messagesToSend.size() + " in pp.messagesToSend with " + aNewMessageToSend.array();
+	    		//if (this.DEBUG_MODE()) pp.logger.log("DEBUG " + MyMessage);
+				pp.messagesToSend.remove(0);
 			}
 		}
 
