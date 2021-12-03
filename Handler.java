@@ -78,6 +78,15 @@ public class Handler extends Thread {
 				pp.onOptimisticTimeout();
 				this.optimisticTimerFlag = !this.optimisticTimerFlag;
 			}
+			//System.out.println("Check timers: " + this.chokingTimerFlag + " " + pp.chokingTimerFlag + " " + this.optimisticTimerFlag + " " + pp.optimisticTimerFlag);
+			//String MyMessage = " Loaded up messages to send form CheckTimers " + pp.messagesToSend.size() + " in pp.messagesToSend ";
+			//if (this.DEBUG_MODE()) pp.logger.log("DEBUG " + MyMessage);
+			ByteBuffer aNewMessageToSend;  
+			while (pp.messageToSend.size() > 0) {
+				aNewMessageToSend = pp.messagesToSend.get(0);
+				pp.messagesToSend.remove(0);
+				sendMessage(aNewMessageToSend, out);
+			}
 		}
 
         public void run() {
@@ -87,7 +96,7 @@ public class Handler extends Thread {
 			//initialize Input and Output streams
 			out = new ObjectOutputStream(connection.getOutputStream());
 			out.flush();
-			ByteBuffer messageToSend;
+			ByteBuffer newMessageToSend;
 			in = new ObjectInputStream(connection.getInputStream());
 			//try{
 				while(true)
@@ -98,9 +107,9 @@ public class Handler extends Thread {
 							// create handshake message 
 							int peerIDToSend;
 							peerIDToSend = pp.getPeerId();
-							messageToSend = Messages.createHandshakeMessage(pp.getPeerId());
+							newMessageToSend = Messages.createHandshakeMessage(pp.getPeerId());
 							// send handshake message 
-							sendMessage(messageToSend, out);
+							sendMessage(newMessageToSend, out);
 							CurrentState++;
 							break;
 						case 1: // Receive a Handshake
@@ -121,8 +130,8 @@ public class Handler extends Thread {
 							}
 							break;
 						case 2: // Send a Bitfield
-							messageToSend = Messages.createBitfieldMessage(pp.getCurrBitfield());  // create bitfield message 
-							sendMessage(messageToSend, out);                                       // send handshake message 
+							newMessageToSend = Messages.createBitfieldMessage(pp.getCurrBitfield());  // create bitfield message 
+							sendMessage(newMessageToSend, out);                                       // send handshake message 
 							CurrentState++;
 						case 3: // Receive a Bitfield Or Some Other message (noe gurantee what the message was/is)
 							// wait for incoming Bitfield message 
@@ -154,11 +163,11 @@ public class Handler extends Thread {
 									case 5: // MessageType.BITFIELD.ordinal():
 											boolean nowInterested = Messages.handleBitfieldMessage(IncomingMessage, pp, peerConnected, messageLength);
 											if (nowInterested) {
-												messageToSend = Messages.createInterestedMessage();
+												newMessageToSend = Messages.createInterestedMessage();
 											} else {
-												messageToSend = Messages.createNotInterestedMessage();
+												newMessageToSend = Messages.createNotInterestedMessage();
 											}
-											sendMessage(messageToSend, out); // send iinterst message 	
+											sendMessage(newMessageToSend, out); // send iinterst message 	
 											break;
 									case 6: // MessageType.REQUEST.ordinal():
 											//handleRequestMessage(pp, peerConnected, IncomingMessage);

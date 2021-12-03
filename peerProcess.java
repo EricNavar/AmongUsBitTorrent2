@@ -364,7 +364,7 @@ class peerProcess {
 		}
 	}
 
-    public void onChokingTimeout() {
+    public synchronized void onChokingTimeout() {
         System.out.println("onChokingTimeout()");
         try {
             calculatePreferredNeighbors();
@@ -403,7 +403,7 @@ class peerProcess {
         }, 0, unchokingInterval * 1000);
     }
 
-    public void onOptimisticTimeout() {
+    public synchronized void onOptimisticTimeout() {
         System.out.println("onOptimisticTimeout()");
         try {
             chooseOptimisticallyUnchokedPeer();
