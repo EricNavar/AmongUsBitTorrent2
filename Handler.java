@@ -125,10 +125,10 @@ public class Handler extends Thread {
 										//handleUnchokeMessage(pp, peerConnected);
 										break;
 									case 2: // MessageType.INTERESTED.ordinal():
-										//handleInterestedMessage(pp, peerConnected);
+										Messages.handleInterestedMessage(pp, peerConnected);
 										break;
 									case 3: // MessageType.NOT_INTERESTED.ordinal():
-											//handleNotInterestedMessage(pp, peerConnected);
+							Messages.handleNotInterestedMessage(pp, peerConnected);
 										break;
 									case 4: // MessageType.HAVE.ordinal():
 											//handleHaveMessage(pp, peerConnected, IncomingMessage);

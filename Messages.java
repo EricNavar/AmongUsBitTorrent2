@@ -285,7 +285,7 @@ public class Messages {
     }
 
     // type 2
-    private static void handleInterestedMessage(peerProcess pp, int senderPeer) {
+    public static void handleInterestedMessage(peerProcess pp, int senderPeer) {
         //System.out.println("Peer " + senderPeer + " is interested");
         Vector<Integer> interest = pp.getInterested();
         interest.add(senderPeer);
@@ -295,7 +295,7 @@ public class Messages {
     }
 
     // type 3
-    private static void handleNotInterestedMessage(peerProcess pp, int senderPeer) {
+    public static void handleNotInterestedMessage(peerProcess pp, int senderPeer) {
         //System.out.println("Peer " + senderPeer + " is NOT interested");
         Vector<Integer> interest = pp.getInterested();
         for (int i = 0; i < interest.size(); i++) {

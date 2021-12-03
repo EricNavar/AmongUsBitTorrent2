@@ -52,7 +52,7 @@ public class StartRemotePeers {
 				Process proc = Runtime.getRuntime().exec("ssh ericnavar@storm.cise.ufl.edu");
 				Runtime.getRuntime().exec("ssh " + pInfo.getPeerAddress());
 				Runtime.getRuntime().exec("cd AmongUsBitTorrent2");
-				Runtime.getRuntime().exec("java peerProcess " + pInfo.getPeerId());
+			Runtime.getRuntime().exec("java peerProcess " + pInfo.getPeerId());
 			}
 			System.out.println("Starting all remote peers has done.");
 
