@@ -29,9 +29,7 @@ public class Handler extends Thread {
 			} catch (Exception ex) {
 				System.out.println(ex);
 			}
-			finally {
-				pp.chooseOptimisticallyUnchokedPeer();
-			}
+			finally {}
 		}
 
         public static boolean DEBUG_MODE() {
