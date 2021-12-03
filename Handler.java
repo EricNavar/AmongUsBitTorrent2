@@ -82,7 +82,7 @@ public class Handler extends Thread {
 			//String MyMessage = " Loaded up messages to send form CheckTimers " + pp.messagesToSend.size() + " in pp.messagesToSend ";
 			//if (this.DEBUG_MODE()) pp.logger.log("DEBUG " + MyMessage);
 			ByteBuffer aNewMessageToSend;  
-			while (pp.messageToSend.size() > 0) {
+			while (pp.messagesToSend.size() > 0) {
 				aNewMessageToSend = pp.messagesToSend.get(0);
 				pp.messagesToSend.remove(0);
 				sendMessage(aNewMessageToSend, out);
