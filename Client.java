@@ -109,16 +109,16 @@ public class Client {
                             pp.messagesToSend.add(Messages.createChokeMessage());
                             count++;
                             //1003, 1002
-                            if((rpi.getPeerId() == 1003 && peerID ==1002) || (rpi.getPeerId() == 1002 && peerID ==1003)) {
+                            if((rpi.getPeerId() == pp.allPeers.get(2).getPeerId() && peerID ==pp.allPeers.get(1).getPeerId()) || (rpi.getPeerId() == pp.allPeers.get(1).getPeerId() && peerID ==pp.allPeers.get(2).getPeerId())) {
                                 sendMessage1(pp.messagesToSend.get(count - 1));
                             }
 
                             //1003, 1004
-                            if((rpi.getPeerId() == 1003 && peerID ==1004) ||(rpi.getPeerId() == 1004 && peerID ==1003) )
+                            if((rpi.getPeerId() == pp.allPeers.get(2).getPeerId() && peerID ==pp.allPeers.get(3).getPeerId()) ||(rpi.getPeerId() == pp.allPeers.get(3).getPeerId() && peerID ==pp.allPeers.get(2).getPeerId()) )
                                 sendMessage2(pp.messagesToSend.get(count - 1));
 
                             //1004, 1002
-                            if((rpi.getPeerId() == 1004 && peerID ==1002) || (rpi.getPeerId() == 1002 && peerID ==1004))
+                            if((rpi.getPeerId() == pp.allPeers.get(3).getPeerId() && peerID ==pp.allPeers.get(1).getPeerId()) || (rpi.getPeerId() == pp.allPeers.get(1).getPeerId() && peerID ==pp.allPeers.get(3).getPeerId()))
                                 sendMessage3(pp.messagesToSend.get(count - 1));
 
 

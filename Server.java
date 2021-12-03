@@ -318,9 +318,10 @@ public class Server {
 
                                 if (handlers.get(i).connectedFrom == connectedFrom)
                                     continue;
+                                // 1003
                                 if (handlers.get(i).connectedFrom == pp.allPeers.get(2).getPeerId()) {
-
-                                    if (connectedFrom == 1004) {
+                                    //1004
+                                    if (connectedFrom == pp.allPeers.get(3).getPeerId()) {
                                         secondTurn = false;
                                         messageToSend = Messages.createHandshakeMessage(connectedFrom);
                                         handlers.get(i).sendMessage2(messageToSend);
@@ -361,10 +362,11 @@ public class Server {
                                         receivedMessages2.clear();
                                     }
                                 }
-
+                                //1002
                                 if (handlers.get(i).connectedFrom == pp.allPeers.get(1).getPeerId()) {
 
-                                    if (connectedFrom == 1004) {
+                                    //1004
+                                    if (connectedFrom == pp.allPeers.get(3).getPeerId()) {
                                         secondTurn = true;
 
                                         messageToSend = Messages.createHandshakeMessage(connectedFrom);
@@ -405,7 +407,8 @@ public class Server {
 
                                         receivedMessages3.clear();
                                     }
-                                    if (connectedFrom == 1003) {
+                                    //1003
+                                    if (connectedFrom == pp.allPeers.get(2).getPeerId()) {
                                         messageToSend = Messages.createHandshakeMessage(connectedFrom);
                                         handlers.get(i).sendMessage1(messageToSend);
                                         messageToSend = Messages.createHandshakeMessage(handlers.get(i).connectedFrom);
@@ -450,7 +453,8 @@ public class Server {
 
                             } else {
 
-                                if ((connectedFrom == 1002 && handlers.get(i).connectedFrom == 1003) || (connectedFrom == 1003 && handlers.get(i).connectedFrom == 1002)) {
+                                //1002, 1003
+                                if ((connectedFrom == pp.allPeers.get(1).getPeerId() && handlers.get(i).connectedFrom == pp.allPeers.get(2).getPeerId()) || (connectedFrom == pp.allPeers.get(2).getPeerId() && handlers.get(i).connectedFrom == pp.allPeers.get(1).getPeerId())) {
                                     boolean continueOn = false;
                                     // receive either choke or unchoke
                                     if (receivedMessages.size() > 0) {
@@ -525,7 +529,8 @@ public class Server {
 
                                     }
                                 }
-                                if ((connectedFrom == 1004 && handlers.get(i).connectedFrom == pp.allPeers.get(3).getPeerId()) || (connectedFrom == 1003 && handlers.get(i).connectedFrom == 1004)) {
+                                //1004, 1003
+                                if ((connectedFrom == pp.allPeers.get(3).getPeerId() && handlers.get(i).connectedFrom == pp.allPeers.get(2).getPeerId()) || (connectedFrom == pp.allPeers.get(2).getPeerId() && handlers.get(i).connectedFrom == pp.allPeers.get(3).getPeerId())) {
                                     boolean continueOn = false;
                                     // receive either choke or unchoke
 
@@ -598,7 +603,8 @@ public class Server {
                                 }
 
                             }
-                            if ((connectedFrom == 1002 && handlers.get(i).connectedFrom == pp.allPeers.get(3).getPeerId()) || (connectedFrom == 1004 && handlers.get(i).connectedFrom == 1002)) {
+                            // 1002, 1004
+                            if ((connectedFrom == pp.allPeers.get(1).getPeerId() && handlers.get(i).connectedFrom == pp.allPeers.get(3).getPeerId()) || (connectedFrom == pp.allPeers.get(3).getPeerId() && handlers.get(i).connectedFrom == pp.allPeers.get(1).getPeerId())) {
                                 boolean continueOn = false;
                                 // receive either choke or unchoke
 
