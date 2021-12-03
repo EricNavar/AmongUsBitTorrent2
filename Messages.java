@@ -484,7 +484,7 @@ public class Messages {
     }
 
     // returns the peerId of the sender if it's a handshake message.
-    public  static int decodeMessage(peerProcess pp, ByteBuffer IncomingMessage, int senderPeer) {
+    public synchronized static int decodeMessage(peerProcess pp, ByteBuffer IncomingMessage, int senderPeer) {
         String handshakeHeader = "P2PFILESHARINGPROJ";
         // if the message starts with the handShake header, then it's a handshake
         // message

@@ -19,7 +19,8 @@ public class Handler extends Thread {
 		private int originalId;
 		byte[]  dataFromPeer; // data incoming from peer
 		int CurrentState;
-    
+   
+   
 		public void SleepTimer( int timeperiod ) {
 			try {
 				Thread.sleep(timeperiod);
@@ -65,6 +66,7 @@ public class Handler extends Thread {
 			//initialize Input and Output streams
 			out = new ObjectOutputStream(connection.getOutputStream());
 			out.flush();
+			ByteBuffer messageToSend;
 			in = new ObjectInputStream(connection.getInputStream());
 			//try{
 				while(true)
@@ -72,7 +74,6 @@ public class Handler extends Thread {
 					switch (CurrentState) {
 						case 0: // Send Handshake
 							// create handshake message 
-							ByteBuffer messageToSend;
 							int peerIDToSend;
 							peerIDToSend = pp.getPeerId();
 							messageToSend = Messages.createHandshakeMessage(pp.getPeerId());
@@ -90,28 +91,38 @@ public class Handler extends Thread {
 								ByteBuffer buff = ByteBuffer.wrap(dataFromPeer);
 								// received a handshake message from peer
 								this.connectedToPeerIdIncoming = Messages.decodeMessage(buff, pp, -1);
+								// TODO Test if this is a good HANDSHAKE Message and handle the issue
+								//      Compare this.connectedToPeerIdIncoming to this.peerConnected
+								//      If an error doesn't say what to do but maybe we go back to state 0 after 10 seconds?
 								this.originalId = this.connectedToPeerIdIncoming;
 								CurrentState++;
 							}
 							break;
 						case 2: // Send a Bitfield
-							// wait for incoming handshake message 
+							// create bitfield message 
+							messageToSend = Messages.createBitfieldMessage(pp.getCurrBitfield());
+							// send handshake message 
+							sendMessage(messageToSend, out);
+							CurrentState++;
+						case 3: // Receive a Bitfield Or Some Other message (noe gurantee what the message was/is)
+							// wait for incoming Bitfield message 
 							if (WaitForInput(in, 100) == false) {  // see if this was successful
 								CurrentState = 0; // try sending again... it timed out
 							} else { // get incoming message 
 								dataFromPeer = new byte[in.available()];
 								in.read(dataFromPeer);
 								ByteBuffer buff = ByteBuffer.wrap(dataFromPeer);
+								int bitfieldMsg = Messages.decodeMessage(pp, buff, peerConnected);
 								// received a handshake message from peer
 								this.connectedToPeerIdIncoming = Messages.decodeMessage(buff, pp, -1);
 								this.originalId = this.connectedToPeerIdIncoming;
 								CurrentState++;
 							}
-						 default: 
 							break;
-				}
-				}
-		}
+
+					} // switch for state machine
+				} // while (true)
+		} // try / catch
 		catch(IOException ioException){
 			System.out.println("Disconnect with Client " + peerConnected);
 		} // try / catch / finally
