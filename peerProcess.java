@@ -389,7 +389,7 @@ class peerProcess {
                     //sendMessageBB(messagesToSend.get(i));
                 }
                 else if (isNeighbor(rpi.getPeerId()) && rpi.isChoked()) {
-                    if (Handler.DEBUG_MODE()) System.out.println("Unchoking " + rpi.getPeerId());
+                    if (Handler.DEBUG_MODE()) System.out.println("Unchoking " + rpi.getPeerId() + " UnChokingNeighbors = " + this.UnChokingNeighbors);
 					this.UnChokingNeighbors.add(rpi.getPeerId());            // add this peer to be choked later
                     //messagesToSend.add(Messages.createChokeMessage());
                     rpi.setChoked(false);
