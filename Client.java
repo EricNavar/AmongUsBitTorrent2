@@ -137,9 +137,9 @@ public class Client {
 //					//break;
 //				} else {
 //					System.out.println("Trying to accept socket of allpeeres(" + i + ") known as peerID " + pp.allPeers.get(i).getPeerId());
-//					Socket GetIt = socketServerlist.get(i).accept();
+//					Socket NewSocket = socketServerlist.get(i).accept();
 //					System.out.println("Trying to accept socket of allpeeres(" + i + ") known as peerID " + pp.allPeers.get(i).getPeerId());
-//					Handler MyHandler = new Handler(GetIt, pp.allPeers.get(i).getPeerId());
+//					Handler MyHandler = new Handler(NewSocket, pp.allPeers.get(i).getPeerId());
 //					System.out.println("Managed to accept socket " + i + " as " + MyHandler);
 //				}
 //           }
@@ -175,11 +175,13 @@ public class Client {
             
                     //OutputStreamlist.get(i).close();
                     //InputStreamlist.get(i).close();
-                    socketlist.get(i).close();
+                    //socketlist.get(i).close();
                 }
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            } catch (IndexOutOfBoundsException e) {
+            } 
+            // catch (IOException ioException) {
+            //     ioException.printStackTrace();
+            // } 
+            catch (IndexOutOfBoundsException e) {
                 e.printStackTrace();
             }
         }
