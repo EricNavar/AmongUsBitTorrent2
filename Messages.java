@@ -154,11 +154,10 @@ public class Messages {
     public  static ByteBuffer createPieceMessage(ByteBuffer payload, int PieceNumber, int PieceLength) {
         ByteBuffer MessageAssembly = ByteBuffer.allocate(PieceLength + 9); // length of string + 5 bits at the start of each message + 4 bits for the message index
         // length is equal to 1 (message type) + 4 (piece index size) + piece size (bytes)
-        MessageAssembly.putInt(PieceLength + 4); // the payload of the message contains the 4-byte index and then the piece
+        MessageAssembly.putInt(PieceLength + 5); // the payload of the message contains the 4-byte index and then the piece
         MessageAssembly.put(encodeType(MessageType.PIECE.ordinal()));
         MessageAssembly.putInt(PieceNumber); // piece number is index
-        MessageAssembly.put(Arrays.copyOfRange(payload.array(), 0, PieceLength)); // piece number is index
-        
+		MessageAssembly.put(Arrays.copyOfRange(payload.array(), 0, PieceLength)); // piece number is index
         return MessageAssembly;
     }
 
@@ -280,7 +279,7 @@ public class Messages {
         pp.logger.onUnchoking(senderPeer);
         // DONE: request a random piece that the sender has and the receiver doesn't
 
-        pp.pieceMessages.add(createRequestMessage(pp.randomMissingPiece()));
+        //pp.pieceMessages.add(createRequestMessage(pp.randomMissingPiece()));
         // ask for this pieces
     }
 
@@ -364,59 +363,63 @@ public class Messages {
     }
 
     // type 6
-    private static void handleRequestMessage(peerProcess pp, int senderPeer, ByteBuffer IncomingMessage) {
+    public synchronized static ByteBuffer handleRequestMessage(peerProcess pp, int senderPeer, ByteBuffer IncomingMessage) {
         // a peer (senderPeer) has requested (payload) index message
+        ByteBuffer ThePiece = ByteBuffer.allocate(1);
         FileHandling f = pp.getFileObject(); // if the receiver of the message has the piece, then send the piece
 
         // parse out the requested item into an integer to look up in the map structure
         int index = GetRequestMessageIndex(IncomingMessage);
 
-        pp.logger.log("Peer " + senderPeer + " has requested piece " + index); // debug statement. remove this later.
+        if (Handler.DEBUG_MODE()) System.out.println("Peer " + senderPeer + " has requested piece " + index + " FileHandling f has " + f.getTotalPieces() + " pieces."); // debug statement. remove this later.
 
         if (f.CheckForPieceNumber(index)) { // if we actually have this piece in the stored location...
-            ByteBuffer ThePiece;
             int ThePieceLength;
 
             ThePiece = pp.FileObject.MakeCopyPieceByteBuffer(index);
             // get a copy of the piece
             ThePieceLength = pp.FileObject.GetPieceSize(index); // get the piece's length
-            ByteBuffer toSend = createPieceMessage(ThePiece, index, ThePieceLength);
-
-            //pp.logger.log("Creating piece message. Piece size = " + ThePieceLength + ", Piece message size = " + GetMessageLength(toSend));
-		    pp.logger.log("Send piece " + GetPieceMessageNumber(toSend) + "."); //debug log. Remove this later.
-            pp.pieceMessages.add(toSend); // send the piece
+            ByteBuffer newMessageToSend = createPieceMessage(ThePiece, index, ThePieceLength);
+			if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + index  + " Piece Length " + ThePieceLength + " Piece Remaining " + ThePiece.remaining() + " Piece limit " + ThePiece.limit());
+			if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + index  + " Piece Length " + ThePieceLength + " newMessageToSend Remaining " + newMessageToSend.remaining() + " newMessageToSend limit " + newMessageToSend.limit());
+			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + newMessageToSend.array()[0]  + " " + newMessageToSend.array()[1] + " " + newMessageToSend.array()[2] + " " + newMessageToSend.array()[3] + "]");
+			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + newMessageToSend.array()[4]  + " " + newMessageToSend.array()[5] + " " + newMessageToSend.array()[6] + " " + newMessageToSend.array()[7] + "]");
+			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + newMessageToSend.array()[8]  + " " + newMessageToSend.array()[9]);
+			pp.logger.log("Send piece " + index + "."); //debug log. Remove this later.
+			return newMessageToSend;
+            // sendMessage(newMessageToSend, out); // send the piece
         } else {
             System.out.println("Some questionable character/actor identified as " + senderPeer + " asked for piece "
                     + index + " but this peer known as " + pp.peerId + " does not have it...");
         }
+		return ThePiece;
     }
 
     // type 7
-    private static void handlePieceMessage(peerProcess pp, int senderPeer, int length, ByteBuffer IncomingMessage) {
+    public static void handlePieceMessage(peerProcess pp, int senderPeer, int length, ByteBuffer IncomingMessage) {
 
         if (pp.hasFile()) {
             return;
         }
-        pp.pieceMessages.add(createRequestMessage(pp.randomMissingPiece()));
+        // Moved to Handle or it will stop running...  pp.pieceMessages.add(createRequestMessage(pp.randomMissingPiece())); // ask for the next piece
         int index = GetPieceMessageNumber(IncomingMessage);
+        if (Handler.DEBUG_MODE()) System.out.println("Receive piece " + index + " from " + senderPeer + " length = " + length);
         pp.logger.log("Receive piece " + index + " from " + senderPeer);
         // Done: write the piece to a file (wherever it should be written, idk) See
         // Below, handles logging of the received piece
         ByteBuffer GrabPieceData = ByteBuffer.allocate(65536); // Message is longer
-        GrabPieceData.put(Arrays.copyOfRange(IncomingMessage.array(), 9, length - 9)); // Get the piece
+        GrabPieceData.put(Arrays.copyOfRange(IncomingMessage.array(), 9, length)); // Get the piece
         pp.FileObject.ReceivedAPiece(index, GrabPieceData, length - 9); // insert into the File Handler
-
+	    if (Handler.DEBUG_MODE()) System.out.println(" ***************** remaining = " + GrabPieceData.remaining() + " limit = " + GrabPieceData.limit());
         // TODO: What do they mean by "partial files" maintained in current directory?
         // Are we supposed to support 100GB file transfers and cache to the drive?
         // TODO: Santosh - I negated this condition, not sure what its supposed to be
         // doing
-        if (!pp.FileObject.CheckForAllPieces()) {
-
+		// Returend to orginal, this must be positive, checks for all pieces and writes the file
+        if (pp.FileObject.CheckForAllPieces()) {
             StringBuilder filenameWrite = new StringBuilder();
             filenameWrite.append(String.format("./peer_%04d/thefile", pp.peerId));
-
             pp.FileObject.WriteFileOut(filenameWrite.toString());
-
         }
 
         RemotePeerInfo rpi = pp.getRemotePeerInfo(senderPeer);
@@ -435,13 +438,13 @@ public class Messages {
         }
         pp.logger.onDownloadingAPiece(senderPeer, index, pp.getCollectedPieces());
         // log if this process now has the entire file
-        if (pp.hasFile()) {
-            pp.logger.onCompletionOfDownload();
-            System.out.println("No longer interested");
-            pp.messagesToSend.add(createNotInterestedMessage());
-            pp.messagesToSend.add(createBitfieldMessage(pp.getCurrBitfield()));
-            pp.pieceMessages.clear();
-        }
+        //if (pp.hasFile()) {
+        //    pp.logger.onCompletionOfDownload();
+        //    System.out.println("No longer interested");
+        //    pp.messagesToSend.add(createNotInterestedMessage());
+        //    pp.messagesToSend.add(createBitfieldMessage(pp.getCurrBitfield()));
+        //    pp.pieceMessages.clear();
+        //}
 
         updateInterestedStatus(pp);
 
@@ -497,7 +500,7 @@ public class Messages {
         return -1;
     }
 	
-    public  static String HexPrint(ByteBuffer bytes) {
+    public synchronized static String HexPrint(ByteBuffer bytes) {
         // modifed from idea at https://mkyong.com/java/java-how-to-convert-bytes-to-hex/ By mkyong
         StringBuilder result = new StringBuilder();
         for (int x = 0; x < bytes.remaining(); ++x) {

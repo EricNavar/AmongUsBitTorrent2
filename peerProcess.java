@@ -41,8 +41,8 @@ class peerProcess {
     Vector<Boolean> bitfield = new Vector<Boolean>(0);
     Vector<Integer> preferredNeighbors;
     Vector<Integer> interested = new Vector<Integer>(0);
-	Vector<Integer> ChokingNeighbors = new Vector<Integer>();
-	Vector<Integer> UnChokingNeighbors = new Vector<Integer>();
+	volatile Vector<Integer> ChokingNeighbors = new Vector<Integer>();
+	volatile Vector<Integer> UnChokingNeighbors = new Vector<Integer>();
     Vector<ByteBuffer> messagesToSend = new Vector<ByteBuffer>(0);
     Vector<ByteBuffer> pieceMessages = new Vector<ByteBuffer>(0);
     public Logger logger;
@@ -56,7 +56,6 @@ class peerProcess {
     boolean optimisticTimerFlag;
     boolean chokingComputeCompleteTimerFlag;
     boolean optimisticComputeCompleteTimerFlag;
-    int numberOfPreferredNeighbors = 5; // set 5 as default
 
     public void incrementCollectedPieces() {
         collectedPieces++;
@@ -127,7 +126,7 @@ class peerProcess {
     public  peerProcess(int peerId) {
         this.peerId = peerId;
         logger = new Logger(peerId);
-
+        int numberOfPreferredNeighbors = 5; // set 5 as default
 
         try {
             // https://www.educative.io/edpresso/reading-the-nth-line-from-a-file-in-java
@@ -146,12 +145,12 @@ class peerProcess {
         }
         totalPieces = (int) ceil((double) fileSize / pieceSize);
         bitfield.setSize(totalPieces);
-        FileObject = new FileHandling(this.peerId, totalPieces, pieceSize, fileName);
-        hasFile = false;
+        hasFile = false;  // the next function will set this if this peer has the file 
+        getConfiguration();
+        FileObject = new FileHandling(this.peerId, totalPieces, pieceSize, fileName, hasFile);
 
         preferredNeighbors = new Vector<Integer>(numberOfPreferredNeighbors);
         optimisticallyUnchokedPeer = -1;
-        getConfiguration();
 
         chokingTimerFlag = false;
         optimisticTimerFlag = false;
@@ -215,13 +214,12 @@ class peerProcess {
     // Calculate the peers sending the most data. The optimistically unchoked
     // neighbor is calculated at a different interval in Common.cfg
     public synchronized void calculatePreferredNeighbors() {
-        Vector<Integer> newPreferredNeighbors = new Vector<Integer>(numberOfPreferredNeighbors);
+        Vector<Integer> newPreferredNeighbors = new Vector<Integer>(preferredNeighbors.size());
         // Sort the vector of peers
         sortPeerInfoVector();
         // The first 4 peers are the peers that have transmitted the most.
         // Add their peerId to the list of preferred vectors
-		//if (Handler.DEBUG_MODE()) System.out.println(" Intersted Neighbors are " + interested);
-
+		if (Handler.DEBUG_MODEL2()) System.out.println(" Intersted Neighbors are " + interested);
         for (int i = 0; i < peerInfoVector.size(); i++) {
             // if tie, randomly choose among tied processes
             if (interested.size() > 0) {
@@ -232,9 +230,8 @@ class peerProcess {
                 }
             }
         }
-
         preferredNeighbors = newPreferredNeighbors;
-		if (Handler.DEBUG_MODE()) System.out.println(" Preferred Neighbors are " + preferredNeighbors);
+		if (Handler.DEBUG_MODEL2()) System.out.println(" Preferred Neighbors are " + preferredNeighbors);
 
         // after recalculating the preferred neighbors, reset the value of the
         // transmitted data of all remote peers
@@ -273,7 +270,7 @@ class peerProcess {
             return true;
         }
         for (Integer i : preferredNeighbors) {
-            if (i==id) {
+            if (i.equals(id)) {
                 return true;
             }
         }
@@ -361,6 +358,7 @@ class peerProcess {
 				String[] tokens = st.split("\\s+");
 				// don't include this process in the vector of remote peers so that it can't
 				// be selected as a preferred neighbor
+				// 1001 lin114-00.cise.ufl.edu 6001 1  <PeerID> <DNS Machine> <Port> <HasFile>
 				allPeers.add(new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3]));
 
 				if (Integer.parseInt(tokens[0]) == peerId && tokens[3].equals("1")) {
@@ -376,12 +374,12 @@ class peerProcess {
 	}
 
     public synchronized void onChokingTimeout() {
-        if (Handler.DEBUG_MODE()) System.out.println("onChokingTimeout()");
+        if (Handler.DEBUG_MODEL1()) System.out.println("onChokingTimeout()");
         try {
             calculatePreferredNeighbors();
             messagesToSend.clear();
-            this.ChokingNeighbors.clear();   // clear list of choked neighbors
-            this.UnChokingNeighbors.clear(); // clear list of unchoked neighbors
+            //this.ChokingNeighbors.clear();   // clear list of choked neighbors
+            //this.UnChokingNeighbors.clear(); // clear list of unchoked neighbors
             // choke unchosen peers, unchoke chosen peers
             for (int i = 0; i < peerInfoVector.size(); i++) {
                 RemotePeerInfo rpi = peerInfoVector.get(i);
@@ -418,7 +416,7 @@ class peerProcess {
     }
 
     public synchronized void onOptimisticTimeout() {
-        if (Handler.DEBUG_MODE()) System.out.println("onOptimisticTimeout()");
+        if (Handler.DEBUG_MODEL1()) System.out.println("onOptimisticTimeout()");
         try {
             int getPeerUnchoke = chooseOptimisticallyUnchokedPeer();
             if (getPeerUnchoke == -1) {
