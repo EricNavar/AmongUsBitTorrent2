@@ -56,6 +56,8 @@ public class Client {
         ipAddresses.put("lin114-09.cise.ufl.edu","10.242.94.43");
         ipAddresses.put("lin114-10.cise.ufl.edu","10.242.94.44");
         ipAddresses.put("lin114-11.cise.ufl.edu","10.242.94.45");
+        ipAddresses.put("localhost","localhost");
+        ipAddresses.put("ubuntu","localhost");
     }
 
     private void closeConnections() {
@@ -82,6 +84,7 @@ public class Client {
 			//System.out.println(" pp.getPeerID() " + pp.getPeerId() + " pp.allPeers.get(i).getPeerId() " + pp.allPeers.get(0).getPeerId());
             if (Handler.DEBUG_MODE()) System.out.println(" peerID " + this.peerID + " fist one is " + pp.allPeers.get(0).getPeerId());
             // open to peers with a lower ID
+
             int indexOfThisPeer = pp.GetPeerIndexNumber(pp.getPeerId()); // index of this peer in allPeers
             for (int i = 0; i < indexOfThisPeer; i++) {
                     Socket nextSock;
@@ -111,9 +114,9 @@ public class Client {
                     pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
             }
 			// @ERIC_N  These next three lines truncate off the process from making the remaining connections.  Just won't happen... safe for Ubuntu not for CISE
-			// if (pp.getPeerId() >= 1002) {
-			// 	while(true);
-			// }
+			if (pp.getPeerId() >= 1002) {
+				while(true);
+			}
 			if (Handler.DEBUG_MODE()) System.out.println(" Done with Lower peer connections ");
             // talk to peers with a higher ID
             for (int i = indexOfThisPeer; i < pp.allPeers.size(); i++) {
