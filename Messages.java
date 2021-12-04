@@ -215,6 +215,9 @@ public class Messages {
     }
 
     public  static int GetMessageLength(ByteBuffer IncomingBuffer) {
+        if (IncomingBuffer.array().length < 4) {
+            throw new IndexOutOfBoundsException("Can't find message length from ByteBuffer of size " + IncomingBuffer.array().length);
+        }
         return ParseInteger(IncomingBuffer, 0);
     }
 
