@@ -183,7 +183,6 @@ public class Handler extends Thread {
             DebugLog(MyMessage);
 			//initialize Input and Output streams
 			ByteBuffer newMessageToSend;
-			in = new ObjectInputStream(connection.getInputStream());
 			ByteBuffer IncomingMessage = ByteBuffer.allocate(65536); 
 			//try{
 				while(true)
@@ -289,13 +288,13 @@ public class Handler extends Thread {
 					} // switch for state machine
 				} // while (true)
 		} // try / catch
-		catch (EOFException e) {
+		//catch (EOFException e) {
 			//e.printStackTrace();
-		}
-		catch(IOException ioException){
-			System.out.println("Disconnect with Client " + peerConnected);
-			ioException.printStackTrace();
-		}
+		//}
+		// catch(IOException ioException){
+		// 	System.out.println("Disconnect with Client " + peerConnected);
+		// 	ioException.printStackTrace();
+		// }
 		catch (IndexOutOfBoundsException e) {
 			e.printStackTrace();
 		} // try / catch / finally

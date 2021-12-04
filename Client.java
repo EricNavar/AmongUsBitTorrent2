@@ -181,21 +181,21 @@ public class Client {
         } catch (IndexOutOfBoundsException e) {
             e.printStackTrace();
         } finally {
-            // Close connections
-            try {
-                for(int i = 0; i < socketlist.size(); i++){
+            // // Close connections
+            // try {
+            //     for(int i = 0; i < socketlist.size(); i++){
             
-                    //OutputStreamlist.get(i).close();
-                    //InputStreamlist.get(i).close();
-                    //socketlist.get(i).close();
-                }
-            } 
-            // catch (IOException ioException) {
-            //     ioException.printStackTrace();
+            //         //OutputStreamlist.get(i).close();
+            //         //InputStreamlist.get(i).close();
+            //         //socketlist.get(i).close();
+            //     }
             // } 
-            catch (IndexOutOfBoundsException e) {
-                e.printStackTrace();
-            }
+            // // catch (IOException ioException) {
+            // //     ioException.printStackTrace();
+            // // } 
+            // catch (IndexOutOfBoundsException e) {
+            //     e.printStackTrace();
+            // }
         }
     }
   
