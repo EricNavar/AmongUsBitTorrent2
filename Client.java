@@ -16,11 +16,6 @@ import java.io.IOException;
  
 public class Client {
 
-    Vector<Socket> socketlist;
-	Vector<ServerSocket> socketServerlist;
-    Vector<ObjectInputStream> InputStreamlist;
-    Vector<ObjectOutputStream> OutputStreamlist;
-    HashMap<String, String> ipAddresses;
     volatile Vector<Socket> socketlist;
 	volatile Vector<ServerSocket> socketServerlist;
     volatile Vector<ObjectInputStream> InputStreamlist;
