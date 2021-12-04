@@ -57,6 +57,8 @@ class peerProcess {
     boolean chokingComputeCompleteTimerFlag;
     boolean optimisticComputeCompleteTimerFlag;
     String peerAddress;
+    int numberOfPreferredNeighbors = 5; // set 5 as default
+
 
     public void incrementCollectedPieces() {
         collectedPieces++;
@@ -127,7 +129,7 @@ class peerProcess {
     public  peerProcess(int peerId) {
         this.peerId = peerId;
         logger = new Logger(peerId);
-        int numberOfPreferredNeighbors = 5; // set 5 as default
+
 
         try {
             // https://www.educative.io/edpresso/reading-the-nth-line-from-a-file-in-java
@@ -215,12 +217,13 @@ class peerProcess {
     // Calculate the peers sending the most data. The optimistically unchoked
     // neighbor is calculated at a different interval in Common.cfg
     public synchronized void calculatePreferredNeighbors() {
-        Vector<Integer> newPreferredNeighbors = new Vector<Integer>(preferredNeighbors.size());
+        Vector<Integer> newPreferredNeighbors = new Vector<Integer>(numberOfPreferredNeighbors);
         // Sort the vector of peers
         sortPeerInfoVector();
         // The first 4 peers are the peers that have transmitted the most.
         // Add their peerId to the list of preferred vectors
 		//if (Handler.DEBUG_MODE()) System.out.println(" Intersted Neighbors are " + interested);
+
         for (int i = 0; i < peerInfoVector.size(); i++) {
             // if tie, randomly choose among tied processes
             if (interested.size() > 0) {
@@ -231,6 +234,7 @@ class peerProcess {
                 }
             }
         }
+
         preferredNeighbors = newPreferredNeighbors;
 		//if (Handler.DEBUG_MODE()) System.out.println(" Preferred Neighbors are " + preferredNeighbors);
 
@@ -244,7 +248,7 @@ class peerProcess {
     // this chooses which peer to optimisically unchoke. The peerInfoVector is
     // sorted by pieces transmitted, so choose any peer other than the first 4
     // https://www.educative.io/edpresso/how-to-generate-random-numbers-in-java
-    public synchronized void chooseOptimisticallyUnchokedPeer() {
+    public synchronized int chooseOptimisticallyUnchokedPeer() {
         // this is the vector of peers to consider. It's the peers that are in
         // interested but not already in preferredNeighbors
         Vector<Integer> toConsider = new Vector<Integer>();
@@ -255,12 +259,13 @@ class peerProcess {
         }
         if (toConsider.size() == 0) {
             optimisticallyUnchokedPeer = -1;
-            return;
+            return optimisticallyUnchokedPeer;
         }
         Random rn = new Random();
         int randomPeerIndex = rn.nextInt(interested.size());
         optimisticallyUnchokedPeer = interested.get(randomPeerIndex);
         logger.onChangeOfOptimisticallyUnchokedNeighbor(optimisticallyUnchokedPeer);
+		return optimisticallyUnchokedPeer;
     }
 
     // returns true if the given id belongs to either a preffered peer or an
@@ -270,7 +275,7 @@ class peerProcess {
             return true;
         }
         for (Integer i : preferredNeighbors) {
-            if (i.equals(id)) {
+            if (i==id) {
                 return true;
             }
         }
@@ -374,31 +379,29 @@ class peerProcess {
 	}
 
     public synchronized void onChokingTimeout() {
-        //System.out.println("onChokingTimeout()");
+        // if (Handler.DEBUG_MODE()) System.out.println("onChokingTimeout()");
         try {
             calculatePreferredNeighbors();
             messagesToSend.clear();
-			this.ChokingNeighbors.clear();   // clear list of choked neighbors
-			this.UnChokingNeighbors.clear(); // clear list of unchoked neighbors
+            this.ChokingNeighbors.clear();   // clear list of choked neighbors
+            this.UnChokingNeighbors.clear(); // clear list of unchoked neighbors
             // choke unchosen peers, unchoke chosen peers
             for (int i = 0; i < peerInfoVector.size(); i++) {
                 RemotePeerInfo rpi = peerInfoVector.get(i);
+				//if (Handler.DEBUG_MODE()) System.out.println(" i = " + i + " peer id = " + rpi.getPeerId() + " !isNeighbor(rpi.getPeerId()) = " + !isNeighbor(rpi.getPeerId()) + " !rpi.isChoked() = " + !rpi.isChoked());
                 if (!isNeighbor(rpi.getPeerId()) && !rpi.isChoked()) { 
-                    //if (Handler.DEBUG_MODE()) System.out.println("Choking " + rpi.getPeerId());
-                    //messagesToSend.add(Messages.createUnchokeMessage());  
-					this.ChokingNeighbors.add(rpi.getPeerId());  // add this peer to be unchoked later
+                    this.ChokingNeighbors.add(rpi.getPeerId());  
+					// if (Handler.DEBUG_MODE()) System.out.println("Choking " + rpi.getPeerId() + " ChokingNeighbors = " + this.ChokingNeighbors);
                     rpi.setChoked(true);
-                    //sendMessageBB(messagesToSend.get(i));
                 }
                 else if (isNeighbor(rpi.getPeerId()) && rpi.isChoked()) {
                     //if (Handler.DEBUG_MODE()) System.out.println("Unchoking " + rpi.getPeerId());
 					this.UnChokingNeighbors.add(rpi.getPeerId());            // add this peer to be choked later
-                    //messagesToSend.add(Messages.createChokeMessage());
+					if (Handler.DEBUG_MODE()) System.out.println("Unchoking " + rpi.getPeerId() + " UnChokingNeighbors = " + this.UnChokingNeighbors);
                     rpi.setChoked(false);
-                    //sendMessageBB(messagesToSend.get(i));
                 }
             }
-			chokingTimerFlag = !chokingTimerFlag;
+            chokingTimerFlag = !chokingTimerFlag;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -419,17 +422,17 @@ class peerProcess {
     }
 
     public synchronized void onOptimisticTimeout() {
-        //System.out.println("onOptimisticTimeout()");
+        // if (Handler.DEBUG_MODE()) System.out.println("onOptimisticTimeout()");
         try {
-            chooseOptimisticallyUnchokedPeer();
-            if (optimisticallyUnchokedPeer == -1) {
+            int getPeerUnchoke = chooseOptimisticallyUnchokedPeer();
+            if (getPeerUnchoke == -1) {
                 return;
             }
-            RemotePeerInfo rpi = getRemotePeerInfo(optimisticallyUnchokedPeer);
+            RemotePeerInfo rpi = getRemotePeerInfo(getPeerUnchoke);
             messagesToSend.clear();
             //messagesToSend.add(Messages.createUnchokeMessage());
-            System.out.println("Optimistically unchoking " + rpi.getPeerId());
-			this.UnChokingNeighbors.add(rpi.getPeerId());                       // add this peer to be unchoked later
+			this.UnChokingNeighbors.add(getPeerUnchoke);                       // add this peer to be unchoked later
+            if (Handler.DEBUG_MODE()) System.out.println("Optimistically unchoking " + getPeerUnchoke + " UnChokingNeighbors = " + this.UnChokingNeighbors);
             rpi.setChoked(false);
             //sendMessageBB(messagesToSend.get(0));
             optimisticTimerFlag = !optimisticTimerFlag;

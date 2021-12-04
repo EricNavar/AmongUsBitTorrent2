@@ -21,14 +21,19 @@ public class Client {
     Vector<ObjectInputStream> InputStreamlist;
     Vector<ObjectOutputStream> OutputStreamlist;
     HashMap<String, String> ipAddresses;
+    volatile Vector<Socket> socketlist;
+	volatile Vector<ServerSocket> socketServerlist;
+    volatile Vector<ObjectInputStream> InputStreamlist;
+    volatile Vector<ObjectOutputStream> OutputStreamlist;
+    private HashMap<String, String> ipAddresses;
 
-    int peerID;
+    volatile int peerID;
 
     // String bitfieldHandshake;
     // FileHandling handler;
 
     // int socket;
-    peerProcess pp;
+    volatile peerProcess pp;
 
     void setPeerID(int t_peerID) {
         peerID = t_peerID;
