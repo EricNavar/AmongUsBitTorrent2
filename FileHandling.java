@@ -80,7 +80,7 @@ public class FileHandling {
 			// if peer is the server, write contents of file to buffer
 			if (ReadFile) {
 				ReadFileIn(fileNameWithPath);
-				if (Handler.DEBUG_MODE()) System.out.println(" Read File " + fileNameWithPath + " in.");
+				//if (Handler.DEBUG_MODE()) System.out.println(" Read File " + fileNameWithPath + " in.");
 			}
 			// if peer is a client, empty the contents of the file
 			else {
@@ -165,6 +165,7 @@ public class FileHandling {
 		fileNameWithPath = FileNameInput;
 
 		File readingFile = new File(fileNameWithPath);
+		long totalByteCountFile = 0;
 
 		try (FileChannel readingFileStream = new FileInputStream(readingFile).getChannel()) {
 			for (x = 0; x < totalPieces; ++x) {
@@ -177,8 +178,10 @@ public class FileHandling {
 				//if (Handler.DEBUG_MODE()) System.out.println("File " + fileNameWithPath + " Round " + x + " Read " + numberOfBytesRead);
 				// bytes " + " First Byte " + tempByteBuffer.get(1370));
 				PieceLengths.put(Integer.valueOf(x), Integer.valueOf(numberOfBytesRead));
+				totalByteCountFile = totalByteCountFile + Integer.valueOf(numberOfBytesRead);
 				EntireFile.put(Integer.valueOf(x), tempByteBuffer);
 			}
+			if (Handler.DEBUG_MODE()) System.out.println(" Read File " + fileNameWithPath + " in and found " + totalByteCountFile + " bytes.");
 		} catch (IOException e) {
 			// error so print out stack trace
 			e.printStackTrace();

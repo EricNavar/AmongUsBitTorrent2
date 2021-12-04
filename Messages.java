@@ -380,8 +380,8 @@ public class Messages {
             // get a copy of the piece
             ThePieceLength = pp.FileObject.GetPieceSize(index); // get the piece's length
             ByteBuffer newMessageToSend = createPieceMessage(ThePiece, index, ThePieceLength);
-			if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + index  + " Piece Length " + ThePieceLength + " Piece Remaining " + ThePiece.remaining() + " Piece limit " + ThePiece.limit());
-			if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + index  + " Piece Length " + ThePieceLength + " newMessageToSend Remaining " + newMessageToSend.remaining() + " newMessageToSend limit " + newMessageToSend.limit());
+			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + index  + " Piece Length " + ThePieceLength + " Piece Remaining " + ThePiece.remaining() + " Piece limit " + ThePiece.limit());
+			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + index  + " Piece Length " + ThePieceLength + " newMessageToSend Remaining " + newMessageToSend.remaining() + " newMessageToSend limit " + newMessageToSend.limit());
 			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + newMessageToSend.array()[0]  + " " + newMessageToSend.array()[1] + " " + newMessageToSend.array()[2] + " " + newMessageToSend.array()[3] + "]");
 			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + newMessageToSend.array()[4]  + " " + newMessageToSend.array()[5] + " " + newMessageToSend.array()[6] + " " + newMessageToSend.array()[7] + "]");
 			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + newMessageToSend.array()[8]  + " " + newMessageToSend.array()[9]);
@@ -410,7 +410,7 @@ public class Messages {
         ByteBuffer GrabPieceData = ByteBuffer.allocate(65536); // Message is longer
         GrabPieceData.put(Arrays.copyOfRange(IncomingMessage.array(), 9, length)); // Get the piece
         pp.FileObject.ReceivedAPiece(index, GrabPieceData, length - 9); // insert into the File Handler
-	    if (Handler.DEBUG_MODE()) System.out.println(" ***************** remaining = " + GrabPieceData.remaining() + " limit = " + GrabPieceData.limit());
+	    //if (Handler.DEBUG_MODE()) System.out.println(" ***************** remaining = " + GrabPieceData.remaining() + " limit = " + GrabPieceData.limit());
         // TODO: What do they mean by "partial files" maintained in current directory?
         // Are we supposed to support 100GB file transfers and cache to the drive?
         // TODO: Santosh - I negated this condition, not sure what its supposed to be

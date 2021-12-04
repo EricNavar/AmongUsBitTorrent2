@@ -263,7 +263,7 @@ public class Handler extends Thread {
 										pp.logger.log("Send piece " + Messages.GetPieceMessageNumber(newMessageToSend) + "."); //debug log. Remove this later.
 										break;
 								case 7: // MessageType.PIECE.ordinal():
-									    if (this.DEBUG_MODE()) System.out.println(" Captured Piece remaining = " + IncomingMessage.remaining() + " limit = " + IncomingMessage.limit() + " message length +4 " + messageLength+4);
+									    //if (this.DEBUG_MODE()) System.out.println(" Captured Piece remaining = " + IncomingMessage.remaining() + " limit = " + IncomingMessage.limit() + " message length +4 " + messageLength+4);
 										//if (this.DEBUG_MODE()) System.out.println(Messages.HexPrint(IncomingMessage));
  										Messages.handlePieceMessage(pp, peerConnected, messageLength+4, IncomingMessage);
 										if (!pp.hasFile()) {

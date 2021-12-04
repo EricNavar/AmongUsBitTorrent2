@@ -56,6 +56,8 @@ public class Client {
         ipAddresses.put("lin114-09.cise.ufl.edu","10.242.94.43");
         ipAddresses.put("lin114-10.cise.ufl.edu","10.242.94.44");
         ipAddresses.put("lin114-11.cise.ufl.edu","10.242.94.45");
+        ipAddresses.put("localhost","localhost");
+        ipAddresses.put("ubuntu","localhost");
     }
 
 
@@ -70,7 +72,7 @@ public class Client {
             //for (int i = 0; i<1; i++) {
 			    //if (Handler.DEBUG_MODE()) System.out.println(" i = " + i);
 			    if (pp.getPeerId() == pp.allPeers.get(i).getPeerId() ) { // this condition will never be true
-					//break;
+					break;
 				} else {
                     Socket nextSock;
                     // if peer 1002 is trying to open up for peer 1001, then thisAddress = 10.242.94.35 and otherAddress = 10.242.94.34
@@ -100,9 +102,9 @@ public class Client {
 				}
             }
 			// @ERIC_N  These next three lines truncate off the process from making the remaining connections.  Just won't happen... safe for Ubuntu not for CISE
-			// if (pp.getPeerId() >= 1002) {
-			// 	while(true);
-			// }
+			if (pp.getPeerId() >= 1002) {
+				while(true);
+			}
 			if (Handler.DEBUG_MODE()) System.out.println(" Done with Lower peer connections ");
 			boolean start = false;
             // talk to peers with a higher ID
