@@ -56,6 +56,7 @@ class peerProcess {
     boolean optimisticTimerFlag;
     boolean chokingComputeCompleteTimerFlag;
     boolean optimisticComputeCompleteTimerFlag;
+    int numberOfPreferredNeighbors = 5; // set 5 as default
 
     public void incrementCollectedPieces() {
         collectedPieces++;
@@ -126,7 +127,7 @@ class peerProcess {
     public  peerProcess(int peerId) {
         this.peerId = peerId;
         logger = new Logger(peerId);
-        int numberOfPreferredNeighbors = 5; // set 5 as default
+
 
         try {
             // https://www.educative.io/edpresso/reading-the-nth-line-from-a-file-in-java
@@ -214,12 +215,13 @@ class peerProcess {
     // Calculate the peers sending the most data. The optimistically unchoked
     // neighbor is calculated at a different interval in Common.cfg
     public synchronized void calculatePreferredNeighbors() {
-        Vector<Integer> newPreferredNeighbors = new Vector<Integer>(preferredNeighbors.size());
+        Vector<Integer> newPreferredNeighbors = new Vector<Integer>(numberOfPreferredNeighbors);
         // Sort the vector of peers
         sortPeerInfoVector();
         // The first 4 peers are the peers that have transmitted the most.
         // Add their peerId to the list of preferred vectors
 		//if (Handler.DEBUG_MODE()) System.out.println(" Intersted Neighbors are " + interested);
+
         for (int i = 0; i < peerInfoVector.size(); i++) {
             // if tie, randomly choose among tied processes
             if (interested.size() > 0) {
@@ -230,6 +232,7 @@ class peerProcess {
                 }
             }
         }
+
         preferredNeighbors = newPreferredNeighbors;
 		if (Handler.DEBUG_MODE()) System.out.println(" Preferred Neighbors are " + preferredNeighbors);
 
@@ -270,7 +273,7 @@ class peerProcess {
             return true;
         }
         for (Integer i : preferredNeighbors) {
-            if (i.equals(id)) {
+            if (i==id) {
                 return true;
             }
         }
