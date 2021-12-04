@@ -49,12 +49,13 @@ public static void main(String args[]) {
 		int numPieces = 1484;
 		int thisPieceSize;
 		
-		FileHandling FirstObject  = new FileHandling(1001, numPieces, pieceSize, "thefile");
-		FileHandling SecondObject = new FileHandling(1002, numPieces, pieceSize, "thefile");
+		FileHandling FirstObject  = new FileHandling(1001, numPieces, pieceSize, "thefile", true);
+		FileHandling SecondObject = new FileHandling(1002, numPieces, pieceSize, "thefile", true);
 		
 		System.out.println(" ");		
 		System.out.println("This program will test File Handling for it's feature set.");		
 		System.out.println(" ");		
+		FirstObject.ReadFileIn("./peer_1001/thefile");
 		System.out.println("FirstObject Check for All Pieces " + FirstObject.CheckForAllPieces());
 		System.out.println("FirstObject Check for Piece Mumber 1 " + FirstObject.CheckForPieceNumber(1));
 		System.out.println("SecondObject Check for All Pieces " + SecondObject.CheckForAllPieces());

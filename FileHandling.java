@@ -47,7 +47,7 @@ public class FileHandling {
 
 	// Constructor
 	// Note: This class will not copy objects and as such does not have a copy
-	public FileHandling(int peerID, int totalPieces, int pieceSize, String fileName) {
+	public FileHandling(int peerID, int totalPieces, int pieceSize, String fileName, boolean ReadFile) {
 		this.totalPieces = totalPieces; // transfer the needed information from the peer process to write files
 		// copy the piece size and keep track to allocate right buffer amount
 		this.pieceSize = pieceSize;
@@ -59,17 +59,17 @@ public class FileHandling {
 		PieceLengths = new HashMap<>();
 		EntireFile = new HashMap<>();
 		this.fileName = fileName;
-		openFile();
+		openFile(ReadFile);
 	}
 
 	// Open File at the path for this peer under the correct directory. If no
 	// directory exists, create the directory.
 	// If this is a client, it needs to empty the contents of the file, if this is a
 	// server, it needs to read in all the contents of the file and load a buffer.
-	public synchronized void openFile() {
+	public synchronized void openFile(boolean ReadFile) {
 		try {
-
 			fileNameWithPath = "./peer_" + peerID + "/" + fileName;
+			//fileNameWithPath = "peer_" + peerID + "/" + fileName;
 			File file = new File(fileNameWithPath);
 
 			if (file.exists()) { // checks file exists or not
@@ -78,8 +78,9 @@ public class FileHandling {
 				file.createNewFile();
 			}
 			// if peer is the server, write contents of file to buffer
-			if (this.peerID == 1000) {
+			if (ReadFile) {
 				ReadFileIn(fileNameWithPath);
+				if (Handler.DEBUG_MODE()) System.out.println(" Read File " + fileNameWithPath + " in.");
 			}
 			// if peer is a client, empty the contents of the file
 			else {
@@ -121,6 +122,7 @@ public class FileHandling {
 		File writingFile = new File(fileNameWithPath);
 
 		// writingFile.write(EntireFile.get(Integer.valueOf(x)));fs
+		if (Handler.DEBUG_MODE()) System.out.println("Writing File with " + totalPieces + " pieces.");
 		try (FileChannel writingFileStream = new FileOutputStream(writingFile).getChannel()) {
 			for (x = 0; x < totalPieces; ++x) {
 
@@ -140,6 +142,7 @@ public class FileHandling {
 				// bytes " ); // , PieceLengths.get(Integer.valueOf(x)) ); //
 				// EntireFile.get(Integer.valueOf(x)));
 				writingFileStream.write(localByteBuffer);
+				//if (Handler.DEBUG_MODE()) System.out.println("Writing Record " + x);
 			}
 			writingFileStream.close();
 		} catch (IOException e) {
@@ -171,7 +174,7 @@ public class FileHandling {
 				ByteBuffer tempByteBuffer = ByteBuffer.allocate(pieceSize);
 
 				numberOfBytesRead = readingFileStream.read(tempByteBuffer); // , 0, pieceSize);
-				// System.out.println(" Round Number " + x + " Read " + numberOfBytesRead + "
+				//if (Handler.DEBUG_MODE()) System.out.println("File " + fileNameWithPath + " Round " + x + " Read " + numberOfBytesRead);
 				// bytes " + " First Byte " + tempByteBuffer.get(1370));
 				PieceLengths.put(Integer.valueOf(x), Integer.valueOf(numberOfBytesRead));
 				EntireFile.put(Integer.valueOf(x), tempByteBuffer);
@@ -189,7 +192,10 @@ public class FileHandling {
 	public synchronized ByteBuffer MakeCopyPieceByteBuffer(int pieceNumber) {
 
 		// allocate the buffer for this piece
-		ByteBuffer newByteBuffer = ByteBuffer.allocate(pieceSize);
+		if (!CheckForPieceNumber(pieceNumber)) {
+			if (Handler.DEBUG_MODE()) System.out.println(" Asked to retrieve piece number " + pieceNumber + " but unable to find it.");
+		} 
+		ByteBuffer newByteBuffer = ByteBuffer.allocate(GetPieceSize(pieceNumber));
 
 		// System.out.println(" Received and loaded a piece of length " + PieceLength +
 		// " comparing incomingPiece.remaining() " + incomingPiece.remaining() + " to
@@ -258,6 +264,7 @@ public class FileHandling {
 
 		// if the get of the value is a null then this value does not exist in map hash
 		// table
+        //if (Handler.DEBUG_MODE()) System.out.println("Searching for piece " + pieceNumber + " or " + Integer.valueOf(pieceNumber) + " Returns " + EntireFile.get(Integer.valueOf(pieceNumber)) + " total records are " + EntireFile.size() + " piece size is " + PieceLengths.get(Integer.valueOf(pieceNumber))); // debug statement. remove this later.
 
 		if (EntireFile.get(Integer.valueOf(pieceNumber)) == null) {
 			// if it doesn't exist, error out and do not return a true, instead false
@@ -289,6 +296,11 @@ public class FileHandling {
 		return true;
 	}
 
+	public int getTotalPieces() {
+		// Might fail if for some reason it didn't have totalPieces as needed.
+
+		return totalPieces;
+	}
 	// Gets the current local byte buffer array handle that was loaded with the
 	// above method.
 	// This can help with moving the data around and might be useful in tranmit /
