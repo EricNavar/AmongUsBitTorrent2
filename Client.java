@@ -7,7 +7,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.math.BigInteger; 
 import java.security.MessageDigest; 
-import java.security.NoSuchAlgorithmException; 
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
  
 import java.nio.*;
 import java.io.IOException;
@@ -19,6 +20,7 @@ public class Client {
 	Vector<ServerSocket> socketServerlist;
     Vector<ObjectInputStream> InputStreamlist;
     Vector<ObjectOutputStream> OutputStreamlist;
+    HashMap<String, String> ipAddresses;
 
     int peerID;
 
@@ -38,32 +40,54 @@ public class Client {
         socketServerlist = new Vector<ServerSocket>();
         InputStreamlist  = new Vector<ObjectInputStream>();
         OutputStreamlist = new Vector<ObjectOutputStream>();
+
+        ipAddresses = new HashMap<String, String>();
+        ipAddresses.put("lin114-00.cise.ufl.edu","10.242.94.34");
+        ipAddresses.put("lin114-01.cise.ufl.edu","10.242.94.35");
+        ipAddresses.put("lin114-02.cise.ufl.edu","10.242.94.36");
+        ipAddresses.put("lin114-03.cise.ufl.edu","10.242.94.37");
+        ipAddresses.put("lin114-04.cise.ufl.edu","10.242.94.38");
+        ipAddresses.put("lin114-05.cise.ufl.edu","10.242.94.39");
+        ipAddresses.put("lin114-06.cise.ufl.edu","10.242.94.40");
+        ipAddresses.put("lin114-07.cise.ufl.edu","10.242.94.41");
+        ipAddresses.put("lin114-08.cise.ufl.edu","10.242.94.42");
+        ipAddresses.put("lin114-09.cise.ufl.edu","10.242.94.43");
+        ipAddresses.put("lin114-10.cise.ufl.edu","10.242.94.44");
+        ipAddresses.put("lin114-11.cise.ufl.edu","10.242.94.45");
     }
+
 
     void run() {
 
         try {
             // create a socket to connect to the server
-			System.out.println(" pp.getPeerID() " + pp.getPeerId() + " pp.allPeers.get(i).getPeerId() " + pp.allPeers.get(0).getPeerId());
+			//System.out.println(" pp.getPeerID() " + pp.getPeerId() + " pp.allPeers.get(i).getPeerId() " + pp.allPeers.get(0).getPeerId());
             System.out.println(" peerID " + this.peerID + " fist one is " + pp.allPeers.get(0).getPeerId());
             // open to peers with a lower ID
             for (int i = 0; pp.getPeerId() != pp.allPeers.get(i).getPeerId(); i++) {
             //for (int i = 0; i<1; i++) {
-			    if (Handler.DEBUG_MODE()) System.out.println(" i = " + i);
+			    //if (Handler.DEBUG_MODE()) System.out.println(" i = " + i);
 			    if (pp.getPeerId() == pp.allPeers.get(i).getPeerId() ) { // this condition will never be true
 					//break;
 				} else {
                     Socket nextSock;
-					int  PeerPortToUse =  pp.allPeers.get(pp.GetPeerIndexNumber(pp.getPeerId())).getPeerPort();
-					String address =  pp.allPeers.get(i).getPeerAddress();
-					String address2 =  pp.allPeers.get(pp.GetPeerIndexNumber(pp.getPeerId())).getPeerAddress();
-				    if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Index Number " + pp.GetIndexNumber() + " Attempting to connect to localhost " + pp.allPeers.get(i).getPeerId() + " which is on port " + PeerPortToUse);
-					Socket NewSocket;
-					NewSocket = new Socket(address, PeerPortToUse);
+                    // if peer 1002 is trying to open up for peer 1001, then thisAddress = 10.242.94.35 and otherAddress = 10.242.94.34
+					int  thisPort =  pp.allPeers.get(pp.GetPeerIndexNumber(pp.getPeerId())).getPeerPort();
+					String thisAddress =  ipAddresses.get(pp.allPeers.get(pp.GetPeerIndexNumber(pp.getPeerId())).getPeerAddress());
+                    InetAddress thisInetAddress = InetAddress.getByName(thisAddress);
+					int otherPort = pp.allPeers.get(i).getPeerPort();
+					String otherAddress = ipAddresses.get(pp.allPeers.get(i).getPeerAddress());
+                    InetAddress otherInetAddress = InetAddress.getByName(otherAddress);
+				    if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Index Number " + pp.GetIndexNumber() + " Attempting to connect to localhost " + pp.allPeers.get(i).getPeerId() + " which is on port " + thisPort);
+					Socket NewSocket = new Socket(otherInetAddress, otherPort, thisInetAddress, thisPort);
+                    NewSocket.setKeepAlive(true);
+                    socketlist.add(NewSocket);
+                    System.out.println("is NewSocket closed: " + NewSocket.isClosed());
 					Handler MyHandler = new Handler(NewSocket, pp.allPeers.get(i).getPeerId(), pp);
 					MyHandler.start();
-                    socketlist.add(NewSocket);
-			        if (Handler.DEBUG_MODE()) System.out.println("Created a initiator socket with peer " + pp.allPeers.get(i).getPeerId() + " on their port " + PeerPortToUse);
+                    System.out.println("created receiving socket with address: " + NewSocket.getLocalAddress() + " with local port " + NewSocket.getLocalPort() + " and remote port " + NewSocket.getPort());
+			        if (Handler.DEBUG_MODE()) System.out.println("Created a initiator socket with peer " + pp.allPeers.get(i).getPeerId() + " on their port " + thisPort);
+                    System.out.println("is NewSocket closed: " + NewSocket.isClosed());
                     pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
 				}
             }
@@ -80,16 +104,25 @@ public class Client {
 				} else {
 					if (start) {
                     Socket nextSock;
-					int  PeerPortToUse = pp.allPeers.get(i).getPeerPort();
-			        if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Attempting to set up connection to " + pp.allPeers.get(i).getPeerId() + " which is on port " + PeerPortToUse);
-					ServerSocket NewSocket;
-					NewSocket = new ServerSocket(PeerPortToUse);
-					if (Handler.DEBUG_MODE()) System.out.println("Trying to accept socket of allpeeres(" + i + ") known as peerID " + pp.allPeers.get(i).getPeerId());
+                    int  thisPort =  pp.allPeers.get(pp.GetPeerIndexNumber(pp.getPeerId())).getPeerPort();
+					String thisAddress =  ipAddresses.get(pp.allPeers.get(pp.GetPeerIndexNumber(pp.getPeerId())).getPeerAddress());
+                    InetAddress thisInetAddress = InetAddress.getByName(thisAddress);
+					int otherPort = pp.allPeers.get(i).getPeerPort();
+					String otherAddress = ipAddresses.get(pp.allPeers.get(i).getPeerAddress());
+                    InetAddress otherInetAddress = InetAddress.getByName(otherAddress);
+			        if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Attempting to set up connection to " + pp.allPeers.get(i).getPeerId() + " which is on port " + thisPort);
+                    // 100 is the backlog. Not sure what the ideal number is, but 100 probably can't hurt.
+					ServerSocket NewSocket = new ServerSocket(thisPort, 100, otherInetAddress);
+					if (Handler.DEBUG_MODE()) System.out.println("Trying to accept socket of allPeers(" + i + ") known as peerID " + pp.allPeers.get(i).getPeerId());
 					Socket GetIt = NewSocket.accept();
+                    GetIt.setKeepAlive(true);
 					Handler MyHandler = new Handler(GetIt, pp.allPeers.get(i).getPeerId(), pp);
-					MyHandler.start();
+                    System.out.println("is GetIt closed: " + GetIt.isClosed());
                     socketServerlist.add(NewSocket);
-			        if (Handler.DEBUG_MODE()) System.out.println("Created a server socket " + pp.allPeers.get(i).getPeerId() + " and peer port " + PeerPortToUse);
+					MyHandler.start();
+			        if (Handler.DEBUG_MODE()) System.out.println("Created a server socket " + pp.allPeers.get(i).getPeerId() + " and peer port " + thisPort);
+                    System.out.println("created talking socket with address: " + GetIt.getLocalAddress() + " with local port " + GetIt.getLocalPort() + " and remote port " + GetIt.getPort());
+                    System.out.println("is GetIt closed: " + GetIt.isClosed());
                     pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
 					}
 				}

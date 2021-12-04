@@ -109,11 +109,14 @@ public class Handler extends Thread {
             DebugLog(MyMessage);
 			//initialize Input and Output streams
 			ByteBuffer newMessageToSend;
-			if (connection.isClosed()) {
-				System.err.println("Connection with " + peerConnected + " closed");
+			while (connection.isClosed()) {
+				System.err.println("Connection with " + peerConnected + " is closed. Doing a sleep :)");
+				SleepTimer(100);
 			}
-			connection.accept();
-			in = new ObjectInputStream(connection.getInputStream());
+			InputStream inputStream = connection.getInputStream();
+			System.out.print("inputStream.available(): ");
+			System.out.println(inputStream.available());
+			in = new ObjectInputStream(inputStream);
 			out = new ObjectOutputStream(connection.getOutputStream());
 			out.flush();
 			System.out.println("Entering while loop in run()");

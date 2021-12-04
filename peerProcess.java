@@ -56,6 +56,7 @@ class peerProcess {
     boolean optimisticTimerFlag;
     boolean chokingComputeCompleteTimerFlag;
     boolean optimisticComputeCompleteTimerFlag;
+    String peerAddress;
 
     public void incrementCollectedPieces() {
         collectedPieces++;
@@ -359,8 +360,9 @@ class peerProcess {
 				// be selected as a preferred neighbor
 				allPeers.add(new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3]));
 
-				if (Integer.parseInt(tokens[0]) == peerId && tokens[3].equals("1")) {
-                    hasFile = true;
+				if (Integer.parseInt(tokens[0]) == peerId) {
+                    peerAddress = tokens[1];
+                    hasFile = tokens[3].equals("1");
                 }
                 peerInfoVector.add(new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3]));
 			}
