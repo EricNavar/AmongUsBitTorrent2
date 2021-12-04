@@ -112,9 +112,10 @@ public class Client {
                     InetAddress otherInetAddress = InetAddress.getByName(otherAddress);
 			        if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Attempting to set up connection to " + pp.allPeers.get(i).getPeerId() + " which is on port " + thisPort);
                     // 100 is the backlog. Not sure what the ideal number is, but 100 probably can't hurt.
-					ServerSocket NewSocket = new ServerSocket(thisPort, 100, otherInetAddress);
+					ServerSocket NewSocket = new ServerSocket(thisPort, 100, thisInetAddress);
 					if (Handler.DEBUG_MODE()) System.out.println("Trying to accept socket of allPeers(" + i + ") known as peerID " + pp.allPeers.get(i).getPeerId());
 					Socket GetIt = NewSocket.accept();
+                    System.out.println("accepted");
                     GetIt.setKeepAlive(true);
 					Handler MyHandler = new Handler(GetIt, pp.allPeers.get(i).getPeerId(), pp);
                     System.out.println("is GetIt closed: " + GetIt.isClosed());
