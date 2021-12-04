@@ -80,7 +80,7 @@ public class Client {
         try {
             // create a socket to connect to the server
 			//System.out.println(" pp.getPeerID() " + pp.getPeerId() + " pp.allPeers.get(i).getPeerId() " + pp.allPeers.get(0).getPeerId());
-            System.out.println(" peerID " + this.peerID + " fist one is " + pp.allPeers.get(0).getPeerId());
+            if (Handler.DEBUG_MODE()) System.out.println(" peerID " + this.peerID + " fist one is " + pp.allPeers.get(0).getPeerId());
             // open to peers with a lower ID
             int indexOfThisPeer = pp.GetPeerIndexNumber(pp.getPeerId()); // index of this peer in allPeers
             for (int i = 0; i < indexOfThisPeer; i++) {
@@ -104,8 +104,7 @@ public class Client {
                     socketlist.add(NewSocket);
 					Handler MyHandler = new Handler(NewSocket, pp.allPeers.get(i).getPeerId(), pp, in, out);
 					MyHandler.start();
-                    System.out.println("created socket. Receiving from: " + pp.allPeers.get(i).getPeerId() + "Local Address: " + NewSocket.getLocalAddress() + "Local port " + NewSocket.getLocalPort() + "Remote port " + NewSocket.getPort());
-			        if (Handler.DEBUG_MODE()) System.out.println("Created a initiator socket with peer " + pp.allPeers.get(i).getPeerId() + " on their port " + thisPort);
+                    if (Handler.DEBUG_MODE()) System.out.println("Created regular socket:\n\tReceiving from: " + pp.allPeers.get(i).getPeerId() + "\n\tLocal Address: " + NewSocket.getLocalAddress() + "\n\tLocal port " + NewSocket.getLocalPort() + "\n\tRemote address: " + otherAddress + "\n\tRemote port " + NewSocket.getPort());
                     pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
             }
 			// @ERIC_N  These next three lines truncate off the process from making the remaining connections.  Just won't happen... safe for Ubuntu not for CISE
@@ -119,15 +118,12 @@ public class Client {
                     int  thisPort =  pp.allPeers.get(indexOfThisPeer).getPeerPort();
 					String thisAddress =  ipAddresses.get(pp.allPeers.get(indexOfThisPeer).getPeerAddress());
                     InetAddress thisInetAddress = InetAddress.getByName(thisAddress);
-					int otherPort = pp.allPeers.get(i).getPeerPort();
-					String otherAddress = ipAddresses.get(pp.allPeers.get(i).getPeerAddress());
-                    InetAddress otherInetAddress = InetAddress.getByName(otherAddress);
 			        if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Attempting to set up connection to " + pp.allPeers.get(i).getPeerId() + " which is on port " + thisPort);
                     // 100 is the backlog. Not sure what the ideal number is, but 100 probably can't hurt.
 					ServerSocket NewSocket = new ServerSocket(thisPort, 100, thisInetAddress);
 					if (Handler.DEBUG_MODE()) System.out.println("Trying to accept socket of allPeers(" + i + ") known as peerID " + pp.allPeers.get(i).getPeerId());
 					Socket GetIt = NewSocket.accept();
-                    System.out.println("accepted");
+                    if (Handler.DEBUG_MODE()) System.out.println("accepted");
                     GetIt.setKeepAlive(true);
                     ObjectOutputStream out = new ObjectOutputStream(GetIt.getOutputStream());
                     out.flush();
@@ -136,8 +132,7 @@ public class Client {
 					Handler MyHandler = new Handler(GetIt, pp.allPeers.get(i).getPeerId(), pp, in, out);
                     socketServerlist.add(NewSocket);
 					MyHandler.start();
-			        if (Handler.DEBUG_MODE()) System.out.println("Created a server socket " + + " and peer port " + thisPort);
-                    System.out.println("created socket. Talking to: " + pp.allPeers.get(i).getPeerId() + "Local Address: " + GetIt.getLocalAddress() + "Local port " + GetIt.getLocalPort() + "Remote port " + GetIt.getPort());
+                    if (Handler.DEBUG_MODE()) System.out.println("Created server socket:\n\tTalking to: " + pp.allPeers.get(i).getPeerId() + "\n\tLocal Address: " + GetIt.getLocalAddress() + "\n\tLocal port " + GetIt.getLocalPort() + "\n\tRemote port " + GetIt.getPort());
                     pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
             }
 			if (Handler.DEBUG_MODE()) System.out.println(" Done with Higher peer connections ");
