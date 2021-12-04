@@ -99,7 +99,7 @@ public class Client {
                     InetAddress otherInetAddress = InetAddress.getByName(otherAddress);
                     
 				    if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Index Number " + pp.GetIndexNumber() + " Attempting to connect to localhost " + pp.allPeers.get(i).getPeerId() + " which is on port " + thisPort);
-					Socket NewSocket = new Socket(otherInetAddress, otherPort, thisInetAddress, thisPort);
+					Socket NewSocket = new Socket(otherAddress, otherPort);
                     NewSocket.setKeepAlive(true);
 
                     ObjectOutputStream out = new ObjectOutputStream(NewSocket.getOutputStream());
