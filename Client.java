@@ -86,12 +86,15 @@ public class Client {
             for (int i = 0; i < indexOfThisPeer; i++) {
                     Socket nextSock;
                     // if peer 1002 is trying to open up for peer 1001, then thisAddress = 10.242.94.35 and otherAddress = 10.242.94.34
+
 					int  thisPort =  pp.allPeers.get(indexOfThisPeer).getPeerPort();
 					String thisAddress =  ipAddresses.get(pp.allPeers.get(indexOfThisPeer).getPeerAddress());
                     InetAddress thisInetAddress = InetAddress.getByName(thisAddress);
+
 					int otherPort = pp.allPeers.get(i).getPeerPort();
 					String otherAddress = ipAddresses.get(pp.allPeers.get(i).getPeerAddress());
                     InetAddress otherInetAddress = InetAddress.getByName(otherAddress);
+                    
 				    if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Index Number " + pp.GetIndexNumber() + " Attempting to connect to localhost " + pp.allPeers.get(i).getPeerId() + " which is on port " + thisPort);
 					Socket NewSocket = new Socket(otherInetAddress, otherPort, thisInetAddress, thisPort);
                     NewSocket.setKeepAlive(true);
@@ -115,15 +118,15 @@ public class Client {
             // talk to peers with a higher ID
             for (int i = indexOfThisPeer; i < pp.allPeers.size(); i++) {
                     Socket nextSock;
-                    int  thisPort =  pp.allPeers.get(indexOfThisPeer).getPeerPort();
+					int otherPort = pp.allPeers.get(i).getPeerPort();
 					String thisAddress =  ipAddresses.get(pp.allPeers.get(indexOfThisPeer).getPeerAddress());
                     InetAddress thisInetAddress = InetAddress.getByName(thisAddress);
-			        if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Attempting to set up connection to " + pp.allPeers.get(i).getPeerId() + " which is on port " + thisPort);
+			        if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Attempting to set up connection to " + pp.allPeers.get(i).getPeerId() + " which is on port " + otherPort);
                     // 100 is the backlog. Not sure what the ideal number is, but 100 probably can't hurt.
-					ServerSocket NewSocket = new ServerSocket(thisPort, 100, thisInetAddress);
+					ServerSocket NewSocket = new ServerSocket(otherPort, 100, thisInetAddress);
 					if (Handler.DEBUG_MODE()) System.out.println("Trying to accept socket of allPeers(" + i + ") known as peerID " + pp.allPeers.get(i).getPeerId());
 					Socket GetIt = NewSocket.accept();
-                    if (Handler.DEBUG_MODE()) System.out.println("accepted");
+                    if (Handler.DEBUG_MODE()) System.out.println("Server socket Accepted");
                     GetIt.setKeepAlive(true);
                     ObjectOutputStream out = new ObjectOutputStream(GetIt.getOutputStream());
                     out.flush();
