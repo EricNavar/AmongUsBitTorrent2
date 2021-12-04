@@ -55,9 +55,11 @@ public class Client {
 				} else {
                     Socket nextSock;
 					int  PeerPortToUse =  pp.allPeers.get(pp.GetPeerIndexNumber(pp.getPeerId())).getPeerPort();
+					String address =  pp.allPeers.get(i).getPeerAddress();
+					String address2 =  pp.allPeers.get(pp.GetPeerIndexNumber(pp.getPeerId())).getPeerAddress();
 				    if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Index Number " + pp.GetIndexNumber() + " Attempting to connect to localhost " + pp.allPeers.get(i).getPeerId() + " which is on port " + PeerPortToUse);
 					Socket NewSocket;
-					NewSocket = new Socket("localhost", PeerPortToUse);
+					NewSocket = new Socket(address, PeerPortToUse);
 					Handler MyHandler = new Handler(NewSocket, pp.allPeers.get(i).getPeerId(), pp);
 					MyHandler.start();
                     socketlist.add(NewSocket);
@@ -124,6 +126,7 @@ public class Client {
             */				
         } catch (ConnectException e) {
             System.err.println("Connection refused. You need to initiate a server first.");
+            e.printStackTrace();
         } catch (UnknownHostException unknownHost) {
             System.err.println("You are trying to connect to an unknown host!");
             unknownHost.printStackTrace();

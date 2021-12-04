@@ -48,6 +48,7 @@ public class Handler extends Thread {
 				this.chokingTimerFlag = true;
 				this.optimisticTimerFlag = true;
                 pp.logger.log("Connected to client number Handler Constructor Message");
+				
         }
 		
 		public boolean WaitForInput(ObjectInputStream inStream, int TimeOut) {   // busy wait for input
@@ -107,11 +108,15 @@ public class Handler extends Thread {
 			String MyMessage = "Running Handler connected to peer " + this.peerConnected;
             DebugLog(MyMessage);
 			//initialize Input and Output streams
+			ByteBuffer newMessageToSend;
+			if (connection.isClosed()) {
+				System.err.println("Connection with " + peerConnected + " closed");
+			}
+			connection.accept();
+			in = new ObjectInputStream(connection.getInputStream());
 			out = new ObjectOutputStream(connection.getOutputStream());
 			out.flush();
-			ByteBuffer newMessageToSend;
-			System.out.println(connection.getInputStream());
-			in = new ObjectInputStream(connection.getInputStream());
+			System.out.println("Entering while loop in run()");
 			//try{
 				while(true)
 				{
@@ -200,6 +205,9 @@ public class Handler extends Thread {
 					} // switch for state machine
 				} // while (true)
 		} // try / catch
+		catch (EOFException e) {
+			//e.printStackTrace();
+		}
 		catch(IOException ioException){
 			System.out.println("Disconnect with Client " + peerConnected);
 			ioException.printStackTrace();
