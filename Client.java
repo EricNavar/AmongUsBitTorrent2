@@ -9,6 +9,8 @@ import java.math.BigInteger;
 import java.security.MessageDigest; 
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
+import java.nio.channels.*;
+import java.lang.Thread;
  
 import java.nio.*;
 import java.io.IOException;
@@ -17,10 +19,10 @@ import java.io.IOException;
 public class Client {
 
     volatile Vector<Socket> socketlist;
-	volatile Vector<ServerSocket> socketServerlist;
+	  volatile Vector<ServerSocket> socketServerlist;
     volatile Vector<ObjectInputStream> InputStreamlist;
     volatile Vector<ObjectOutputStream> OutputStreamlist;
-    private HashMap<String, String> ipAddresses;
+    volatile HashMap<String, String> ipAddresses;
 
     volatile int peerID;
 
@@ -81,9 +83,15 @@ public class Client {
 				    if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Index Number " + pp.GetIndexNumber() + " Attempting to connect to localhost " + pp.allPeers.get(i).getPeerId() + " which is on port " + thisPort);
 					Socket NewSocket = new Socket(otherInetAddress, otherPort, thisInetAddress, thisPort);
                     NewSocket.setKeepAlive(true);
+
+                    ObjectOutputStream out = new ObjectOutputStream(NewSocket.getOutputStream());
+                    out.flush();
+                    InputStream inputStream = NewSocket.getInputStream();
+                    ObjectInputStream in = new ObjectInputStream(inputStream);
+
                     socketlist.add(NewSocket);
                     System.out.println("is NewSocket closed: " + NewSocket.isClosed());
-					Handler MyHandler = new Handler(NewSocket, pp.allPeers.get(i).getPeerId(), pp);
+					Handler MyHandler = new Handler(NewSocket, pp.allPeers.get(i).getPeerId(), pp, in, out);
 					MyHandler.start();
                     System.out.println("created receiving socket with address: " + NewSocket.getLocalAddress() + " with local port " + NewSocket.getLocalPort() + " and remote port " + NewSocket.getPort());
 			        if (Handler.DEBUG_MODE()) System.out.println("Created a initiator socket with peer " + pp.allPeers.get(i).getPeerId() + " on their port " + thisPort);
@@ -117,7 +125,11 @@ public class Client {
 					Socket GetIt = NewSocket.accept();
                     System.out.println("accepted");
                     GetIt.setKeepAlive(true);
-					Handler MyHandler = new Handler(GetIt, pp.allPeers.get(i).getPeerId(), pp);
+                    ObjectOutputStream out = new ObjectOutputStream(GetIt.getOutputStream());
+                    out.flush();
+                    InputStream inputStream = GetIt.getInputStream();
+                    ObjectInputStream in = new ObjectInputStream(inputStream);
+					Handler MyHandler = new Handler(GetIt, pp.allPeers.get(i).getPeerId(), pp, in, out);
                     System.out.println("is GetIt closed: " + GetIt.isClosed());
                     socketServerlist.add(NewSocket);
 					MyHandler.start();
@@ -171,7 +183,7 @@ public class Client {
         } finally {
             // Close connections
             try {
-                for(int i = 0; i < pp.allPeers.size()-1 && i < socketlist.size(); i++){
+                for(int i = 0; i < socketlist.size(); i++){
             
                     //OutputStreamlist.get(i).close();
                     //InputStreamlist.get(i).close();
