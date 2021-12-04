@@ -54,14 +54,17 @@ public class Handler extends Thread {
 			if (this.DEBUG_MODE()) pp.logger.log("DEBUG " + MyMessage);
 		}
 		
-        public Handler(Socket connection, int peerConnected, peerProcess pp) {
+        public Handler(Socket connection, int peerConnected, peerProcess pp, ObjectInputStream in, ObjectOutputStream out) {
            		this.connection = connection;
 	    		this.peerConnected = peerConnected;
 				this.pp = pp;
 				this.CurrentState = 0;
 				this.chokingTimerFlag = true;
 				this.optimisticTimerFlag = true;
+				this.in = in;
+				this.out= out;
                 pp.logger.log("Connected to client number Handler Constructor Message");
+				
         }
 		
 		public boolean WaitForInput(ObjectInputStream inStream) {   // busy wait for input
@@ -118,7 +121,6 @@ public class Handler extends Thread {
 		    } // try / catch / finally
 			return true;
 		}
-
 		
 		public ByteBuffer WaitForInputAndGetMessage(ObjectInputStream inStream) {   // busy wait for input, then read
 			BusyWaitForInput(inStream);
@@ -180,10 +182,7 @@ public class Handler extends Thread {
 			String MyMessage = "Running Handler connected to peer " + this.peerConnected;
             DebugLog(MyMessage);
 			//initialize Input and Output streams
-			out = new ObjectOutputStream(connection.getOutputStream());
-			out.flush();
 			ByteBuffer newMessageToSend;
-			in = new ObjectInputStream(connection.getInputStream());
 			ByteBuffer IncomingMessage = ByteBuffer.allocate(65536); 
 			//try{
 				while(true)
@@ -289,18 +288,32 @@ public class Handler extends Thread {
 					} // switch for state machine
 				} // while (true)
 		} // try / catch
-		catch(IOException ioException){
-			System.out.println("Disconnect with Client " + peerConnected);
+		//catch (EOFException e) {
+			//e.printStackTrace();
+		//}
+		// catch(IOException ioException){
+		// 	System.out.println("Disconnect with Client " + peerConnected);
+		// 	ioException.printStackTrace();
+		// }
+		catch (IndexOutOfBoundsException e) {
+			e.printStackTrace();
 		} // try / catch / finally
 		finally{
 			//Close connections
 			try{
-				in.close();
-				out.close();
-				connection.close();
+				if (in != null) {
+					in.close();
+				}
+				if (out != null) {
+					out.close();
+				}
+				if (connection != null) {
+					connection.close();
+				}
 			}
 			catch(IOException ioException){
 				System.out.println("Disconnect with Client " + peerConnected);
+				ioException.printStackTrace();
 			}
 		} // try / catch / finally
 	} // run

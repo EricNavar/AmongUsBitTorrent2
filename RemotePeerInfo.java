@@ -59,7 +59,7 @@ public class RemotePeerInfo {
 	}
 
 	public synchronized int getPeerId() {
-		return peerId;
+		return peerId; // im gonna cum
 	}
 
 	public synchronized int getPeerPort() {
