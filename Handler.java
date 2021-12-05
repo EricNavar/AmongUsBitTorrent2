@@ -27,7 +27,7 @@ public class Handler extends Thread {
 			try {
 				Thread.sleep(timeperiod);
 			} catch (Exception ex) {
-				System.out.println(ex);
+				ex.printStackTrace();
 			}
 			finally {}
 		}
@@ -47,7 +47,7 @@ public class Handler extends Thread {
 		}
 
         public static boolean DEBUG_MODE() {
-			return true;
+			return false;
 		}
 
         public synchronized void DebugLog( String MyMessage) {
@@ -75,7 +75,8 @@ public class Handler extends Thread {
 				}
 			}
 		    catch(IOException ioException){
-		    	System.out.println("Disconnect with Client " + peerConnected);
+		    	ioException.printStackTrace();
+				System.out.println("Disconnect with Client " + peerConnected);
 		    } // try / catch / finally
 			return true;
 		}
@@ -271,7 +272,7 @@ public class Handler extends Thread {
 											sendMessage(newMessageToSend, out); // send iinterst message 	
 										} else {
 												pp.logger.onCompletionOfDownload();
-												System.out.println("No longer interested, sendind not interested and bitfield back.");
+												if (Handler.DEBUG_MODE()) System.out.println("No longer interested, sendind not interested and bitfield back.");
 												newMessageToSend = Messages.createNotInterestedMessage();
 												sendMessage(newMessageToSend, out); // send new not intersted message 	
 												newMessageToSend = Messages.createBitfieldMessage(pp.getCurrBitfield());
