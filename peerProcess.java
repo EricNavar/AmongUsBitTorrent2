@@ -228,8 +228,8 @@ class peerProcess {
             if (interested.size() > 0) {
                 for (int j = 0; j < interested.size(); j++) {
                     if (peerInfoVector.get(i).getPeerId() == interested.get(j)) {
-if(!newPreferredNeighbors.contains(peerInfoVector.get(i).getPeerId()))                      
- newPreferredNeighbors.add(peerInfoVector.get(i).getPeerId());
+			if(!newPreferredNeighbors.contains(peerInfoVector.get(i).getPeerId()))                      
+ 				newPreferredNeighbors.add(peerInfoVector.get(i).getPeerId());
                     }
                 }
             }
@@ -238,9 +238,10 @@ if(newPreferredNeighbors.size() < numberOfPreferredNeighbors)
 {
 if (interested.size() > 0) {
                 for (int j = 0; j < interested.size(); j++) {
+			if(!newPreferredNeighbors.contains(interested.get(j)))
                        newPreferredNeighbors.add(interested.get(j));
-			if(newPreferredNeighbors.size() == numberOfPreferredNeighbors && !newPreferredNeighbors.contains(interested.get(j)))
-break;
+			if(newPreferredNeighbors.size() == numberOfPreferredNeighbors)
+			break;
                     
                 }
             }
