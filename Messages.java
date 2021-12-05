@@ -368,7 +368,7 @@ public class Messages {
         // parse out the requested item into an integer to look up in the map structure
         int index = GetRequestMessageIndex(IncomingMessage);
 
-        if (Handler.DEBUG_MODE()) System.out.println("Peer " + senderPeer + " has requested piece " + index + " FileHandling f has " + f.getTotalPieces() + " pieces."); // debug statement. remove this later.
+        //if (Handler.DEBUG_MODE()) System.out.println("Peer " + senderPeer + " has requested piece " + index + " FileHandling f has " + f.getTotalPieces() + " pieces."); // debug statement. remove this later.
 
         if (f.CheckForPieceNumber(index)) { // if we actually have this piece in the stored location...
             int ThePieceLength;
@@ -404,7 +404,7 @@ public class Messages {
         }
         // Moved to Handle or it will stop running...  pp.pieceMessages.add(createRequestMessage(pp.randomMissingPiece())); // ask for the next piece
         int index = GetPieceMessageNumber(IncomingMessage);
-        if (Handler.DEBUG_MODE()) System.out.println("Receive piece " + index + " from " + senderPeer + " length = " + length);
+        //if (Handler.DEBUG_MODE()) System.out.println("Receive piece " + index + " from " + senderPeer + " length = " + length);
         if (Handler.DEBUG_MODE()) pp.logger.log("Receive piece " + index + " from " + senderPeer);
         // Done: write the piece to a file (wherever it should be written, idk) See
         // Below, handles logging of the received piece
@@ -414,7 +414,7 @@ public class Messages {
 	    //if (Handler.DEBUG_MODE()) System.out.println(" ***************** remaining = " + GrabPieceData.remaining() + " limit = " + GrabPieceData.limit());
         if (pp.FileObject.CheckForAllPieces()) {
             StringBuilder filenameWrite = new StringBuilder();
-            filenameWrite.append(String.format("./peer_%04d/thefile", pp.peerId));
+            filenameWrite.append(String.format("./peer_%04d/" + pp.fileName, pp.peerId));
             pp.FileObject.WriteFileOut(filenameWrite.toString());
         }
 
