@@ -391,7 +391,6 @@ public class Messages {
 
 			if (Handler.DEBUG_MODE()) pp.logger.log("Send piece " + index + "."); //debug log. Remove this later.
 			RemotePeerInfo rpi = pp.getRemotePeerInfo(senderPeer);
-            rpi.incrementPiecesTransmitted();
 
             return newMessageToSend;
             // sendMessage(newMessageToSend, out); // send the piece
@@ -459,6 +458,7 @@ public class Messages {
         //}
 
         updateInterestedStatus(pp);
+        rpi.incrementPiecesTransmitted();
 
 
         if (Handler.DEBUG_MODE()) pp.logger.log(pp.printBitfield(pp.bitfield)); //debug message. delete this later.

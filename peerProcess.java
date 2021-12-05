@@ -210,6 +210,7 @@ class peerProcess {
             client = new Client(this);
             client.setPeerID(peerId);
             client.run();
+            System.out.println(hasFile());
         //} else { // if server
         //    System.out.println("Starting a listener at the port and try to handshake with other processes...");
         //    server = new Client(this);
@@ -220,13 +221,30 @@ class peerProcess {
 
     // Calculate the peers sending the most data. The optimistically unchoked
     // neighbor is calculated at a different interval in Common.cfg
-    public synchronized void calculatePreferredNeighbors() {
+public synchronized void calculatePreferredNeighbors() {
         Vector<Integer> newPreferredNeighbors = new Vector<Integer>(preferredNeighbors.size());
         // Sort the vector of peers
-        sortPeerInfoVector();
+             sortPeerInfoVector();
         // The first 4 peers are the peers that have transmitted the most.
         // Add their peerId to the list of preferred vectors
-		// if (Handler.DEBUG_MODEL2()) System.out.println(" Intersted Neighbors are " + interested);
+        // if (Handler.DEBUG_MODEL2()) System.out.println(" Intersted Neighbors are " + interested);
+      if(hasFile()){ 
+if(interested.size() < numberOfPreferredNeighbors)
+newPreferredNeighbors = interested;
+else{
+while((newPreferredNeighbors.size() != numberOfPreferredNeighbors) )   {
+int rand = new Random().nextInt(interested.size());
+if(!newPreferredNeighbors.contains(interested.get(rand)))
+newPreferredNeighbors.add(interested.get(rand));
+}
+}
+
+}
+else if(interested.size() < numberOfPreferredNeighbors)
+{
+newPreferredNeighbors = interested;
+}
+else{
         for (int i = 0; i < numberOfPreferredNeighbors && i < peerInfoVector.size(); i++) {
             // if tie, randomly choose among tied processes
             if (interested.size() > 0) {
@@ -234,8 +252,8 @@ class peerProcess {
                     int tempPeerId = peerInfoVector.get(i).getPeerId();
                     int tempInterested = interested.get(j);
                     if (tempPeerId == tempInterested) {
-			if(!newPreferredNeighbors.contains(peerInfoVector.get(i).getPeerId()))                      
- 				newPreferredNeighbors.add(peerInfoVector.get(i).getPeerId());
+            if(!newPreferredNeighbors.contains(peerInfoVector.get(i).getPeerId()))                      
+                 newPreferredNeighbors.add(peerInfoVector.get(i).getPeerId());
                     }
                 }
             }
@@ -244,27 +262,26 @@ class peerProcess {
         {
             if (interested.size() > 0) {
                 for (int j = 0; j < interested.size(); j++) {
-			if(!newPreferredNeighbors.contains(interested.get(j)))
+            if(!newPreferredNeighbors.contains(interested.get(j)))
                        newPreferredNeighbors.add(interested.get(j));
-			if(newPreferredNeighbors.size() == numberOfPreferredNeighbors)
-			break;
+            if(newPreferredNeighbors.size() == numberOfPreferredNeighbors)
+            break;
                     
                 }
             }
         }
+}
         preferredNeighbors = newPreferredNeighbors;
         resetPeerInfoPiecesTransmitted();
         if (Handler.DEBUG_MODE()) System.out.println("dwqwqdqwdqw"+preferredNeighbors);
 
-		if (Handler.DEBUG_MODEL2()) System.out.println("Preferred Neighbors are " + preferredNeighbors);
+        if (Handler.DEBUG_MODEL2()) System.out.println("Preferred Neighbors are " + preferredNeighbors);
 
         // after recalculating the preferred neighbors, reset the value of the
         // transmitted data of all remote peers
-        resetPeerInfoPiecesTransmitted();
 
         logger.onChangeOfPreferredNeighbors(preferredNeighbors);
     }
-
     // this chooses which peer to optimisically unchoke. The peerInfoVector is
     // sorted by pieces transmitted, so choose any peer other than the first 4
     // https://www.educative.io/edpresso/how-to-generate-random-numbers-in-java
