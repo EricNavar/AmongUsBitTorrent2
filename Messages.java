@@ -391,8 +391,9 @@ public class Messages {
 
 			if (Handler.DEBUG_MODE()) pp.logger.log("Send piece " + index + "."); //debug log. Remove this later.
 			RemotePeerInfo rpi = pp.getRemotePeerInfo(senderPeer);
+            rpi.incrementPiecesTransmitted();
 
-			return newMessageToSend;
+            return newMessageToSend;
             // sendMessage(newMessageToSend, out); // send the piece
         } else {
             if (Handler.DEBUG_MODE()) System.out.println("Some questionable character/actor identified as " + senderPeer + " asked for piece "
@@ -458,7 +459,7 @@ public class Messages {
         //}
 
         updateInterestedStatus(pp);
-        rpi.incrementPiecesTransmitted();
+
 
         if (Handler.DEBUG_MODE()) pp.logger.log(pp.printBitfield(pp.bitfield)); //debug message. delete this later.
     }
