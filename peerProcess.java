@@ -223,17 +223,31 @@ class peerProcess {
         // The first 4 peers are the peers that have transmitted the most.
         // Add their peerId to the list of preferred vectors
 		// if (Handler.DEBUG_MODEL2()) System.out.println(" Intersted Neighbors are " + interested);
-        for (int i = 0; i < peerInfoVector.size(); i++) {
+        for (int i = 0; i < numberOfPreferredNeighbors; i++) {
             // if tie, randomly choose among tied processes
             if (interested.size() > 0) {
                 for (int j = 0; j < interested.size(); j++) {
                     if (peerInfoVector.get(i).getPeerId() == interested.get(j)) {
-                        newPreferredNeighbors.add(peerInfoVector.get(i).getPeerId());
+if(!newPreferredNeighbors.contains(peerInfoVector.get(i).getPeerId()))                      
+ newPreferredNeighbors.add(peerInfoVector.get(i).getPeerId());
                     }
                 }
             }
         }
+if(newPreferredNeighbors.size() < numberOfPreferredNeighbors)
+{
+if (interested.size() > 0) {
+                for (int j = 0; j < interested.size(); j++) {
+                       newPreferredNeighbors.add(interested.get(j));
+			if(newPreferredNeighbors.size() == numberOfPreferredNeighbors && !newPreferredNeighbors.contains(interested.get(j)))
+break;
+                    
+                }
+            }
+}
         preferredNeighbors = newPreferredNeighbors;
+resetPeerInfoPiecesTransmitted();
+System.out.println("dwqwqdqwdqw"+preferredNeighbors);
 
 		if (Handler.DEBUG_MODEL2()) System.out.println(" Preferred Neighbors are " + preferredNeighbors);
 
@@ -290,7 +304,7 @@ class peerProcess {
             // https://stackoverflow.com/questions/22968012/how-to-randomly-choose-between-two-choices/22968825
             if (o2Value.compareTo(o1.getPiecesTransmitted()) == 0) {
                 Random chooser = new Random();
-                if (chooser.nextInt(3) == 1) {
+                if (chooser.nextInt(2) == 0) {
                     return -1;
                 } else {
                     return 1;
