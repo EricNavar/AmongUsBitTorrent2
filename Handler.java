@@ -8,8 +8,6 @@ import java.lang.Thread;
 
 
 public class Handler extends Thread {
-        volatile private String message;    //message received from the client
-		volatile private String MESSAGE;    //uppercase message send to the client
 		volatile private Socket connection;
         volatile private ObjectInputStream in;	//stream read from the socket
         volatile private ObjectOutputStream out;    //stream write to the socket
@@ -27,7 +25,7 @@ public class Handler extends Thread {
 			try {
 				Thread.sleep(timeperiod);
 			} catch (Exception ex) {
-				System.out.println(ex);
+				ex.printStackTrace();
 			}
 			finally {}
 		}
@@ -63,7 +61,7 @@ public class Handler extends Thread {
 				this.optimisticTimerFlag = true;
 				this.in = in;
 				this.out= out;
-                pp.logger.log("Connected to client number Handler Constructor Message");
+                if (this.DEBUG_MODE()) pp.logger.log("Connected to client number Handler Constructor Message");
 				
         }
 		
@@ -75,7 +73,8 @@ public class Handler extends Thread {
 				}
 			}
 		    catch(IOException ioException){
-		    	System.out.println("Disconnect with Client " + peerConnected);
+		    	ioException.printStackTrace();
+				System.out.println("Disconnect with Client " + peerConnected);
 		    } // try / catch / finally
 			return true;
 		}
@@ -177,6 +176,24 @@ public class Handler extends Thread {
 			}
 		}
 
+		private void closeConnections() {
+			try{
+				if (in != null) {
+					in.close();
+				}
+				if (out != null) {
+					out.close();
+				}
+				if (connection != null) {
+					connection.close();
+				}
+			}
+			catch(IOException ioException){
+				System.out.println("Disconnect with Client " + peerConnected);
+				ioException.printStackTrace();
+			}
+		}
+
         public void run() {
  		try{
 			String MyMessage = "Running Handler connected to peer " + this.peerConnected;
@@ -254,13 +271,17 @@ public class Handler extends Thread {
 										} else {
 											newMessageToSend = Messages.createNotInterestedMessage();
 										}
-										sendMessage(newMessageToSend, out); // send iinterst message 	
+										sendMessage(newMessageToSend, out); // send interest message
+										if (pp.doAllProcessesHaveTheFile()) {
+											if (this.DEBUG_MODE()) System.out.println("All processes have the file");
+											closeConnections();
+										} 	
 										break;
 								case 6: // MessageType.REQUEST.ordinal():
 										newMessageToSend = Messages.handleRequestMessage(pp, peerConnected, IncomingMessage);
 										sendMessage(newMessageToSend, out); // send iinterst message 	
 										//pp.logger.log("Creating piece message. Piece size = " + ThePieceLength + ", Piece message size = " + GetMessageLength(newMessageToSend));
-										pp.logger.log("Send piece " + Messages.GetPieceMessageNumber(newMessageToSend) + "."); //debug log. Remove this later.
+										if (this.DEBUG_MODE()) pp.logger.log("Send piece " + Messages.GetPieceMessageNumber(newMessageToSend) + ".");
 										break;
 								case 7: // MessageType.PIECE.ordinal():
 									    //if (this.DEBUG_MODE()) System.out.println(" Captured Piece remaining = " + IncomingMessage.remaining() + " limit = " + IncomingMessage.limit() + " message length +4 " + messageLength+4);
@@ -268,14 +289,18 @@ public class Handler extends Thread {
  										Messages.handlePieceMessage(pp, peerConnected, messageLength+4, IncomingMessage);
 										if (!pp.hasFile()) {
 											newMessageToSend = Messages.createRequestMessage(pp.randomMissingPiece());
-											sendMessage(newMessageToSend, out); // send iinterst message 	
+											sendMessage(newMessageToSend, out); // send interest message 	
 										} else {
 												pp.logger.onCompletionOfDownload();
-												System.out.println("No longer interested, sendind not interested and bitfield back.");
+												if (Handler.DEBUG_MODE()) System.out.println("No longer interested, sendind not interested and bitfield back.");
 												newMessageToSend = Messages.createNotInterestedMessage();
 												sendMessage(newMessageToSend, out); // send new not intersted message 	
 												newMessageToSend = Messages.createBitfieldMessage(pp.getCurrBitfield());
-												sendMessage(newMessageToSend, out); // send new bitfield message 
+												sendMessage(newMessageToSend, out); // send new bitfield message
+												if (pp.doAllProcessesHaveTheFile()) {
+													if (this.DEBUG_MODE()) System.out.println("All processes have the file");
+													closeConnections();
+												}
 										}
 										break;
 								default: 
@@ -299,22 +324,7 @@ public class Handler extends Thread {
 			e.printStackTrace();
 		} // try / catch / finally
 		finally{
-			//Close connections
-			try{
-				if (in != null) {
-					in.close();
-				}
-				if (out != null) {
-					out.close();
-				}
-				if (connection != null) {
-					connection.close();
-				}
-			}
-			catch(IOException ioException){
-				System.out.println("Disconnect with Client " + peerConnected);
-				ioException.printStackTrace();
-			}
+			closeConnections();
 		} // try / catch / finally
 	} // run
 	

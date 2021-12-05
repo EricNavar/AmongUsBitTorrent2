@@ -14,11 +14,6 @@ import java.nio.*;
 import java.io.*;
 import java.util.*;
 
-//TODO: 1002 is receiving too much data. It goes on forever and peer_1002 gets bigger than peer_1001/thefile
-//TODO: question: Do we have to consider the case where 1002 runs before 1001? The graders may expect it.
-//TODO: the last 5 pieces are not being downloaded. 1002 is requesting them and 1001 is sending them, but 1001 receives them and thinks they are piece 0.
-//TODO: Check if the client is sending the bitfield to the server
-
 class peerProcess {
     protected int unchokingInterval;
     protected int optimisticUnchokingInterval;
@@ -47,7 +42,6 @@ class peerProcess {
     Vector<ByteBuffer> pieceMessages = new Vector<ByteBuffer>(0);
     public Logger logger;
     Client client;
-    Server server;
     Messages message;
     FileHandling FileObject;
     int optimisticallyUnchokedPeer;
@@ -58,7 +52,6 @@ class peerProcess {
     boolean optimisticComputeCompleteTimerFlag;
     String peerAddress;
     int numberOfPreferredNeighbors = 5; // set 5 as default
-
 
     public void incrementCollectedPieces() {
         collectedPieces++;
@@ -202,7 +195,7 @@ class peerProcess {
         // start server
         //System.out.println("Attempting to create server socket."); // debug message
         //if (peerId != 1000) { // if client
-            System.out.println("Attempting to connect as a peer to the port...");
+            if (Handler.DEBUG_MODE()) System.out.println("Attempting to connect as a peer to the port...");
             client = new Client(this);
             client.setPeerID(peerId);
             client.run();
@@ -234,9 +227,9 @@ class peerProcess {
                 }
             }
         }
-if(newPreferredNeighbors.size() < numberOfPreferredNeighbors)
-{
-if (interested.size() > 0) {
+        if(newPreferredNeighbors.size() < numberOfPreferredNeighbors)
+        {
+            if (interested.size() > 0) {
                 for (int j = 0; j < interested.size(); j++) {
 			if(!newPreferredNeighbors.contains(interested.get(j)))
                        newPreferredNeighbors.add(interested.get(j));
@@ -245,10 +238,10 @@ if (interested.size() > 0) {
                     
                 }
             }
-}
+        }
         preferredNeighbors = newPreferredNeighbors;
-resetPeerInfoPiecesTransmitted();
-System.out.println("dwqwqdqwdqw"+preferredNeighbors);
+        resetPeerInfoPiecesTransmitted();
+        if (Handler.DEBUG_MODE()) System.out.println("dwqwqdqwdqw"+preferredNeighbors);
 
 		if (Handler.DEBUG_MODEL2()) System.out.println(" Preferred Neighbors are " + preferredNeighbors);
 
@@ -377,7 +370,8 @@ System.out.println("dwqwqdqwdqw"+preferredNeighbors);
 				String[] tokens = st.split("\\s+");
 				// don't include this process in the vector of remote peers so that it can't
 				// be selected as a preferred neighbor
-				// 1001 lin114-00.cise.ufl.edu 6001 1  <PeerID> <DNS Machine> <Port> <HasFile>
+                // <PeerID> <DNS Machine> <Port> <HasFile>
+				// 1001 lin114-00.cise.ufl.edu 6001 1
 				allPeers.add(new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3]));
 
 				if (Integer.parseInt(tokens[0]) == peerId) {
@@ -403,10 +397,10 @@ System.out.println("dwqwqdqwdqw"+preferredNeighbors);
             // choke unchosen peers, unchoke chosen peers
             for (int i = 0; i < peerInfoVector.size(); i++) {
                 RemotePeerInfo rpi = peerInfoVector.get(i);
-				//if (Handler.DEBUG_MODE()) System.out.println(" i = " + i + " peer id = " + rpi.getPeerId() + " !isNeighbor(rpi.getPeerId()) = " + !isNeighbor(rpi.getPeerId()) + " !rpi.isChoked() = " + !rpi.isChoked());
+				//if (Handler.Handler.DEBUG_MODE()) System.out.println(" i = " + i + " peer id = " + rpi.getPeerId() + " !isNeighbor(rpi.getPeerId()) = " + !isNeighbor(rpi.getPeerId()) + " !rpi.isChoked() = " + !rpi.isChoked());
                 if (!isNeighbor(rpi.getPeerId()) && !rpi.isChoked()) { 
                     this.ChokingNeighbors.add(rpi.getPeerId());  
-					// if (Handler.DEBUG_MODE()) System.out.println("Choking " + rpi.getPeerId() + " ChokingNeighbors = " + this.ChokingNeighbors);
+					// if (Handler.Handler.DEBUG_MODE()) System.out.println("Choking " + rpi.getPeerId() + " ChokingNeighbors = " + this.ChokingNeighbors);
                     rpi.setChoked(true);
                 }
                 else if (isNeighbor(rpi.getPeerId()) && rpi.isChoked()) {
@@ -493,7 +487,7 @@ System.out.println("dwqwqdqwdqw"+preferredNeighbors);
         try {
             pp.startTCPConnection(peerId);
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 }
