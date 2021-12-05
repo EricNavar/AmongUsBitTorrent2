@@ -1,12 +1,9 @@
 
 import java.util.Vector;
 
-import javax.swing.JFormattedTextField.AbstractFormatterFactory;
 
 import java.nio.*;
-import java.rmi.Remote;
 import java.util.*;
-import java.nio.charset.StandardCharsets;
 
 // import java.io.FileWriter;   // https://www.w3schools.com/java/java_files_create.asp examples utilized as basis for creating file i/o code
 // idea of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
@@ -415,11 +412,6 @@ public class Messages {
         GrabPieceData.put(Arrays.copyOfRange(IncomingMessage.array(), 9, length)); // Get the piece
         pp.FileObject.ReceivedAPiece(index, GrabPieceData, length - 9); // insert into the File Handler
 	    //if (Handler.DEBUG_MODE()) System.out.println(" ***************** remaining = " + GrabPieceData.remaining() + " limit = " + GrabPieceData.limit());
-        // TODO: What do they mean by "partial files" maintained in current directory?
-        // Are we supposed to support 100GB file transfers and cache to the drive?
-        // TODO: Santosh - I negated this condition, not sure what its supposed to be
-        // doing
-		// Returend to orginal, this must be positive, checks for all pieces and writes the file
         if (pp.FileObject.CheckForAllPieces()) {
             StringBuilder filenameWrite = new StringBuilder();
             filenameWrite.append(String.format("./peer_%04d/thefile", pp.peerId));

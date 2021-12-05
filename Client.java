@@ -3,16 +3,8 @@
 import java.net.*;
 import java.io.*;
 import java.util.*;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.math.BigInteger; 
-import java.security.MessageDigest; 
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
-import java.nio.channels.*;
-import java.lang.Thread;
- 
-import java.nio.*;
+
 import java.io.IOException;
 // idea of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
  
@@ -84,11 +76,10 @@ public class Client {
             // create a socket to connect to the server
 			//System.out.println(" pp.getPeerID() " + pp.getPeerId() + " pp.allPeers.get(i).getPeerId() " + pp.allPeers.get(0).getPeerId());
             if (Handler.DEBUG_MODE()) System.out.println(" peerID " + this.peerID + " fist one is " + pp.allPeers.get(0).getPeerId());
-            // open to peers with a lower ID
-
             int indexOfThisPeer = pp.GetPeerIndexNumber(pp.getPeerId()); // index of this peer in allPeers
+
+            // open to peers with a lower ID
             for (int i = 0; i < indexOfThisPeer; i++) {
-                    Socket nextSock;
                     // if peer 1002 is trying to open up for peer 1001, then thisAddress = 10.242.94.35 and otherAddress = 10.242.94.34
 
 					int  thisPort =  pp.allPeers.get(indexOfThisPeer).getPeerPort();
@@ -117,9 +108,9 @@ public class Client {
 			if (Handler.DEBUG_MODE()) System.out.println(" Done with Lower peer connections ");
             // talk to peers with a higher ID
             for (int i = indexOfThisPeer + 1; i < pp.allPeers.size(); i++) {
-                    Socket nextSock;
 					int otherPort = pp.allPeers.get(i).getPeerPort();
 					String thisAddress =  ipAddresses.get(pp.allPeers.get(indexOfThisPeer).getPeerAddress());
+
                     InetAddress thisInetAddress = InetAddress.getByName(thisAddress);
 			        if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Attempting to set up connection to " + pp.allPeers.get(i).getPeerId() + " which is on port " + otherPort);
                     // 100 is the backlog. Not sure what the ideal number is, but 100 probably can't hurt.
