@@ -10,7 +10,7 @@
 import java.nio.*;
 import java.io.File;
 import java.util.*;
-
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -57,20 +57,34 @@ public class FileHandling {
 		openFile(ReadFile);
 	}
 
+	private synchronized void emptyFile(String directoryName, String fileNameWithPath) {
+		File directory = new File(directoryName);
+		if (!directory.exists()){
+			directory.mkdirs();
+		}
+
+		//directory has been created. create file.
+        try {
+            new FileOutputStream(fileName).close();
+        } catch (IOException e) {
+            System.err.println("IO Exception");
+        }
+    }
+
 	// Open File at the path for this peer under the correct directory. If no
 	// directory exists, create the directory.
 	// If this is a client, it needs to empty the contents of the file, if this is a
 	// server, it needs to read in all the contents of the file and load a buffer.
 	public synchronized void openFile(boolean ReadFile) {
 		try {
-			fileNameWithPath = "./peer_" + peerID + "/" + fileName;
-			//fileNameWithPath = "peer_" + peerID + "/" + fileName;
+			String directoryName = "./peer_" + peerID;
+			fileNameWithPath = directoryName + "/" + fileName;
 			File file = new File(fileNameWithPath);
 
 			if (file.exists()) { // checks file exists or not
 				FileInputStream fis=new FileInputStream(file); // opens the specified file
-			} else { // create file
-				file.createNewFile();
+			} else {
+				emptyFile(directoryName, fileNameWithPath);
 			}
 			// if peer is the server, write contents of file to buffer
 			if (ReadFile) {
@@ -113,9 +127,16 @@ public class FileHandling {
 		fileNameWithPath = FileNameInput;
 
 		File writingFile = new File(fileNameWithPath);
+		try {
+			writingFile.createNewFile();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		// writingFile.write(EntireFile.get(Integer.valueOf(x)));fs
 		if (Handler.DEBUG_MODE()) System.out.println("Writing File with " + totalPieces + " pieces.");
+		
 		try (FileChannel writingFileStream = new FileOutputStream(writingFile).getChannel()) {
 			for (x = 0; x < totalPieces; ++x) {
 
