@@ -414,7 +414,7 @@ public class Messages {
 	    //if (Handler.DEBUG_MODE()) System.out.println(" ***************** remaining = " + GrabPieceData.remaining() + " limit = " + GrabPieceData.limit());
         if (pp.FileObject.CheckForAllPieces()) {
             StringBuilder filenameWrite = new StringBuilder();
-            filenameWrite.append(String.format("./peer_%04d/thefile", pp.peerId));
+            filenameWrite.append(String.format("./peer_%04d/" + pp.fileName, pp.peerId));
             pp.FileObject.WriteFileOut(filenameWrite.toString());
         }
 
