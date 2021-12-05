@@ -26,18 +26,21 @@ class peerProcess {
     protected int totalPieces;
     protected int collectedPieces;
     protected int peerId;
+	protected boolean ExitThread;
     // if this process has the entire file
     protected boolean hasFile;
 
-    protected Vector<RemotePeerInfo> peerInfoVector;
-    protected Vector<RemotePeerInfo> allPeers = new Vector<RemotePeerInfo>(0);
+    volatile protected Vector<RemotePeerInfo> peerInfoVector;
+    volatile protected Vector<RemotePeerInfo> allPeers = new Vector<RemotePeerInfo>(0);
 
     // denotes which pieces of the file this process has
     Vector<Boolean> bitfield = new Vector<Boolean>(0);
     Vector<Integer> preferredNeighbors;
     Vector<Integer> interested = new Vector<Integer>(0);
 	volatile Vector<Integer> ChokingNeighbors = new Vector<Integer>();
-	volatile Vector<Integer> UnChokingNeighbors = new Vector<Integer>();
+	volatile Vector<Boolean> NEWChokingNeighbors = new Vector<Boolean>();
+	volatile Vector<Boolean> NEWUnChokingNeighbors = new Vector<Boolean>();
+	HashMap<Integer, String> hash_map = new HashMap<Integer, String>();
     Vector<ByteBuffer> messagesToSend = new Vector<ByteBuffer>(0);
     Vector<ByteBuffer> pieceMessages = new Vector<ByteBuffer>(0);
     public Logger logger;
@@ -151,8 +154,17 @@ class peerProcess {
         optimisticTimerFlag = false;
         chokingComputeCompleteTimerFlag = false;
         optimisticComputeCompleteTimerFlag  = false;
+		ExitThread = false;
     }
 
+    public void ShutdownTimers(){
+        ExitThread = true;
+    }
+
+    public boolean GetExitStatus(){
+        return ExitThread;
+    }
+	
     public boolean hasFile() {
         return hasFile;
     }
@@ -380,6 +392,8 @@ class peerProcess {
                     hasFile = tokens[3].equals("1");
                 }
                 peerInfoVector.add(new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3]));
+				NEWChokingNeighbors.add(false);
+				NEWUnChokingNeighbors.add(false);
 			}
 
 			in.close();
@@ -393,20 +407,17 @@ class peerProcess {
         try {
             calculatePreferredNeighbors();
             messagesToSend.clear();
-            //this.ChokingNeighbors.clear();   // clear list of choked neighbors
-            //this.UnChokingNeighbors.clear(); // clear list of unchoked neighbors
             // choke unchosen peers, unchoke chosen peers
             for (int i = 0; i < peerInfoVector.size(); i++) {
                 RemotePeerInfo rpi = peerInfoVector.get(i);
 				//if (Handler.Handler.DEBUG_MODE()) System.out.println(" i = " + i + " peer id = " + rpi.getPeerId() + " !isNeighbor(rpi.getPeerId()) = " + !isNeighbor(rpi.getPeerId()) + " !rpi.isChoked() = " + !rpi.isChoked());
                 if (!isNeighbor(rpi.getPeerId()) && !rpi.isChoked()) { 
-                    this.ChokingNeighbors.add(rpi.getPeerId());  
-					// if (Handler.Handler.DEBUG_MODE()) System.out.println("Choking " + rpi.getPeerId() + " ChokingNeighbors = " + this.ChokingNeighbors);
+					this.NEWChokingNeighbors.set(GetPeerIndexNumber(rpi.getPeerId()), true);  // same as above
                     rpi.setChoked(true);
                 }
                 else if (isNeighbor(rpi.getPeerId()) && rpi.isChoked()) {
-					this.UnChokingNeighbors.add(rpi.getPeerId());
-					if (Handler.DEBUG_MODE()) System.out.println("Unchoking " + rpi.getPeerId() + " UnChokingNeighbors = " + this.UnChokingNeighbors);
+					this.NEWUnChokingNeighbors.set(GetPeerIndexNumber(rpi.getPeerId()), true);  // same as above
+					if (Handler.DEBUG_MODE()) System.out.println("Unchoking " + rpi.getPeerId() + " NEWUnChokingNeighbors = " + this.NEWUnChokingNeighbors);
                     rpi.setChoked(false);
                 }
             }
@@ -426,6 +437,9 @@ class peerProcess {
             public void run() {
                 //chokingTimerFlag = !chokingTimerFlag;
 				onChokingTimeout();
+				if (GetExitStatus() == true) {
+					timer.cancel();
+				}
             }
         }, 0, unchokingInterval * 1000);
     }
@@ -440,8 +454,8 @@ class peerProcess {
             RemotePeerInfo rpi = getRemotePeerInfo(getPeerUnchoke);
             messagesToSend.clear();
             //messagesToSend.add(Messages.createUnchokeMessage());
-			this.UnChokingNeighbors.add(getPeerUnchoke);                       // add this peer to be unchoked later
-            if (Handler.DEBUG_MODE()) System.out.println("Optimistically unchoking " + getPeerUnchoke + " UnChokingNeighbors = " + this.UnChokingNeighbors);
+			this.NEWUnChokingNeighbors.set(GetPeerIndexNumber(getPeerUnchoke), true);  // same as above
+            if (Handler.DEBUG_MODE()) System.out.println("Optimistically unchoking " + getPeerUnchoke + " NEWUnChokingNeighbors = " + this.NEWUnChokingNeighbors);
             rpi.setChoked(false);
             //sendMessageBB(messagesToSend.get(0));
             optimisticTimerFlag = !optimisticTimerFlag;
@@ -456,6 +470,9 @@ class peerProcess {
         timer.schedule(new TimerTask() {
             public void run() {
 				onOptimisticTimeout();
+				if (GetExitStatus() == true) {
+					timer.cancel();
+				}
             }
         }, 0, optimisticUnchokingInterval * 1000);
     }

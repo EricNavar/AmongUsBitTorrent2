@@ -11,7 +11,7 @@ import java.io.IOException;
 public class Client {
 
     volatile Vector<Socket> socketlist;
-	  volatile Vector<ServerSocket> socketServerlist;
+	volatile Vector<ServerSocket> socketServerlist;
     volatile Vector<ObjectInputStream> InputStreamlist;
     volatile Vector<ObjectOutputStream> OutputStreamlist;
     volatile HashMap<String, String> ipAddresses;
@@ -73,12 +73,12 @@ public class Client {
     void run() {
 
         try {
+			Vector<Handler> MyHandlerSet = new Vector<Handler>(0);
             // create a socket to connect to the server
 			//System.out.println(" pp.getPeerID() " + pp.getPeerId() + " pp.allPeers.get(i).getPeerId() " + pp.allPeers.get(0).getPeerId());
             if (Handler.DEBUG_MODE()) System.out.println(" peerID " + this.peerID + " fist one is " + pp.allPeers.get(0).getPeerId());
-            int indexOfThisPeer = pp.GetPeerIndexNumber(pp.getPeerId()); // index of this peer in allPeers
-
             // open to peers with a lower ID
+            int indexOfThisPeer = pp.GetPeerIndexNumber(pp.getPeerId()); // index of this peer in allPeers
             for (int i = 0; i < indexOfThisPeer; i++) {
                     // if peer 1002 is trying to open up for peer 1001, then thisAddress = 10.242.94.35 and otherAddress = 10.242.94.34
 
@@ -91,23 +91,23 @@ public class Client {
                     InetAddress otherInetAddress = InetAddress.getByName(otherAddress);
                     
 				    if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Index Number " + pp.GetIndexNumber() + " Attempting to connect to localhost " + pp.allPeers.get(i).getPeerId() + " which is on port " + thisPort + " and address " + otherAddress);
+
                     boolean connected = false;
                     boolean firstTimeConnected = true;
                     while (!connected) {
                         try{
                             Socket NewSocket = new Socket(otherAddress, thisPort);
                             NewSocket.setKeepAlive(true);
-
                             ObjectOutputStream out = new ObjectOutputStream(NewSocket.getOutputStream());
                             out.flush();
                             InputStream inputStream = NewSocket.getInputStream();
                             ObjectInputStream in = new ObjectInputStream(inputStream);
-
                             socketlist.add(NewSocket);
                             Handler MyHandler = new Handler(NewSocket, pp.allPeers.get(i).getPeerId(), pp, in, out);
+                            MyHandlerSet.add(MyHandler);
                             MyHandler.start();
                             if (Handler.DEBUG_MODE()) System.out.println("Created regular socket:\n\tReceiving from: " + pp.allPeers.get(i).getPeerId() + "\n\tLocal Address: " + NewSocket.getLocalAddress() + "\n\tLocal port " + NewSocket.getLocalPort() + "\n\tRemote address: " + otherAddress + "\n\tRemote port " + NewSocket.getPort());
-                            if (Handler.DEBUG_MODE()) pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+                            pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
                             connected = true;
                         }
                         catch (ConnectException e) {
@@ -121,17 +121,16 @@ public class Client {
                         }
                     }
             }
-			if (Handler.DEBUG_MODE()) System.out.println(" Done with Lower peer connections ");
+            if (Handler.DEBUG_MODE()) System.out.println(" Done with Lower peer connections ");
             // talk to peers with a higher ID
             for (int i = indexOfThisPeer + 1; i < pp.allPeers.size(); i++) {
-					int otherPort = pp.allPeers.get(i).getPeerPort();
-					String thisAddress =  ipAddresses.get(pp.allPeers.get(indexOfThisPeer).getPeerAddress());
-
-                    InetAddress thisInetAddress = InetAddress.getByName(thisAddress);
-			        if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Attempting to set up connection to " + pp.allPeers.get(i).getPeerId() + " which is on port " + otherPort);
-                    // 100 is the backlog. Not sure what the ideal number is, but 100 probably can't hurt.
-					ServerSocket NewSocket = new ServerSocket(otherPort, 100, thisInetAddress);
-					if (Handler.DEBUG_MODE()) System.out.println("Trying to accept socket of allPeers(" + i + ") known as peerID " + pp.allPeers.get(i).getPeerId() + " on port " + otherPort + " of address " + thisAddress);
+            int otherPort = pp.allPeers.get(i).getPeerPort();
+            String thisAddress =  ipAddresses.get(pp.allPeers.get(indexOfThisPeer).getPeerAddress());
+            InetAddress thisInetAddress = InetAddress.getByName(thisAddress);
+            if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Attempting to set up connection to " + pp.allPeers.get(i).getPeerId() + " which is on port " + otherPort);
+            // 100 is the backlog. Not sure what the ideal number is, but 100 probably can't hurt.
+            ServerSocket NewSocket = new ServerSocket(otherPort, 100, thisInetAddress);
+            if (Handler.DEBUG_MODE()) System.out.println("Trying to accept socket of allPeers(" + i + ") known as peerID " + pp.allPeers.get(i).getPeerId() + " on port " + otherPort + " of address " + thisAddress);
 					Socket GetIt = NewSocket.accept();
                     if (Handler.DEBUG_MODE()) System.out.println("Server socket Accepted");
                     GetIt.setKeepAlive(true);
@@ -174,7 +173,16 @@ public class Client {
 				System.out.println(" Starting at " + i);
 				System.out.println(" Getting number " + i);
                 }      
-            */				
+            */		
+			if (Handler.DEBUG_MODE()) System.out.println("Im Alive");
+			try {
+				for (int i=0; i < MyHandlerSet.size(); ++i) {
+					MyHandlerSet.get(i).join();
+				}		
+			} 
+			catch (InterruptedException  e) {
+				e.printStackTrace();
+			} 
         } catch (ConnectException e) {
             System.err.println("Connection refused. You need to initiate a server first.");
             e.printStackTrace();

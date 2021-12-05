@@ -17,7 +17,8 @@ public class Handler extends Thread {
 		volatile int CurrentState;
 		volatile boolean chokingTimerFlag;
 		volatile boolean optimisticTimerFlag;
-   
+		volatile boolean ExitNow;
+		volatile Vector<Boolean> PreviousBitfield = new Vector<Boolean>(0);
    
 		public void SleepTimer( int timeperiod ) {
 			try {
@@ -59,15 +60,40 @@ public class Handler extends Thread {
 				this.optimisticTimerFlag = true;
 				this.in = in;
 				this.out= out;
+				this.ExitNow = false;
+				this.connectedToPeerIdIncoming = -1;
                 if (this.DEBUG_MODE()) pp.logger.log("Connected to client number Handler Constructor Message");
+				for(int i = 0; i < pp.getCurrBitfield().size(); ++i) {
+					this.PreviousBitfield.add(i, pp.getCurrBitfield().get(i));
+				}
+				
 				
         }
 		
+        public synchronized void DEBUGPrintBitfieldPeern(int n) {			
+			if (this.DEBUG_MODE()) System.out.println("Peer i = " + n + " Bitfield is " + pp.allPeers.get(n).getBitfield());
+        }
+
+        public synchronized void CheckForAllPeersDone() {
+				boolean AllPiecesAllPeers = true;
+				boolean ThisPeer = false;
+				for(int i = 0; i < pp.allPeers.size(); ++i) {
+					ThisPeer = pp.allPeers.get(i).checkForAllPieces();
+					//if (this.DEBUG_MODE()) System.out.println("Checking Peer Number i = " + i + " Value = " + ThisPeer);
+					if (!ThisPeer) { // of all peers have the pieces, we can shut down
+						AllPiecesAllPeers = false;
+					}
+				}
+				this.ExitNow = AllPiecesAllPeers;
+        }
+		
+
 		public boolean WaitForInput(ObjectInputStream inStream) {   // busy wait for input
 			try{
 				int x = 0;
-                while (inStream.available() <= 0) {
+                while ((inStream.available() <= 0) && (!this.ExitNow)){
 					checkTimers();
+					CheckForAllPeersDone();
 				}
 			}
 		    catch(IOException ioException){
@@ -111,6 +137,7 @@ public class Handler extends Thread {
 				int x = 0;
                 while (inStream.available() <= 0) {
 					checkTimers();
+					CheckForAllPeersDone();
 				}
 			}
 		    catch(IOException ioException){
@@ -125,41 +152,29 @@ public class Handler extends Thread {
 		}
 
         public synchronized void sendChokeUnchokedMyselfOnly() {
-			int keepi = -1;
 			ByteBuffer aNewMessageToSend;
-			// the reason this is clones is because pp.UnChokingNeighbors might be changed by another thread, so making this local variable makes it safer to access
-			Vector<Integer> neighborsToUnChoke = new Vector(pp.UnChokingNeighbors);
-			for(int i = 0; i < neighborsToUnChoke.size(); ++i) {
-  			    if (this.DEBUG_MODE()) System.out.println("Send Unchoke Myself 1 " + neighborsToUnChoke.get(i) + " " + connectedToPeerIdIncoming );
-				// sometimes this line causes an index out of bounds exception. The only way this makes sense is if it's some race condition, so catch the error and move on.
-				Integer neighborToUnchoke = neighborsToUnChoke.get(i);
-				if (neighborsToUnChoke.get(i) == connectedToPeerIdIncoming) {
-				  keepi = i;
-				  aNewMessageToSend = Messages.createUnchokeMessage();
-				  //if (this.DEBUG_MODE()) System.out.println(" Send Unchoke Myself 1.1 " );
-                  sendMessage(aNewMessageToSend, out);  
-    			  //if (this.DEBUG_MODE()) System.out.println(" Peer ID " + pp.getPeerId() + " connected to " + peerConnected + " UnChoking message sent " + aNewMessageToSend + " keepi = " + keepi + " UnChokingNeighbors " + pp.UnChokingNeighbors);
-				}
-				if (keepi != -1) {
-					neighborsToUnChoke.remove(keepi);
+			if (connectedToPeerIdIncoming >= 0) {
+				if (this.DEBUG_MODE()) System.out.println(" Send Unchoke to "  + connectedToPeerIdIncoming + " NEWUnChokingNeighbors  = " + pp.NEWUnChokingNeighbors);
+				if (pp.NEWUnChokingNeighbors.get(pp.GetPeerIndexNumber(connectedToPeerIdIncoming))) {
+					pp.NEWUnChokingNeighbors.set(pp.GetPeerIndexNumber(connectedToPeerIdIncoming), false);  // same as below code 
+					aNewMessageToSend = Messages.createUnchokeMessage();
+					sendMessage(aNewMessageToSend, out);  
+
 				}
 			}
-			for(int i = 0; i < pp.ChokingNeighbors.size(); ++i) {
-				if (pp.ChokingNeighbors.get(i) == connectedToPeerIdIncoming) {
-					keepi = i;
+			if (connectedToPeerIdIncoming >= 0) {
+				if (this.DEBUG_MODE()) System.out.println(" Send Unchoke to "  + connectedToPeerIdIncoming + " NEWChokingNeighbors  = " + pp.NEWChokingNeighbors);
+				if (pp.NEWChokingNeighbors.get(pp.GetPeerIndexNumber(connectedToPeerIdIncoming))) {
+					pp.NEWChokingNeighbors.set(pp.GetPeerIndexNumber(connectedToPeerIdIncoming), false);  // same as below code 
 					aNewMessageToSend = Messages.createChokeMessage();
-					//if (this.DEBUG_MODE()) System.out.println(" Send Unchoke Myself 1.2 " );
 					sendMessage(aNewMessageToSend, out);  
-					//if (this.DEBUG_MODE()) System.out.println(" Peer ID " + pp.getPeerId() + " connected to " + peerConnected + " Choking message sent " + aNewMessageToSend);
 				}
-				if (keepi != -1) {
-					pp.ChokingNeighbors.remove(i);
-				}
-			} 
+			}
 		}
 
 		public synchronized void checkTimers() {
 			boolean doUnchoke = false;
+			ByteBuffer aNewMessageToSend;
 			//System.out.println("Check timers: " + this.chokingTimerFlag + " " + pp.chokingTimerFlag + " " + this.optimisticTimerFlag + " " + pp.optimisticTimerFlag);
 			if (this.chokingTimerFlag == pp.chokingTimerFlag) {
 			    //System.out.println("Check timers: " + this.chokingTimerFlag + " " + pp.chokingTimerFlag + " " + this.optimisticTimerFlag + " " + pp.optimisticTimerFlag);
@@ -175,6 +190,23 @@ public class Handler extends Thread {
 			}
 			if (doUnchoke) {
 				sendChokeUnchokedMyselfOnly();
+			}
+			// break into its own method
+			
+			Vector<Boolean> CurrentBitfield = new Vector<Boolean>(0);
+			ByteBuffer aNewMessageToSend2;
+			for(int i = 0; i < pp.getCurrBitfield().size(); ++i) {
+				CurrentBitfield.add(i, pp.getCurrBitfield().get(i));
+			}
+			for(int i = 0; i < CurrentBitfield.size(); ++i) {
+				if (CurrentBitfield.get(i) && !PreviousBitfield.get(i)) {  // now it is true, before it was false...
+					aNewMessageToSend2 = Messages.createHaveMessage(i);
+					if (this.DEBUG_MODE()) System.out.println(" Sending a Have Message for piece " + i );
+					sendMessage(aNewMessageToSend2, out);  
+				}
+			}
+			for(int i = 0; i < pp.getCurrBitfield().size(); ++i) {
+				this.PreviousBitfield.add(i, CurrentBitfield.get(i));
 			}
 		}
 
@@ -204,9 +236,10 @@ public class Handler extends Thread {
 			ByteBuffer newMessageToSend;
 			ByteBuffer IncomingMessage = ByteBuffer.allocate(65536); 
 			//try{
-				while(true)
+				while(!this.ExitNow)
 				{
 					checkTimers();
+					CheckForAllPeersDone();
 					switch (CurrentState) {
 						case 0: // Send Handshake
 							// create handshake message 
@@ -264,7 +297,13 @@ public class Handler extends Thread {
 										Messages.handleNotInterestedMessage(pp, peerConnected);
 										break;
 								case 4: // MessageType.HAVE.ordinal():
-										//handleHaveMessage(pp, peerConnected, IncomingMessage);
+										int pieceNumber = Messages.handleHaveMessage(pp, peerConnected, IncomingMessage);
+										CheckForAllPeersDone();  // flush out that last Have message...
+										if (this.DEBUG_MODE()) System.out.println(" ExitNow is " + this.ExitNow + " Piece Have was " + pieceNumber);
+										//DEBUGPrintBitfieldPeern(0);	
+										//DEBUGPrintBitfieldPeern(1);	
+										//DEBUGPrintBitfieldPeern(2);	
+										//if (this.DEBUG_MODE()) System.out.println("Thread of peer " +  pp.getPeerId() + " that is connected to peer " + peerConnected + " is here.");
 										break;
 								case 5: // MessageType.BITFIELD.ordinal():
 										boolean nowInterested = Messages.handleBitfieldMessage(IncomingMessage, pp, peerConnected, messageLength);
@@ -274,10 +313,11 @@ public class Handler extends Thread {
 											newMessageToSend = Messages.createNotInterestedMessage();
 										}
 										sendMessage(newMessageToSend, out); // send interest message
-										if (pp.doAllProcessesHaveTheFile()) {
-											if (this.DEBUG_MODE()) System.out.println("All processes have the file");
-											closeConnections();
-										} 	
+										//TODO: this block of code may not work. Maybe delete it
+										// if (pp.doAllProcessesHaveTheFile()) {
+										// 	if (this.DEBUG_MODE()) System.out.println("All processes have the file");
+										// 	closeConnections();
+										// } 	
 										break;
 								case 6: // MessageType.REQUEST.ordinal():
 										newMessageToSend = Messages.handleRequestMessage(pp, peerConnected, IncomingMessage);
@@ -299,10 +339,15 @@ public class Handler extends Thread {
 												sendMessage(newMessageToSend, out); // send new not intersted message 	
 												newMessageToSend = Messages.createBitfieldMessage(pp.getCurrBitfield());
 												sendMessage(newMessageToSend, out); // send new bitfield message
-												if (pp.doAllProcessesHaveTheFile()) {
-													if (this.DEBUG_MODE()) System.out.println("All processes have the file");
-													closeConnections();
-												}
+												
+												// TODO: the next 2 lines are what greg used to stop the program. The if block that follows is what Eric made. see which ones works better
+												checkTimers();
+												CheckForAllPeersDone();  // flush out that last Have message...
+
+												// if (pp.doAllProcessesHaveTheFile()) {
+												// 	if (this.DEBUG_MODE()) System.out.println("All processes have the file");
+												// 	closeConnections();
+												// }
 										}
 										break;
 								default: 
@@ -313,6 +358,14 @@ public class Handler extends Thread {
 							break;
 
 					} // switch for state machine
+					if (this.ExitNow)   { // quit when everyone has everything
+						if (this.DEBUG_MODE()) System.out.println("Thread of peer " +  pp.getPeerId() + " that is connected to peer " + peerConnected + " is quiting as all peers have their pieces.");
+						pp.ShutdownTimers();
+						flushOutBuffer(out);
+						SleepTimer(5000);
+						flushOutBuffer(out);
+						SleepTimer(5000);
+					}
 				} // while (true)
 		} // try / catch
 		//catch (EOFException e) {
@@ -335,8 +388,17 @@ public class Handler extends Thread {
         try {
             // stream write the message
 		    //if (this.DEBUG_MODEL3()) System.out.println(" Sending a Message " + msg.array());
-            outputLocation.write(msg.array());
-            outputLocation.flush();
+			//if (this.DEBUG_MODEL3()) System.out.println(" The connection was closed and exiting this handler.  This is thread " + originalId + " and connected to " + peerConnected);
+			outputLocation.write(msg.array());
+			outputLocation.flush();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+    }
+	
+    public synchronized void flushOutBuffer(ObjectOutputStream outputLocation) {
+        try {
+			outputLocation.flush();
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
