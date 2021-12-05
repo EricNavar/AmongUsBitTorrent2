@@ -3,16 +3,8 @@
 import java.net.*;
 import java.io.*;
 import java.util.*;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.math.BigInteger; 
-import java.security.MessageDigest; 
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
-import java.nio.channels.*;
-import java.lang.Thread;
- 
-import java.nio.*;
+
 import java.io.IOException;
 // idea of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
  
@@ -43,6 +35,7 @@ public class Client {
         InputStreamlist  = new Vector<ObjectInputStream>();
         OutputStreamlist = new Vector<ObjectOutputStream>();
 
+        // do not compile on the first few because lots of people are doing that, so it takes a very long time
         ipAddresses = new HashMap<String, String>();
         ipAddresses.put("lin114-00.cise.ufl.edu","10.242.94.34");
         ipAddresses.put("lin114-01.cise.ufl.edu","10.242.94.35");
@@ -85,10 +78,8 @@ public class Client {
 			//System.out.println(" pp.getPeerID() " + pp.getPeerId() + " pp.allPeers.get(i).getPeerId() " + pp.allPeers.get(0).getPeerId());
             if (Handler.DEBUG_MODE()) System.out.println(" peerID " + this.peerID + " fist one is " + pp.allPeers.get(0).getPeerId());
             // open to peers with a lower ID
-
             int indexOfThisPeer = pp.GetPeerIndexNumber(pp.getPeerId()); // index of this peer in allPeers
             for (int i = 0; i < indexOfThisPeer; i++) {
-                    Socket nextSock;
                     // if peer 1002 is trying to open up for peer 1001, then thisAddress = 10.242.94.35 and otherAddress = 10.242.94.34
 
 					int  thisPort =  pp.allPeers.get(indexOfThisPeer).getPeerPort();
@@ -99,37 +90,47 @@ public class Client {
 					String otherAddress = ipAddresses.get(pp.allPeers.get(i).getPeerAddress());
                     InetAddress otherInetAddress = InetAddress.getByName(otherAddress);
                     
-				    if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Index Number " + pp.GetIndexNumber() + " Attempting to set up Client connection to " + pp.allPeers.get(i).getPeerId() + " which is on port " + thisPort);
-					Socket NewSocket = new Socket(thisInetAddress, thisPort);
-                    NewSocket.setKeepAlive(true);
+				    if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Index Number " + pp.GetIndexNumber() + " Attempting to connect to localhost " + pp.allPeers.get(i).getPeerId() + " which is on port " + thisPort + " and address " + otherAddress);
 
-                    ObjectOutputStream out = new ObjectOutputStream(NewSocket.getOutputStream());
-                    out.flush();
-                    InputStream inputStream = NewSocket.getInputStream();
-                    ObjectInputStream in = new ObjectInputStream(inputStream);
-
-                    socketlist.add(NewSocket);
-					Handler MyHandler = new Handler(NewSocket, pp.allPeers.get(i).getPeerId(), pp, in, out);
-					MyHandlerSet.add(MyHandler);
-					MyHandler.start();
-                    if (Handler.DEBUG_MODE()) System.out.println("Created regular socket:\n\tReceiving from: " + pp.allPeers.get(i).getPeerId() + "\n\tLocal Address: " + NewSocket.getLocalAddress() + "\n\tLocal port " + NewSocket.getLocalPort() + "\n\tRemote address: " + otherAddress + "\n\tRemote port " + NewSocket.getPort());
-                    pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+                    boolean connected = false;
+                    boolean firstTimeConnected = true;
+                    while (!connected) {
+                        try{
+                            Socket NewSocket = new Socket(otherAddress, thisPort);
+                            NewSocket.setKeepAlive(true);
+                            ObjectOutputStream out = new ObjectOutputStream(NewSocket.getOutputStream());
+                            out.flush();
+                            InputStream inputStream = NewSocket.getInputStream();
+                            ObjectInputStream in = new ObjectInputStream(inputStream);
+                            socketlist.add(NewSocket);
+                            Handler MyHandler = new Handler(NewSocket, pp.allPeers.get(i).getPeerId(), pp, in, out);
+                            MyHandlerSet.add(MyHandler);
+                            MyHandler.start();
+                            if (Handler.DEBUG_MODE()) System.out.println("Created regular socket:\n\tReceiving from: " + pp.allPeers.get(i).getPeerId() + "\n\tLocal Address: " + NewSocket.getLocalAddress() + "\n\tLocal port " + NewSocket.getLocalPort() + "\n\tRemote address: " + otherAddress + "\n\tRemote port " + NewSocket.getPort());
+                            pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+                            connected = true;
+                        }
+                        catch (ConnectException e) {
+                            if (firstTimeConnected) {
+                                System.out.println("waiting for server to start");
+                                firstTimeConnected = false;
+                            }
+                            else {
+                                
+                            }
+                        }
+                    }
             }
-			// @ERIC_N  These next three lines truncate off the process from making the remaining connections.  Just won't happen... safe for Ubuntu not for CISE
-			//if (pp.getPeerId() >= 1002) {
-			//	while(true);
-			//}
-			if (Handler.DEBUG_MODE()) System.out.println(" Done with Lower peer connections ");
+            if (Handler.DEBUG_MODE()) System.out.println(" Done with Lower peer connections ");
             // talk to peers with a higher ID
-            for (int i = indexOfThisPeer+1; i < pp.allPeers.size(); i++) {
-                    Socket nextSock;
-					int otherPort = pp.allPeers.get(i).getPeerPort();
-					String thisAddress =  ipAddresses.get(pp.allPeers.get(indexOfThisPeer).getPeerAddress());
-                    InetAddress thisInetAddress = InetAddress.getByName(thisAddress);
-			        if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Attempting to set up Server connection to " + pp.allPeers.get(i).getPeerId() + " which is on port " + otherPort);
-                    // 100 is the backlog. Not sure what the ideal number is, but 100 probably can't hurt.
-					ServerSocket NewSocket = new ServerSocket(otherPort, 100, thisInetAddress);
-					if (Handler.DEBUG_MODE()) System.out.println("Waiting to accept socket of i = " + i + " known as peerID = " + pp.allPeers.get(i).getPeerId());
+            for (int i = indexOfThisPeer + 1; i < pp.allPeers.size(); i++) {
+            int otherPort = pp.allPeers.get(i).getPeerPort();
+            String thisAddress =  ipAddresses.get(pp.allPeers.get(indexOfThisPeer).getPeerAddress());
+            InetAddress thisInetAddress = InetAddress.getByName(thisAddress);
+            if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Attempting to set up connection to " + pp.allPeers.get(i).getPeerId() + " which is on port " + otherPort);
+            // 100 is the backlog. Not sure what the ideal number is, but 100 probably can't hurt.
+            ServerSocket NewSocket = new ServerSocket(otherPort, 100, thisInetAddress);
+            if (Handler.DEBUG_MODE()) System.out.println("Trying to accept socket of allPeers(" + i + ") known as peerID " + pp.allPeers.get(i).getPeerId() + " on port " + otherPort + " of address " + thisAddress);
 					Socket GetIt = NewSocket.accept();
                     if (Handler.DEBUG_MODE()) System.out.println("Server socket Accepted");
                     GetIt.setKeepAlive(true);
@@ -141,7 +142,7 @@ public class Client {
                     socketServerlist.add(NewSocket);
 					MyHandler.start();
                     if (Handler.DEBUG_MODE()) System.out.println("Created server socket:\n\tTalking to: " + pp.allPeers.get(i).getPeerId() + "\n\tLocal Address: " + GetIt.getLocalAddress() + "\n\tLocal port " + GetIt.getLocalPort() + "\n\tRemote port " + GetIt.getPort());
-                    pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+                    if (Handler.DEBUG_MODE()) pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
             }
 			if (Handler.DEBUG_MODE()) System.out.println(" Done with Higher peer connections ");
 		    

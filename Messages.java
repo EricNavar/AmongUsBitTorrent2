@@ -1,21 +1,12 @@
 
 import java.util.Vector;
 
-import javax.swing.JFormattedTextField.AbstractFormatterFactory;
 
 import java.nio.*;
-import java.rmi.Remote;
 import java.util.*;
-import java.nio.charset.StandardCharsets;
 
 // import java.io.FileWriter;   // https://www.w3schools.com/java/java_files_create.asp examples utilized as basis for creating file i/o code
-// import java.io.FileOutputStream;
-// import java.io.FileInputStream;
-// import java.io.FileReader;
 // idea of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
-// import java.io.IOException; 
-// import java.nio.channels.FileChannel;
-// import java.io.FileOutputStream;
 
 // This class is to hold the logic for creating and decoding messages.
 public class Messages {
@@ -342,6 +333,7 @@ public class Messages {
         if (length == 0) {
             return false;
         } else {
+            boolean hasFile = true;
             for (int i = 0; i < pp.getTotalPieces(); i++) {
                 int x = i / 8;
                 int y = i % 8;
@@ -352,22 +344,24 @@ public class Messages {
                 // send an interested message. Otherwise, send an uninterested message.
                 if ((pp.getCurrBitfield().get(i) == false) && (bitvalue == 1)) {
                     nowInterested = true;
-                    // break; // DO NOT Break, instead keep loading in and tracking the pieces this
-                    // peer has in it's posession
                 }
                 if (rpi == null) {
                    // System.out.println("ERROR: could not find peer info with id " + senderPeer);
                     return false;
                 }
                 // sets the index i to true of the peer that they have this piece
-                if(rpi.getBitfield().get(i) == true){}
-                else
+                if(!rpi.getBitfield().get(i)) {
                     rpi.getBitfield().set(i, bitvalue == 1);
+                }
+                if (bitvalue != 1) {
+                    hasFile = false;
+                }
             }
+            rpi.setHasFile(hasFile);
         }
-        pp.logger.log( "Received bitfield from " + senderPeer + ": " + pp.printBitfield(rpi.getBitfield()));
+        if (Handler.DEBUG_MODE()) pp.logger.log( "Received bitfield from " + senderPeer + ": " + pp.printBitfield(rpi.getBitfield()));
         if (Handler.DEBUG_MODE()) pp.logger.log("DEBUG The interest of " + pp.getPeerId() + " in " + senderPeer + " is set to " + nowInterested);
-
+        
         return nowInterested;
     }
 
@@ -380,7 +374,7 @@ public class Messages {
         // parse out the requested item into an integer to look up in the map structure
         int index = GetRequestMessageIndex(IncomingMessage);
 
-        if (Handler.DEBUG_MODE()) System.out.println("Peer " + senderPeer + " has requested piece " + index + " FileHandling f has " + f.getTotalPieces() + " pieces."); // debug statement. remove this later.
+        //if (Handler.DEBUG_MODE()) System.out.println("Peer " + senderPeer + " has requested piece " + index + " FileHandling f has " + f.getTotalPieces() + " pieces."); // debug statement. remove this later.
 
         if (f.CheckForPieceNumber(index)) { // if we actually have this piece in the stored location...
             int ThePieceLength;
@@ -394,13 +388,18 @@ public class Messages {
 			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + newMessageToSend.array()[0]  + " " + newMessageToSend.array()[1] + " " + newMessageToSend.array()[2] + " " + newMessageToSend.array()[3] + "]");
 			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + newMessageToSend.array()[4]  + " " + newMessageToSend.array()[5] + " " + newMessageToSend.array()[6] + " " + newMessageToSend.array()[7] + "]");
 			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + newMessageToSend.array()[8]  + " " + newMessageToSend.array()[9]);
-			//pp.logger.log("Send piece " + index + "."); //debug log. Remove this later.
+
+			if (Handler.DEBUG_MODE()) pp.logger.log("Send piece " + index + "."); //debug log. Remove this later.
+			RemotePeerInfo rpi = pp.getRemotePeerInfo(senderPeer);
+            rpi.incrementPiecesTransmitted();
+
 			return newMessageToSend;
             // sendMessage(newMessageToSend, out); // send the piece
         } else {
-            System.out.println("Some questionable character/actor identified as " + senderPeer + " asked for piece "
+            if (Handler.DEBUG_MODE()) System.out.println("Some questionable character/actor identified as " + senderPeer + " asked for piece "
                     + index + " but this peer known as " + pp.peerId + " does not have it...");
         }
+
 		return ThePiece;
     }
 
@@ -412,8 +411,8 @@ public class Messages {
         }
         // Moved to Handle or it will stop running...  pp.pieceMessages.add(createRequestMessage(pp.randomMissingPiece())); // ask for the next piece
         int index = GetPieceMessageNumber(IncomingMessage);
-        if (Handler.DEBUG_MODE()) System.out.println("Receive piece " + index + " from " + senderPeer + " length = " + length);
-        pp.logger.log("Receive piece " + index + " from " + senderPeer);
+        //if (Handler.DEBUG_MODE()) System.out.println("Receive piece " + index + " from " + senderPeer + " length = " + length);
+        if (Handler.DEBUG_MODE()) pp.logger.log("Receive piece " + index + " from " + senderPeer);
         // Done: write the piece to a file (wherever it should be written, idk) See
         // Below, handles logging of the received piece
         ByteBuffer GrabPieceData = ByteBuffer.allocate(65536); // Message is longer
@@ -426,9 +425,10 @@ public class Messages {
         // TODO: Santosh - I negated this condition, not sure what its supposed to be
         // doing
 		// Returend to orginal, this must be positive, checks for all pieces and writes the file
+
         if (pp.FileObject.CheckForAllPieces()) {
             StringBuilder filenameWrite = new StringBuilder();
-            filenameWrite.append(String.format("./peer_%04d/thefile", pp.peerId));
+            filenameWrite.append(String.format("./peer_%04d/" + pp.fileName, pp.peerId));
             pp.FileObject.WriteFileOut(filenameWrite.toString());
         }
 
@@ -437,7 +437,6 @@ public class Messages {
             pp.logger.log("ERROR: could not find peer info with id " + senderPeer);
             return;
         }
-        rpi.incrementPiecesTransmitted();
         // it may be the case that the peer already has the piece, so it's not new.
         boolean isNewPiece = !pp.getCurrBitfield().get(index);
         // update the bitfield
@@ -461,7 +460,7 @@ public class Messages {
 
         updateInterestedStatus(pp);
 
-        pp.logger.log(pp.printBitfield(pp.bitfield)); //debug message. delete this later.
+        if (Handler.DEBUG_MODE()) pp.logger.log(pp.printBitfield(pp.bitfield)); //debug message. delete this later.
     }
 
     // Whenever a peer receives a piece completely, it checks the bitfields of
@@ -471,7 +470,7 @@ public class Messages {
         for (int neighborId : pp.preferredNeighbors) {
             RemotePeerInfo preferredNeighbor = pp.getRemotePeerInfo(neighborId);
             if (preferredNeighbor != null && !pp.checkInterested(preferredNeighbor.getBitfield())) {
-                System.out.println("Not interested anymore");
+                if (Handler.DEBUG_MODE()) System.out.println("Not interested anymore");
                 pp.messagesToSend.add(createNotInterestedMessage());
             } else if (preferredNeighbor == null) {
                 //System.out.println("ERROR: could not find remote peer");
@@ -485,7 +484,6 @@ public class Messages {
         }
     }
 
-    // returns the peerId of the sender if it's a handshake message.
     public synchronized static int decodeMessage(peerProcess pp, ByteBuffer IncomingMessage, int senderPeer) {
         /*
          * if it's not a handshake message then it's an actual message. This is the

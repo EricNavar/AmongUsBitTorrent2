@@ -4,18 +4,13 @@
 // each piece is inserted and then when the entire file is ready to be printed
 // it can be printed out to a file name and directory location
 //
-//
 // Note: The file print must print out to a location that doss not already have a file
 // this means the startup script must delete the files if they are present.
-// ToDo: Automatically delete unwanted files
 
-//import java.net.*;
-//import java.io.*;
 import java.nio.*;
 import java.io.File;
 import java.util.*;
 
-//import java.io.FileWriter;
 import java.io.FileOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -93,8 +88,7 @@ public class FileHandling {
 
 	// this can be called before shutting down if there are things that need to be done like closing files
 	public void Shutdown() {
-		System.out.println("Shutting down the FileHandler for peer ID " + peerID);
-		System.exit(0);
+		if (Handler.DEBUG_MODE()) System.out.println("Shutting down the FileHandler for peer ID " + peerID);
 	}
 
 	// Writes out the entire file.
@@ -108,7 +102,6 @@ public class FileHandling {
 	// The file that is at an odd boundary can be written even if there are fewer
 	// than the buffersize of bytes in the piece.
 
-	// TODO: this function is not right at the moment. It's writing the
 	public synchronized boolean WriteFileOut(String FileNameInput) {
 		// Might fail if for some reason it didn't have totalPieces as needed.
 		int x;
@@ -205,9 +198,6 @@ public class FileHandling {
 		// newByteBuffer.remaining() " + newByteBuffer.remaining() + " versus
 		// PieceLength " + PieceLength);
 
-		// TODO: this next line fails when using Common.small.config instead of
-		// Common.config. Not sure if that's something we should consider.
-		// I made Common.small.config so we can have a smaller test case.
 		newByteBuffer.put(EntireFile.get(Integer.valueOf(pieceNumber)).array(), 0,
 				PieceLengths.get(Integer.valueOf(pieceNumber))); // put(byte[] src, int offset, int length) wjere byte[]
 																	// is incomingPiece.array(), start 0, length
