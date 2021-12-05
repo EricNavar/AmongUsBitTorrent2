@@ -395,6 +395,8 @@ public class Messages {
             System.out.println("Some questionable character/actor identified as " + senderPeer + " asked for piece "
                     + index + " but this peer known as " + pp.peerId + " does not have it...");
         }
+	        rpi.incrementPiecesTransmitted();
+
 		return ThePiece;
     }
 
@@ -430,7 +432,6 @@ public class Messages {
             pp.logger.log("ERROR: could not find peer info with id " + senderPeer);
             return;
         }
-        rpi.incrementPiecesTransmitted();
         // it may be the case that the peer already has the piece, so it's not new.
         boolean isNewPiece = !pp.getCurrBitfield().get(index);
         // update the bitfield
