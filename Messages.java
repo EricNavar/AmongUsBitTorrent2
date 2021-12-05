@@ -95,7 +95,7 @@ public class Messages {
     public  static ByteBuffer createHaveMessage(int index) {
         ByteBuffer MessageAssembly = ByteBuffer.allocate(9); // Message is 9 bytes
         MessageAssembly.putInt(5); // length is equal to 5
-        MessageAssembly.put(encodeType(MessageType.BITFIELD.ordinal()));
+        MessageAssembly.put(encodeType(MessageType.HAVE.ordinal()));
         MessageAssembly.putInt(index); // piece number is index
         return MessageAssembly;
     }
@@ -215,6 +215,9 @@ public class Messages {
     }
 
     public  static int GetMessageLength(ByteBuffer IncomingBuffer) {
+        if (IncomingBuffer.array().length < 4) {
+            throw new IndexOutOfBoundsException("Can't find message length from ByteBuffer of size " + IncomingBuffer.array().length);
+        }
         return ParseInteger(IncomingBuffer, 0);
     }
 
@@ -306,13 +309,18 @@ public class Messages {
     }
 
     // type 4
-    private static void handleHaveMessage(peerProcess pp, int senderPeer, ByteBuffer IncomingMessage) {
+    public static int handleHaveMessage(peerProcess pp, int senderPeer, ByteBuffer IncomingMessage) {
         int index = GetHavePieceNumber(IncomingMessage);
         RemotePeerInfo sender = pp.getRemotePeerInfo(senderPeer);
         if (sender == null) {
             //System.out.println("getRemotePeer is null");
-            return;
+            return -1;
         }
+		//if (Handler.DEBUG_MODE()) System.out.println("Received Have Message Piece " + index + " at peer " + senderPeer);
+		//if (Handler.DEBUG_MODE()) System.out.println(sender.getBitfield());
+		int getPeerIndexNumber = pp.GetPeerIndexNumber(senderPeer);
+		//if (Handler.DEBUG_MODE()) System.out.println(pp.allPeers.get(getPeerIndexNumber).getBitfield());
+        pp.allPeers.get(getPeerIndexNumber).getBitfield().set(index, true); // for some reason there are two parallel data items that do the same thing
         sender.getBitfield().set(index, true); // sets the index to true of the peer that they have this message
         pp.logger.onReceiveHaveMessage(senderPeer, index); // log that we received this comment
                                                            // If the receiver of this message does has the piece
@@ -323,6 +331,7 @@ public class Messages {
         //} else { // else ask for the message
         //    pp.client.sendMessage(createInterestedMessage());
         //}
+		return index;
     }
 
     // type 5
@@ -380,12 +389,12 @@ public class Messages {
             // get a copy of the piece
             ThePieceLength = pp.FileObject.GetPieceSize(index); // get the piece's length
             ByteBuffer newMessageToSend = createPieceMessage(ThePiece, index, ThePieceLength);
-			if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + index  + " Piece Length " + ThePieceLength + " Piece Remaining " + ThePiece.remaining() + " Piece limit " + ThePiece.limit());
-			if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + index  + " Piece Length " + ThePieceLength + " newMessageToSend Remaining " + newMessageToSend.remaining() + " newMessageToSend limit " + newMessageToSend.limit());
+			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + index  + " Piece Length " + ThePieceLength + " Piece Remaining " + ThePiece.remaining() + " Piece limit " + ThePiece.limit());
+			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + index  + " Piece Length " + ThePieceLength + " newMessageToSend Remaining " + newMessageToSend.remaining() + " newMessageToSend limit " + newMessageToSend.limit());
 			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + newMessageToSend.array()[0]  + " " + newMessageToSend.array()[1] + " " + newMessageToSend.array()[2] + " " + newMessageToSend.array()[3] + "]");
 			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + newMessageToSend.array()[4]  + " " + newMessageToSend.array()[5] + " " + newMessageToSend.array()[6] + " " + newMessageToSend.array()[7] + "]");
 			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + newMessageToSend.array()[8]  + " " + newMessageToSend.array()[9]);
-			pp.logger.log("Send piece " + index + "."); //debug log. Remove this later.
+			//pp.logger.log("Send piece " + index + "."); //debug log. Remove this later.
 			return newMessageToSend;
             // sendMessage(newMessageToSend, out); // send the piece
         } else {
@@ -410,7 +419,8 @@ public class Messages {
         ByteBuffer GrabPieceData = ByteBuffer.allocate(65536); // Message is longer
         GrabPieceData.put(Arrays.copyOfRange(IncomingMessage.array(), 9, length)); // Get the piece
         pp.FileObject.ReceivedAPiece(index, GrabPieceData, length - 9); // insert into the File Handler
-	    if (Handler.DEBUG_MODE()) System.out.println(" ***************** remaining = " + GrabPieceData.remaining() + " limit = " + GrabPieceData.limit());
+
+	    //if (Handler.DEBUG_MODE()) System.out.println(" ***************** remaining = " + GrabPieceData.remaining() + " limit = " + GrabPieceData.limit());
         // TODO: What do they mean by "partial files" maintained in current directory?
         // Are we supposed to support 100GB file transfers and cache to the drive?
         // TODO: Santosh - I negated this condition, not sure what its supposed to be
@@ -432,6 +442,9 @@ public class Messages {
         boolean isNewPiece = !pp.getCurrBitfield().get(index);
         // update the bitfield
         pp.getCurrBitfield().set(index, true);
+		int indexOfThisPeer = pp.GetPeerIndexNumber(pp.getPeerId()); // index of this peer in allPeers
+        //if (Handler.DEBUG_MODE()) System.out.println("I " + indexOfThisPeer + " have all pieces " + index + " pp.getRemotePeerInfo(indexOfThisPeer) " + pp.allPeers.get(indexOfThisPeer));
+		pp.allPeers.get(indexOfThisPeer).setReceivedPieceBitfield(index);  // set the remote peer bitfield as well 
 
         if (isNewPiece) {
             pp.incrementCollectedPieces();

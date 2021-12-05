@@ -58,6 +58,16 @@ public class RemotePeerInfo {
 		}
 	}
 
+	public synchronized boolean checkForAllPieces() {
+		boolean haveAllPieces = true;
+		for (int i = 0; i < bitfield.size(); i++) {
+			if (!bitfield.get(i)) {
+				haveAllPieces = false;
+			}
+		}
+		return haveAllPieces;
+	}
+
 	public synchronized int getPeerId() {
 		return peerId; // im gonna cum
 	}
@@ -72,6 +82,10 @@ public class RemotePeerInfo {
 
 	public synchronized String getPeerAddress() {
 		return peerAddress;
+	}
+
+	public synchronized void setReceivedPieceBitfield(int pieceArrived) {
+		this.bitfield.set(pieceArrived, true);
 	}
 
 	public synchronized void setBitfield(Vector<Boolean> bitfield) {
