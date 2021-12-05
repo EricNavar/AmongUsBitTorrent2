@@ -92,26 +92,33 @@ public class Client {
                     
 				    if (Handler.DEBUG_MODE()) System.out.println(" I am " + pp.getPeerId() + " Index Number " + pp.GetIndexNumber() + " Attempting to connect to localhost " + pp.allPeers.get(i).getPeerId() + " which is on port " + thisPort + " and address " + otherAddress);
                     boolean connected = false;
+                    boolean firstTimeConnected = true;
                     while (!connected) {
-                    try{
-                    Socket NewSocket = new Socket(otherAddress, thisPort);
-                    NewSocket.setKeepAlive(true);
+                        try{
+                            Socket NewSocket = new Socket(otherAddress, thisPort);
+                            NewSocket.setKeepAlive(true);
 
-                    ObjectOutputStream out = new ObjectOutputStream(NewSocket.getOutputStream());
-                    out.flush();
-                    InputStream inputStream = NewSocket.getInputStream();
-                    ObjectInputStream in = new ObjectInputStream(inputStream);
+                            ObjectOutputStream out = new ObjectOutputStream(NewSocket.getOutputStream());
+                            out.flush();
+                            InputStream inputStream = NewSocket.getInputStream();
+                            ObjectInputStream in = new ObjectInputStream(inputStream);
 
-                    socketlist.add(NewSocket);
-					Handler MyHandler = new Handler(NewSocket, pp.allPeers.get(i).getPeerId(), pp, in, out);
-					MyHandler.start();
-                    if (Handler.DEBUG_MODE()) System.out.println("Created regular socket:\n\tReceiving from: " + pp.allPeers.get(i).getPeerId() + "\n\tLocal Address: " + NewSocket.getLocalAddress() + "\n\tLocal port " + NewSocket.getLocalPort() + "\n\tRemote address: " + otherAddress + "\n\tRemote port " + NewSocket.getPort());
-                    if (Handler.DEBUG_MODE()) pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
-                    connected = true;
-                    }
-                    catch (ConnectException e) {
-                        System.out.println("waiting for server to start");
-                    }
+                            socketlist.add(NewSocket);
+                            Handler MyHandler = new Handler(NewSocket, pp.allPeers.get(i).getPeerId(), pp, in, out);
+                            MyHandler.start();
+                            if (Handler.DEBUG_MODE()) System.out.println("Created regular socket:\n\tReceiving from: " + pp.allPeers.get(i).getPeerId() + "\n\tLocal Address: " + NewSocket.getLocalAddress() + "\n\tLocal port " + NewSocket.getLocalPort() + "\n\tRemote address: " + otherAddress + "\n\tRemote port " + NewSocket.getPort());
+                            if (Handler.DEBUG_MODE()) pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+                            connected = true;
+                        }
+                        catch (ConnectException e) {
+                            if (firstTimeConnected) {
+                                System.out.println("waiting for server to start");
+                                firstTimeConnected = false;
+                            }
+                            else {
+                                
+                            }
+                        }
                     }
             }
 			if (Handler.DEBUG_MODE()) System.out.println(" Done with Lower peer connections ");
