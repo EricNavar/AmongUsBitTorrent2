@@ -352,7 +352,9 @@ class peerProcess {
     }
 
     public boolean doAllProcessesHaveTheFile() {
+        System.out.println("doAllProcessesHaveTheFile");
         for (RemotePeerInfo peer: peerInfoVector) {
+            System.out.println(peer.getPeerId() + ": " + peer.hasFile());
             if (!peer.hasFile()) {
                 return false;
             }
@@ -370,7 +372,8 @@ class peerProcess {
 				String[] tokens = st.split("\\s+");
 				// don't include this process in the vector of remote peers so that it can't
 				// be selected as a preferred neighbor
-				// 1001 lin114-00.cise.ufl.edu 6001 1  <PeerID> <DNS Machine> <Port> <HasFile>
+                // <PeerID> <DNS Machine> <Port> <HasFile>
+				// 1001 lin114-00.cise.ufl.edu 6001 1
 				allPeers.add(new RemotePeerInfo(tokens[0], tokens[1], tokens[2], tokens[3]));
 
 				if (Integer.parseInt(tokens[0]) == peerId) {

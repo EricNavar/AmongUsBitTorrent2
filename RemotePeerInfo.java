@@ -70,6 +70,10 @@ public class RemotePeerInfo {
 		return hasFile;
 	}
 
+	public synchronized void setHasFile(boolean hasFile) {
+		this.hasFile = hasFile;
+	}
+
 	public synchronized String getPeerAddress() {
 		return peerAddress;
 	}

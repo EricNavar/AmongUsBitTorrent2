@@ -9,13 +9,7 @@ import java.util.*;
 import java.nio.charset.StandardCharsets;
 
 // import java.io.FileWriter;   // https://www.w3schools.com/java/java_files_create.asp examples utilized as basis for creating file i/o code
-// import java.io.FileOutputStream;
-// import java.io.FileInputStream;
-// import java.io.FileReader;
 // idea of file output streams came from https://www.techiedelight.com/how-to-write-to-a-binary-file-in-java/
-// import java.io.IOException; 
-// import java.nio.channels.FileChannel;
-// import java.io.FileOutputStream;
 
 // This class is to hold the logic for creating and decoding messages.
 public class Messages {
@@ -336,6 +330,7 @@ public class Messages {
         if (length == 0) {
             return false;
         } else {
+            boolean hasFile = true;
             for (int i = 0; i < pp.getTotalPieces(); i++) {
                 int x = i / 8;
                 int y = i % 8;
@@ -346,22 +341,24 @@ public class Messages {
                 // send an interested message. Otherwise, send an uninterested message.
                 if ((pp.getCurrBitfield().get(i) == false) && (bitvalue == 1)) {
                     nowInterested = true;
-                    // break; // DO NOT Break, instead keep loading in and tracking the pieces this
-                    // peer has in it's posession
                 }
                 if (rpi == null) {
                    // System.out.println("ERROR: could not find peer info with id " + senderPeer);
                     return false;
                 }
                 // sets the index i to true of the peer that they have this piece
-                if(rpi.getBitfield().get(i) == true){}
-                else
+                if(!rpi.getBitfield().get(i)) {
                     rpi.getBitfield().set(i, bitvalue == 1);
+                }
+                if (bitvalue != 1) {
+                    hasFile = false;
+                }
             }
+            rpi.setHasFile(hasFile);
         }
-        pp.logger.log( "Received bitfield from " + senderPeer + ": " + pp.printBitfield(rpi.getBitfield()));
+        if (Handler.DEBUG_MODE()) pp.logger.log( "Received bitfield from " + senderPeer + ": " + pp.printBitfield(rpi.getBitfield()));
         if (Handler.DEBUG_MODE()) pp.logger.log("DEBUG The interest of " + pp.getPeerId() + " in " + senderPeer + " is set to " + nowInterested);
-
+        
         return nowInterested;
     }
 
@@ -478,7 +475,6 @@ public class Messages {
         }
     }
 
-    // returns the peerId of the sender if it's a handshake message.
     public synchronized static int decodeMessage(peerProcess pp, ByteBuffer IncomingMessage, int senderPeer) {
         /*
          * if it's not a handshake message then it's an actual message. This is the

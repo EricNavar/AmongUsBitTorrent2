@@ -94,7 +94,6 @@ public class FileHandling {
 	// this can be called before shutting down if there are things that need to be done like closing files
 	public void Shutdown() {
 		if (Handler.DEBUG_MODE()) System.out.println("Shutting down the FileHandler for peer ID " + peerID);
-		System.exit(0);
 	}
 
 	// Writes out the entire file.
