@@ -313,10 +313,11 @@ public class Handler extends Thread {
 											newMessageToSend = Messages.createNotInterestedMessage();
 										}
 										sendMessage(newMessageToSend, out); // send interest message
-										if (pp.doAllProcessesHaveTheFile()) { //TODO: this block of code may not work. Maybe delete it
-											if (this.DEBUG_MODE()) System.out.println("All processes have the file");
-											closeConnections();
-										} 	
+										//TODO: this block of code may not work. Maybe delete it
+										// if (pp.doAllProcessesHaveTheFile()) {
+										// 	if (this.DEBUG_MODE()) System.out.println("All processes have the file");
+										// 	closeConnections();
+										// } 	
 										break;
 								case 6: // MessageType.REQUEST.ordinal():
 										newMessageToSend = Messages.handleRequestMessage(pp, peerConnected, IncomingMessage);
@@ -338,14 +339,15 @@ public class Handler extends Thread {
 												sendMessage(newMessageToSend, out); // send new not intersted message 	
 												newMessageToSend = Messages.createBitfieldMessage(pp.getCurrBitfield());
 												sendMessage(newMessageToSend, out); // send new bitfield message
-												// the next 2 lines are what greg used to stop the program. The if block that follows is what Eric made. see which ones works better
+												
+												// TODO: the next 2 lines are what greg used to stop the program. The if block that follows is what Eric made. see which ones works better
 												checkTimers();
 												CheckForAllPeersDone();  // flush out that last Have message...
 
-												if (pp.doAllProcessesHaveTheFile()) {
-													if (this.DEBUG_MODE()) System.out.println("All processes have the file");
-													closeConnections();
-												}
+												// if (pp.doAllProcessesHaveTheFile()) {
+												// 	if (this.DEBUG_MODE()) System.out.println("All processes have the file");
+												// 	closeConnections();
+												// }
 										}
 										break;
 								default: 
