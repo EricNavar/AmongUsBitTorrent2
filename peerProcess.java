@@ -352,9 +352,7 @@ class peerProcess {
     }
 
     public boolean doAllProcessesHaveTheFile() {
-        System.out.println("doAllProcessesHaveTheFile");
         for (RemotePeerInfo peer: peerInfoVector) {
-            System.out.println(peer.getPeerId() + ": " + peer.hasFile());
             if (!peer.hasFile()) {
                 return false;
             }

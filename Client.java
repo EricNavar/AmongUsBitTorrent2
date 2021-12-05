@@ -112,7 +112,7 @@ public class Client {
 					Handler MyHandler = new Handler(NewSocket, pp.allPeers.get(i).getPeerId(), pp, in, out);
 					MyHandler.start();
                     if (Handler.DEBUG_MODE()) System.out.println("Created regular socket:\n\tReceiving from: " + pp.allPeers.get(i).getPeerId() + "\n\tLocal Address: " + NewSocket.getLocalAddress() + "\n\tLocal port " + NewSocket.getLocalPort() + "\n\tRemote address: " + otherAddress + "\n\tRemote port " + NewSocket.getPort());
-                    pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+                    if (Handler.DEBUG_MODE()) pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
             }
 			if (Handler.DEBUG_MODE()) System.out.println(" Done with Lower peer connections ");
             // talk to peers with a higher ID

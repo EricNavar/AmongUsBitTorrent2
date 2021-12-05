@@ -385,7 +385,7 @@ public class Messages {
 			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + newMessageToSend.array()[0]  + " " + newMessageToSend.array()[1] + " " + newMessageToSend.array()[2] + " " + newMessageToSend.array()[3] + "]");
 			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + newMessageToSend.array()[4]  + " " + newMessageToSend.array()[5] + " " + newMessageToSend.array()[6] + " " + newMessageToSend.array()[7] + "]");
 			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + newMessageToSend.array()[8]  + " " + newMessageToSend.array()[9]);
-			pp.logger.log("Send piece " + index + "."); //debug log. Remove this later.
+			if (Handler.DEBUG_MODE()) pp.logger.log("Send piece " + index + "."); //debug log. Remove this later.
 			RemotePeerInfo rpi = pp.getRemotePeerInfo(senderPeer);
             rpi.incrementPiecesTransmitted();
 
@@ -408,7 +408,7 @@ public class Messages {
         // Moved to Handle or it will stop running...  pp.pieceMessages.add(createRequestMessage(pp.randomMissingPiece())); // ask for the next piece
         int index = GetPieceMessageNumber(IncomingMessage);
         if (Handler.DEBUG_MODE()) System.out.println("Receive piece " + index + " from " + senderPeer + " length = " + length);
-        pp.logger.log("Receive piece " + index + " from " + senderPeer);
+        if (Handler.DEBUG_MODE()) pp.logger.log("Receive piece " + index + " from " + senderPeer);
         // Done: write the piece to a file (wherever it should be written, idk) See
         // Below, handles logging of the received piece
         ByteBuffer GrabPieceData = ByteBuffer.allocate(65536); // Message is longer
@@ -451,7 +451,7 @@ public class Messages {
 
         updateInterestedStatus(pp);
 
-        pp.logger.log(pp.printBitfield(pp.bitfield)); //debug message. delete this later.
+        if (Handler.DEBUG_MODE()) pp.logger.log(pp.printBitfield(pp.bitfield)); //debug message. delete this later.
     }
 
     // Whenever a peer receives a piece completely, it checks the bitfields of

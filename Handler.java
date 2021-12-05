@@ -61,7 +61,7 @@ public class Handler extends Thread {
 				this.optimisticTimerFlag = true;
 				this.in = in;
 				this.out= out;
-                pp.logger.log("Connected to client number Handler Constructor Message");
+                if (this.DEBUG_MODE()) pp.logger.log("Connected to client number Handler Constructor Message");
 				
         }
 		
@@ -281,7 +281,7 @@ public class Handler extends Thread {
 										newMessageToSend = Messages.handleRequestMessage(pp, peerConnected, IncomingMessage);
 										sendMessage(newMessageToSend, out); // send iinterst message 	
 										//pp.logger.log("Creating piece message. Piece size = " + ThePieceLength + ", Piece message size = " + GetMessageLength(newMessageToSend));
-										pp.logger.log("Send piece " + Messages.GetPieceMessageNumber(newMessageToSend) + "."); //debug log. Remove this later.
+										if (this.DEBUG_MODE()) pp.logger.log("Send piece " + Messages.GetPieceMessageNumber(newMessageToSend) + ".");
 										break;
 								case 7: // MessageType.PIECE.ordinal():
 									    //if (this.DEBUG_MODE()) System.out.println(" Captured Piece remaining = " + IncomingMessage.remaining() + " limit = " + IncomingMessage.limit() + " message length +4 " + messageLength+4);
