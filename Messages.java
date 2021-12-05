@@ -389,13 +389,14 @@ public class Messages {
 			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + newMessageToSend.array()[4]  + " " + newMessageToSend.array()[5] + " " + newMessageToSend.array()[6] + " " + newMessageToSend.array()[7] + "]");
 			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + newMessageToSend.array()[8]  + " " + newMessageToSend.array()[9]);
 			pp.logger.log("Send piece " + index + "."); //debug log. Remove this later.
+			rpi.incrementPiecesTransmitted();
+
 			return newMessageToSend;
             // sendMessage(newMessageToSend, out); // send the piece
         } else {
             System.out.println("Some questionable character/actor identified as " + senderPeer + " asked for piece "
                     + index + " but this peer known as " + pp.peerId + " does not have it...");
         }
-	        rpi.incrementPiecesTransmitted();
 
 		return ThePiece;
     }
