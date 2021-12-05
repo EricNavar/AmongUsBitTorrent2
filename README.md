@@ -54,11 +54,28 @@ lin114-11.cise.ufl.edu  10.242.94.45
 
 ## peerProcess.java
 
-This contains the main method. Holds a reference for other objects like the logger and the file writer
+- This contains the main method. Holds a reference for other objects like the Logger, Client, FileWriter, MessagesHandler
+- reads both config files
+
+## RemotePeerInfo.java
+- A process uses a RemotePeerInfo object to hold data about other peers such as 
+  - has file
+  - bitfield
+  - port
+  - address
+  - is choked
+  - pieces transmitted (used for calculating preferred neighbor)
+
+## Client.java
+
+This is the client code. The starting point of this was the Client.java from Canvas. Client.java creates a Handler instance for each other peer that it handshakes with.
+
+## Handler
+The handler extends the thread class. When a handler detects that it has all the pieces, it sends a bitfield and safely closes the thread and the main peerProcess.
 
 ## Messages.java
 
-This handles messages
+This handles messages. It decodes the bytebuffers that are received from the inputstreams. It also encodes new messages to send
 
 ## MessageType.java
 
@@ -66,22 +83,19 @@ This just defines an enum for the message type
 
 ## Logger.java
 
-The Logger writes the logs
+The Logger writes the logs. Can also be used for general debugging
 
-## README.md
+## FileHandling.java
 
-You are literally reading the ReadMe
+This is for writing to the destination files, ex: thefile. It writes pieces as soon as it gets them.
 
-## Client.java
+## remove.sh
+- run `./remove.sh` to remove unnecessary files. .log files, .class files, and all the directories peer_1002/ through peer-1010/
 
-This is the client code. The starting point of this was the Client.java from Canvas  
-
-## FileHandler.java
-
-This is for writing to the destination files
-
-## unused files
+## unused files/
 - CFG.java
 - StartRemotePeers.java
+
+**All other files are unused or used for testing**
 
 ![](./peer_1001/tree.jpg)  
