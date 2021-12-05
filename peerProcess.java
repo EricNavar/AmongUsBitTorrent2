@@ -122,7 +122,6 @@ class peerProcess {
     public  peerProcess(int peerId) {
         this.peerId = peerId;
         logger = new Logger(peerId);
-        int numberOfPreferredNeighbors = 5; // set 5 as default
 
         try {
             // https://www.educative.io/edpresso/reading-the-nth-line-from-a-file-in-java
