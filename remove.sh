@@ -2,6 +2,7 @@ rm peer_1002/*
 rm peer_1003/*
 rm peer_1004/*
 rm peer_1005/*
+rm peer_1006*
 rm peer_1007/*
 rm peer_1008/*
 rm peer_1009/*
