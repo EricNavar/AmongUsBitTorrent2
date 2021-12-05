@@ -1,0 +1,11 @@
+rm peer_1002/*
+rm peer_1003/*
+rm peer_1004/*
+rm peer_1005/*
+rm peer_1007/*
+rm peer_1008/*
+rm peer_1009/*
+rm peer_1010/*
+rm peer_1011/*
+rm *.class
+rm *.log
