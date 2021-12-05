@@ -242,7 +242,7 @@ class peerProcess {
         resetPeerInfoPiecesTransmitted();
         if (Handler.DEBUG_MODE()) System.out.println("dwqwqdqwdqw"+preferredNeighbors);
 
-		if (Handler.DEBUG_MODEL2()) System.out.println(" Preferred Neighbors are " + preferredNeighbors);
+		if (Handler.DEBUG_MODEL2()) System.out.println("Preferred Neighbors are " + preferredNeighbors);
 
         // after recalculating the preferred neighbors, reset the value of the
         // transmitted data of all remote peers

@@ -2,6 +2,7 @@ import java.net.*;
 import java.io.*;
 import java.nio.*;
 import java.lang.Thread;
+import java.util.Vector;
 
 
 public class Handler extends Thread {
@@ -126,9 +127,13 @@ public class Handler extends Thread {
         public synchronized void sendChokeUnchokedMyselfOnly() {
 			int keepi = -1;
 			ByteBuffer aNewMessageToSend;
-			for(int i = 0; i < pp.UnChokingNeighbors.size(); ++i) {
-  			    if (this.DEBUG_MODE()) System.out.println(" Send Unchoke Myself 1 " + pp.UnChokingNeighbors.get(i) + " " + connectedToPeerIdIncoming );
-				if (pp.UnChokingNeighbors.get(i) == connectedToPeerIdIncoming) {
+			// the reason this is clones is because pp.UnChokingNeighbors might be changed by another thread, so making this local variable makes it safer to access
+			Vector<Integer> neighborsToUnChoke = new Vector(pp.UnChokingNeighbors);
+			for(int i = 0; i < neighborsToUnChoke.size(); ++i) {
+  			    if (this.DEBUG_MODE()) System.out.println("Send Unchoke Myself 1 " + neighborsToUnChoke.get(i) + " " + connectedToPeerIdIncoming );
+				// sometimes this line causes an index out of bounds exception. The only way this makes sense is if it's some race condition, so catch the error and move on.
+				Integer neighborToUnchoke = neighborsToUnChoke.get(i);
+				if (neighborsToUnChoke.get(i) == connectedToPeerIdIncoming) {
 				  keepi = i;
 				  aNewMessageToSend = Messages.createUnchokeMessage();
 				  //if (this.DEBUG_MODE()) System.out.println(" Send Unchoke Myself 1.1 " );
@@ -136,7 +141,7 @@ public class Handler extends Thread {
     			  //if (this.DEBUG_MODE()) System.out.println(" Peer ID " + pp.getPeerId() + " connected to " + peerConnected + " UnChoking message sent " + aNewMessageToSend + " keepi = " + keepi + " UnChokingNeighbors " + pp.UnChokingNeighbors);
 				}
 				if (keepi != -1) {
-					pp.UnChokingNeighbors.remove(keepi);
+					neighborsToUnChoke.remove(keepi);
 				}
 			}
 			for(int i = 0; i < pp.ChokingNeighbors.size(); ++i) {
@@ -242,7 +247,7 @@ public class Handler extends Thread {
 							int messageDecode = Messages.decodeMessage(pp, IncomingMessage, peerConnected);
 							int messageLength = Messages.GetMessageLength(IncomingMessage);
 							//   Decoding in this order (hard coded for now) enum MessageType {CHOKE, UNCHOKE, INTERESTED, NOT_INTERESTED, HAVE, BITFIELD, REQUEST, PIECE }
-							if (this.DEBUG_MODE()) System.out.println(" Message Received ID " + messageDecode + " Length " + messageLength + " Peer ID " + pp.getPeerId() + " From " + peerConnected);
+							if (this.DEBUG_MODE()) System.out.println("Message Received ID " + messageDecode + " Length " + messageLength + " Peer ID " + pp.getPeerId() + " From " + peerConnected);
 							switch(messageDecode) {
 								case 0: // MessageType.CHOKE.ordinal():
 										Messages.handleChokeMessage(pp, peerConnected);
