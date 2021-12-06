@@ -1,6 +1,6 @@
 # Computer Network Fundamentals Semester Project
 
-**video link:** ```https://uflorida-my.sharepoint.com/:v:/g/personal/ericnavar_ufl_edu/EZgaTtOL_k5Jv2H_YjfOSr8B1t8WuhS2GHO50XHzu-hF5Q?e=XFlRAn```
+**video link:** ```https://uflorida-my.sharepoint.com/:v:/g/personal/ericnavar_ufl_edu/EZgaTtOL_k5Jv2H_YjfOSr8B1t8WuhS2GHO50XHzu-hF5Q?e=m52HAU```
 
 # Zip
 
