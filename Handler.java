@@ -154,7 +154,7 @@ public class Handler extends Thread {
         public synchronized void sendChokeUnchokedMyselfOnly() {
 			ByteBuffer aNewMessageToSend;
 			if (connectedToPeerIdIncoming >= 0) {
-				if (this.DEBUG_MODE()) System.out.println(" Send Unchoke to "  + connectedToPeerIdIncoming + " NEWUnChokingNeighbors  = " + pp.NEWUnChokingNeighbors);
+				//if (this.DEBUG_MODE()) System.out.println(" Send Unchoke to "  + connectedToPeerIdIncoming + " NEWUnChokingNeighbors  = " + pp.NEWUnChokingNeighbors);
 				if (pp.NEWUnChokingNeighbors.get(pp.GetPeerIndexNumber(connectedToPeerIdIncoming))) {
 					pp.NEWUnChokingNeighbors.set(pp.GetPeerIndexNumber(connectedToPeerIdIncoming), false);  // same as below code 
 					aNewMessageToSend = Messages.createUnchokeMessage();

@@ -268,16 +268,18 @@ class peerProcess {
                 }
             }
         }
+        if (preferredNeighbors != newPreferredNeighbors) {
+            logger.onChangeOfPreferredNeighbors(preferredNeighbors);
+        }
         preferredNeighbors = newPreferredNeighbors;
         resetPeerInfoPiecesTransmitted();
-        if (Handler.DEBUG_MODE()) System.out.println("dwqwqdqwdqw" + preferredNeighbors);
+        if (Handler.DEBUG_MODE()) System.out.println(preferredNeighbors);
 
         if (Handler.DEBUG_MODEL2()) System.out.println("Preferred Neighbors are " + preferredNeighbors);
 
         // after recalculating the preferred neighbors, reset the value of the
         // transmitted data of all remote peers
 
-        logger.onChangeOfPreferredNeighbors(preferredNeighbors);
     }
     // this chooses which peer to optimisically unchoke. The peerInfoVector is
     // sorted by pieces transmitted, so choose any peer other than the first 4
@@ -297,8 +299,11 @@ class peerProcess {
         }
         Random rn = new Random();
         int randomPeerIndex = rn.nextInt(interested.size());
-        optimisticallyUnchokedPeer = interested.get(randomPeerIndex);
-        logger.onChangeOfOptimisticallyUnchokedNeighbor(optimisticallyUnchokedPeer);
+        int newOptimisticallyUnchokedPeer = interested.get(randomPeerIndex);
+        if (optimisticallyUnchokedPeer != newOptimisticallyUnchokedPeer) {
+            logger.onChangeOfOptimisticallyUnchokedNeighbor(optimisticallyUnchokedPeer);
+        }
+        optimisticallyUnchokedPeer = newOptimisticallyUnchokedPeer;
         return optimisticallyUnchokedPeer;
     }
 
