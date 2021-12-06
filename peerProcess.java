@@ -273,9 +273,9 @@ class peerProcess {
         }
         preferredNeighbors = newPreferredNeighbors;
         resetPeerInfoPiecesTransmitted();
-        if (Handler.DEBUG_MODE()) System.out.println(preferredNeighbors);
+        //if (Handler.DEBUG_MODE()) System.out.println(preferredNeighbors);
 
-        if (Handler.DEBUG_MODEL2()) System.out.println("Preferred Neighbors are " + preferredNeighbors);
+        //if (Handler.DEBUG_MODEL2()) System.out.println("Preferred Neighbors are " + preferredNeighbors);
 
         // after recalculating the preferred neighbors, reset the value of the
         // transmitted data of all remote peers
@@ -436,7 +436,7 @@ class peerProcess {
                 }
                 else if (isNeighbor(rpi.getPeerId()) && rpi.isChoked()) {
                     this.NEWUnChokingNeighbors.set(GetPeerIndexNumber(rpi.getPeerId()), true);  // same as above
-                    if (Handler.DEBUG_MODE()) System.out.println("Unchoking " + rpi.getPeerId() + " NEWUnChokingNeighbors = " + this.NEWUnChokingNeighbors);
+                    //if (Handler.DEBUG_MODE()) System.out.println("Unchoking " + rpi.getPeerId() + " NEWUnChokingNeighbors = " + this.NEWUnChokingNeighbors);
                     rpi.setChoked(false);
                 }
             }

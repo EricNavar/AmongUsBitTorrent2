@@ -163,7 +163,7 @@ public class Handler extends Thread {
 				}
 			}
 			if (connectedToPeerIdIncoming >= 0) {
-				if (this.DEBUG_MODE()) System.out.println(" Send Unchoke to "  + connectedToPeerIdIncoming + " NEWChokingNeighbors  = " + pp.NEWChokingNeighbors);
+				//if (this.DEBUG_MODE()) System.out.println(" Send Unchoke to "  + connectedToPeerIdIncoming + " NEWChokingNeighbors  = " + pp.NEWChokingNeighbors);
 				if (pp.NEWChokingNeighbors.get(pp.GetPeerIndexNumber(connectedToPeerIdIncoming))) {
 					pp.NEWChokingNeighbors.set(pp.GetPeerIndexNumber(connectedToPeerIdIncoming), false);  // same as below code 
 					aNewMessageToSend = Messages.createChokeMessage();
@@ -201,7 +201,7 @@ public class Handler extends Thread {
 			for(int i = 0; i < CurrentBitfield.size(); ++i) {
 				if (CurrentBitfield.get(i) && !PreviousBitfield.get(i)) {  // now it is true, before it was false...
 					aNewMessageToSend2 = Messages.createHaveMessage(i);
-					if (this.DEBUG_MODE()) System.out.println(" Sending a Have Message for piece " + i );
+					if (this.DEBUG_MODE()) System.out.println("Sending a Have Message for piece " + i );
 					sendMessage(aNewMessageToSend2, out);  
 				}
 			}
@@ -299,7 +299,7 @@ public class Handler extends Thread {
 								case 4: // MessageType.HAVE.ordinal():
 										int pieceNumber = Messages.handleHaveMessage(pp, peerConnected, IncomingMessage);
 										CheckForAllPeersDone();  // flush out that last Have message...
-										if (this.DEBUG_MODE()) System.out.println(" ExitNow is " + this.ExitNow + " Piece Have was " + pieceNumber);
+										//if (this.DEBUG_MODE()) System.out.println(" ExitNow is " + this.ExitNow + " Piece Have was " + pieceNumber);
 										//DEBUGPrintBitfieldPeern(0);	
 										//DEBUGPrintBitfieldPeern(1);	
 										//DEBUGPrintBitfieldPeern(2);	
@@ -387,7 +387,7 @@ public class Handler extends Thread {
     public synchronized void sendMessage(ByteBuffer msg, ObjectOutputStream outputLocation) {
         try {
             // stream write the message
-		    //if (this.DEBUG_MODEL3()) System.out.println(" Sending a Message " + msg.array());
+		    //if (this.DEBUG_MODEL3()) System.out.println("Sending a Message " + msg.array());
 			//if (this.DEBUG_MODEL3()) System.out.println(" The connection was closed and exiting this handler.  This is thread " + originalId + " and connected to " + peerConnected);
 			outputLocation.write(msg.array());
 			outputLocation.flush();
