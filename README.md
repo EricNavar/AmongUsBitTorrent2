@@ -4,7 +4,7 @@
 
 # Zip
 
-tar cvf proj1.tar peerProcess.java MessageType.java Logger.java RemotePeerInfo.java Client.java Messages.java FileHandling.java FileHandlingTest1.java Handler.java README.md compile.sh log_peer_1001.log log_peer_1002.log log_peer_1003.log
+tar cvf proj1.tar peerProcess.java MessageType.java Logger.java RemotePeerInfo.java Client.java Messages.java FileHandling.java FileHandlingTest1.java Handler.java README.md compile.sh log_peer_1001.log log_peer_1002.log log_peer_1003.log log_peer_1004.log
 
 # Members
 
