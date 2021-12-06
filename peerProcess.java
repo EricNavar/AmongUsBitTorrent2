@@ -268,9 +268,7 @@ class peerProcess {
                 }
             }
         }
-        if (preferredNeighbors != newPreferredNeighbors) {
-            logger.onChangeOfPreferredNeighbors(preferredNeighbors);
-        }
+        logger.onChangeOfPreferredNeighbors(preferredNeighbors);
         preferredNeighbors = newPreferredNeighbors;
         resetPeerInfoPiecesTransmitted();
         //if (Handler.DEBUG_MODE()) System.out.println(preferredNeighbors);
@@ -300,9 +298,7 @@ class peerProcess {
         Random rn = new Random();
         int randomPeerIndex = rn.nextInt(interested.size());
         int newOptimisticallyUnchokedPeer = interested.get(randomPeerIndex);
-        if (optimisticallyUnchokedPeer != newOptimisticallyUnchokedPeer) {
-            logger.onChangeOfOptimisticallyUnchokedNeighbor(optimisticallyUnchokedPeer);
-        }
+        logger.onChangeOfOptimisticallyUnchokedNeighbor(optimisticallyUnchokedPeer);
         optimisticallyUnchokedPeer = newOptimisticallyUnchokedPeer;
         return optimisticallyUnchokedPeer;
     }
