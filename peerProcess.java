@@ -232,10 +232,11 @@ class peerProcess {
             if (interested.size() <= numberOfPreferredNeighbors)
                 newPreferredNeighbors = interested;
             else {
-                while ((newPreferredNeighbors.size() != numberOfPreferredNeighbors)) {
-                    int rand = new Random().nextInt(interested.size());
-                    if (!newPreferredNeighbors.contains(interested.get(rand)))
-                        newPreferredNeighbors.add(interested.get(rand));
+                Random random = new Random();
+                while((newPreferredNeighbors.size() != numberOfPreferredNeighbors)) {
+                    int randInt = random.nextInt(interested.size());
+                    if (!newPreferredNeighbors.contains(interested.get(randInt)))
+                        newPreferredNeighbors.add(interested.get(randInt));
                 }
             }
 

@@ -44,7 +44,7 @@ public class Handler extends Thread {
 		}
 
         public static boolean DEBUG_MODE() {
-			return true;
+			return false;
 		}
 
         public synchronized void DebugLog( String MyMessage) {
