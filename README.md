@@ -1,6 +1,10 @@
 # Computer Network Fundamentals Semester Project
 
-**video link:** ```https://uflorida-my.sharepoint.com/:v:/g/personal/ericnavar_ufl_edu/Eeu9FPaEGstAq-FwhDckZewBWHXLGnUZPyhgZKSlorLf7w?e=4wCKaZ```
+**video link:** ```https://uflorida-my.sharepoint.com/:v:/g/personal/ericnavar_ufl_edu/EZgaTtOL_k5Jv2H_YjfOSr8B1t8WuhS2GHO50XHzu-hF5Q?e=XFlRAn```
+
+# Zip
+
+tar cvf proj1.tar peerProcess.java MessageType.java Logger.java RemotePeerInfo.java Client.java Messages.java FileHandling.java FileHandlingTest1.java Handler.java README.md compile.sh log_peer_1001.log log_peer_1002.log log_peer_1003.log
 
 # Members
 
