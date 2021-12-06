@@ -359,8 +359,8 @@ public class Messages {
             }
             rpi.setHasFile(hasFile);
         }
-        if (Handler.DEBUG_MODE()) pp.logger.log( "Received bitfield from " + senderPeer + ": " + pp.printBitfield(rpi.getBitfield()));
-        if (Handler.DEBUG_MODE()) pp.logger.log("DEBUG The interest of " + pp.getPeerId() + " in " + senderPeer + " is set to " + nowInterested);
+        //if (Handler.DEBUG_MODE()) pp.logger.log( "Received bitfield from " + senderPeer + ": " + pp.printBitfield(rpi.getBitfield()));
+        //if (Handler.DEBUG_MODE()) pp.logger.log("DEBUG The interest of " + pp.getPeerId() + " in " + senderPeer + " is set to " + nowInterested);
         
         return nowInterested;
     }
@@ -389,7 +389,7 @@ public class Messages {
 			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + newMessageToSend.array()[4]  + " " + newMessageToSend.array()[5] + " " + newMessageToSend.array()[6] + " " + newMessageToSend.array()[7] + "]");
 			//if (Handler.DEBUG_MODE()) System.out.println("Send Piece [" + newMessageToSend.array()[8]  + " " + newMessageToSend.array()[9]);
 
-			if (Handler.DEBUG_MODE()) pp.logger.log("Send piece " + index + "."); //debug log. Remove this later.
+			//if (Handler.DEBUG_MODE()) pp.logger.log("Send piece " + index + "."); //debug log. Remove this later.
 			RemotePeerInfo rpi = pp.getRemotePeerInfo(senderPeer);
 
             return newMessageToSend;
@@ -411,7 +411,7 @@ public class Messages {
         // Moved to Handle or it will stop running...  pp.pieceMessages.add(createRequestMessage(pp.randomMissingPiece())); // ask for the next piece
         int index = GetPieceMessageNumber(IncomingMessage);
         //if (Handler.DEBUG_MODE()) System.out.println("Receive piece " + index + " from " + senderPeer + " length = " + length);
-        if (Handler.DEBUG_MODE()) pp.logger.log("Receive piece " + index + " from " + senderPeer);
+        //if (Handler.DEBUG_MODE()) pp.logger.log("Receive piece " + index + " from " + senderPeer);
         // Done: write the piece to a file (wherever it should be written, idk) See
         // Below, handles logging of the received piece
         ByteBuffer GrabPieceData = ByteBuffer.allocate(65536); // Message is longer
@@ -433,7 +433,7 @@ public class Messages {
 
         RemotePeerInfo rpi = pp.getRemotePeerInfo(senderPeer);
         if (rpi == null) {
-            pp.logger.log("ERROR: could not find peer info with id " + senderPeer);
+            //pp.logger.log("ERROR: could not find peer info with id " + senderPeer);
             return;
         }
         // it may be the case that the peer already has the piece, so it's not new.
@@ -461,7 +461,7 @@ public class Messages {
         rpi.incrementPiecesTransmitted();
 
 
-        if (Handler.DEBUG_MODE()) pp.logger.log(pp.printBitfield(pp.bitfield)); //debug message. delete this later.
+        //if (Handler.DEBUG_MODE()) pp.logger.log(pp.printBitfield(pp.bitfield)); //debug message. delete this later.
     }
 
     // Whenever a peer receives a piece completely, it checks the bitfields of

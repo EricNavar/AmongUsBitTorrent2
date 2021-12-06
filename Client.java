@@ -107,7 +107,7 @@ public class Client {
                             MyHandlerSet.add(MyHandler);
                             MyHandler.start();
                             if (Handler.DEBUG_MODE()) System.out.println("Created regular socket:\n\tReceiving from: " + pp.allPeers.get(i).getPeerId() + "\n\tLocal Address: " + NewSocket.getLocalAddress() + "\n\tLocal port " + NewSocket.getLocalPort() + "\n\tRemote address: " + otherAddress + "\n\tRemote port " + NewSocket.getPort());
-                            pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+                            //pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
                             connected = true;
                         }
                         catch (ConnectException e) {
@@ -142,7 +142,7 @@ public class Client {
                     socketServerlist.add(NewSocket);
 					MyHandler.start();
                     if (Handler.DEBUG_MODE()) System.out.println("Created server socket:\n\tTalking to: " + pp.allPeers.get(i).getPeerId() + "\n\tLocal Address: " + GetIt.getLocalAddress() + "\n\tLocal port " + GetIt.getLocalPort() + "\n\tRemote port " + GetIt.getPort());
-                    if (Handler.DEBUG_MODE()) pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+                    //if (Handler.DEBUG_MODE()) pp.logger.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
             }
 			if (Handler.DEBUG_MODE()) System.out.println(" Done with Higher peer connections ");
 		    

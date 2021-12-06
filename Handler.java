@@ -44,11 +44,11 @@ public class Handler extends Thread {
 		}
 
         public static boolean DEBUG_MODE() {
-			return false;
+			return true;
 		}
 
         public synchronized void DebugLog( String MyMessage) {
-			if (this.DEBUG_MODE()) pp.logger.log("DEBUG " + MyMessage);
+			//if (this.DEBUG_MODE()) pp.logger.log("DEBUG " + MyMessage);
 		}
 		
         public Handler(Socket connection, int peerConnected, peerProcess pp, ObjectInputStream in, ObjectOutputStream out) {
@@ -62,7 +62,7 @@ public class Handler extends Thread {
 				this.out= out;
 				this.ExitNow = false;
 				this.connectedToPeerIdIncoming = -1;
-                if (this.DEBUG_MODE()) pp.logger.log("Connected to client number Handler Constructor Message");
+                //if (this.DEBUG_MODE()) pp.logger.log("Connected to client number Handler Constructor Message");
 				for(int i = 0; i < pp.getCurrBitfield().size(); ++i) {
 					this.PreviousBitfield.add(i, pp.getCurrBitfield().get(i));
 				}
@@ -323,7 +323,7 @@ public class Handler extends Thread {
 										newMessageToSend = Messages.handleRequestMessage(pp, peerConnected, IncomingMessage);
 										sendMessage(newMessageToSend, out); // send iinterst message 	
 										//pp.logger.log("Creating piece message. Piece size = " + ThePieceLength + ", Piece message size = " + GetMessageLength(newMessageToSend));
-										if (this.DEBUG_MODE()) pp.logger.log("Send piece " + Messages.GetPieceMessageNumber(newMessageToSend) + ".");
+										//if (this.DEBUG_MODE()) pp.logger.log("Send piece " + Messages.GetPieceMessageNumber(newMessageToSend) + ".");
 										break;
 								case 7: // MessageType.PIECE.ordinal():
 									    //if (this.DEBUG_MODE()) System.out.println(" Captured Piece remaining = " + IncomingMessage.remaining() + " limit = " + IncomingMessage.limit() + " message length +4 " + messageLength+4);
