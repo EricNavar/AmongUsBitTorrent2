@@ -1,5 +1,7 @@
 # Computer Network Fundamentals Semester Project
 
+**video link:** https://uflorida-my.sharepoint.com/:v:/g/personal/ericnavar_ufl_edu/Eeu9FPaEGstAq-FwhDckZewBWHXLGnUZPyhgZKSlorLf7w?e=t3A3ja
+
 # Members
 
 - Eric Navar
